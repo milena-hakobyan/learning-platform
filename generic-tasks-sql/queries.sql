@@ -168,12 +168,8 @@ WITH country_people_counts AS (
     GROUP BY c.id
 ),
 continent_count AS (
-    SELECT
-        c.continent_id,
-        SUM(cpc.people_count) AS total_people
-    FROM country_people_counts cpc
-    JOIN countries c ON c.id = cpc.country_id
-    GROUP BY c.continent_id
+	FROM country_people_counts cpc
+		JOIN countries c ON c.id = cpc.country_id
 ),
 max_count AS (
     SELECT MAX(total_people) AS max_people

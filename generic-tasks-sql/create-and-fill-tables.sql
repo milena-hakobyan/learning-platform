@@ -1,8 +1,3 @@
-DROP TABLE IF EXISTS person_citizenship;
-DROP TABLE IF EXISTS people;
-DROP TABLE IF EXISTS countries;
-DROP TABLE IF EXISTS continents;
-
 CREATE TABLE IF NOT EXISTS continents (
 	id SERIAL PRIMARY KEY,
 	name VARCHAR(40) NOT NULL,

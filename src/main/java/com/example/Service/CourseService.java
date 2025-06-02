@@ -18,7 +18,6 @@ public interface CourseService {
 
     void addLessonToCourse(String courseId, Lesson lesson);
 
-
     void removeLessonFromCourse(String courseId, String lessonId);
 
     void enrollStudent(String courseId, Student student);

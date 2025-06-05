@@ -121,7 +121,7 @@ HAVING AVG(c.population) < 20000000;
 --task#5a Person with the biggest number of citizenships
 WITH citizenship_counts AS (
 	SELECT p.*, COUNT(*) AS cnt
-	FROM person_citizenship pc
+	FROM person_citizenships pc
 		JOIN people p ON pc.person_id = p.id
 	GROUP BY p.id
 ),
@@ -137,56 +137,62 @@ JOIN max_count mc ON cc.cnt = mc.max_cnt;
 --task#5b All people who have no citizenship
 SELECT p.*
 FROM people p 
-	LEFT JOIN person_citizenship pc ON p.id = pc.person_id
+	LEFT JOIN person_citizenships pc ON p.id = pc.person_id
 WHERE pc.person_id IS NULL;
 
 
 
 --task#5c Country with the least people in People table
 WITH country_people_counts AS (
-	SELECT c.id, c.name, COUNT(*) cnt
-	FROM countries c 
-		JOIN person_citizenship pc ON c.id = pc.country_id
+	SELECT c.id, c.name, COUNT(pc.person_id) ppl_count
+	FROM countries c
+		JOIN person_citizenships pc ON c.id = pc.country_id
 	GROUP BY c.id, c.name
 ),
 min_count(value) AS (
-	SELECT MIN(cnt)
+	SELECT MIN(ppl_count)
 	FROM country_people_counts
 )
 SELECT cpc.*
 FROM country_people_counts cpc
-	JOIN min_count mc ON cpc.cnt = mc.value;
+	JOIN min_count mc ON cpc.ppl_count = mc.value;
 
 
 --task#5d Continent with the most people in People table
 WITH country_people_counts AS (
-	SELECT c.id AS country_id, COUNT(*) cnt
-	FROM countries c 
-		JOIN person_citizenship pc ON c.id = pc.country_id
-	GROUP BY c.id
+    SELECT
+        c.id AS country_id,
+        COUNT(pc.person_id) AS people_count  -- count people explicitly
+    FROM countries c
+    JOIN person_citizenships pc ON c.id = pc.country_id
+    GROUP BY c.id
 ),
 continent_count AS (
-	SELECT continent_id, SUM(cpc.cnt) people_count
-	FROM country_people_counts cpc
-		JOIN countries c ON c.id = cpc.country_id
-		JOIN continents cn ON cn.id = c.continent_id
-	GROUP BY continent_id
+    SELECT
+        c.continent_id,
+        SUM(cpc.people_count) AS total_people
+    FROM country_people_counts cpc
+    JOIN countries c ON c.id = cpc.country_id
+    GROUP BY c.continent_id
 ),
 max_count AS (
-	SELECT MAX(people_count) value
-	FROM continent_count
+    SELECT MAX(total_people) AS max_people
+    FROM continent_count
 )
-SELECT c.*, people_count
+SELECT
+    cn.*,
+    cc.total_people
 FROM continent_count cc
-	JOIN max_count mc ON cc.people_count = mc.value
-	JOIN continents c ON c.id = cc.continent_id;
+	JOIN max_count mc ON cc.total_people = mc.max_people
+	JOIN continents cn ON cn.id = cc.continent_id;
+
 
 
 
 --task#5e Find pairs of people with the same name - print 2 ids and the name
 SELECT p1.id, p2.id, p1.first_name, p1.last_name
-FROM people p1 
-	JOIN people p2 
-	ON p1.first_name = p2.first_name 
+FROM people p1
+	JOIN people p2
+	ON p1.first_name = p2.first_name
 	AND p1.last_name = p2.last_name
  	AND p1.id < p2.id

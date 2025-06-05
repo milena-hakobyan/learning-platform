@@ -30,12 +30,12 @@ CREATE TABLE IF NOT EXISTS people (
     phone VARCHAR(20)
 );
 
-CREATE TABLE IF NOT EXISTS person_citizenship (
+CREATE TABLE IF NOT EXISTS person_citizenships (
 	person_id INT,
 	country_id INT,
 	PRIMARY KEY (person_id, country_id),
-	CONSTRAINT fk_person_citizenship_on_people FOREIGN KEY (person_id) REFERENCES people(id),
-	CONSTRAINT fk_person_citizenship_on_countries FOREIGN KEY (country_id) REFERENCES countries(id)
+	CONSTRAINT fk_person_citizenships_on_people FOREIGN KEY (person_id) REFERENCES people(id),
+	CONSTRAINT fk_person_citizenships_on_countries FOREIGN KEY (country_id) REFERENCES countries(id)
 );
 
 -- Continents
@@ -126,7 +126,7 @@ INSERT INTO people (first_name, last_name, date_of_birth, gender, email, phone) 
 ('Zofia', 'Wojcik', '1994-04-04', 'Female', 'zofia.wojcik@example.com', '+48123456787');
 
 -- One citizenship each (person_ids: 1–35, excluding 6, 10, 15, 25, 30 — they'll have 2)
-INSERT INTO person_citizenship (person_id, country_id) VALUES
+INSERT INTO person_citizenships (person_id, country_id) VALUES
 (1, 4), (2, 10), (3, 5), (4, 6), (5, 1),
 (7, 13), (8, 2), (9, 14), (11, 13), (12, 14),
 (13, 11), (14, 8), (16, 9), (17, 2), (18, 9),
@@ -136,7 +136,7 @@ INSERT INTO person_citizenship (person_id, country_id) VALUES
 (36, 2), (37, 3), (38, 6), (39, 17), (40, 2);
 
 -- Two citizenships (person_ids: 6, 10, 15, 25, 30, 41, 42, 43, 44, 45)
-INSERT INTO person_citizenship (person_id, country_id) VALUES
+INSERT INTO person_citizenships (person_id, country_id) VALUES
 (6, 3), (6, 9),        -- Fatima: China + India
 (10, 2), (10, 8),      -- Julia: Germany + France
 (15, 5), (15, 11),     -- Oscar: Brazil + Egypt

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="01e92d9d-2e83-41bb-835d-9b57eb2067a8" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="JUnit5 Test Class" />
+        <option value="Class" />
+        <option value="Enum" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;milena-hakobyan&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/milena-hakobyan/learning-platform.git&quot;,
+    &quot;accountId&quot;: &quot;8e10f528-5ad7-425f-afa5-e330f852c4f7&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar!/org/junit/jupiter/api/AssertTrue.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar!/org/junit/jupiter/api/AssertionFailureBuilder.class" root0="SKIP_INSPECTION" />
+    <setting file="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar!/org/junit/jupiter/api/Assertions.class" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2xUirGvCzZqigqj0s4qEjTrcCX0" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.App.executor": "Run",
+    "Application.SqlInjectionDemo.executor": "Run",
+    "Docker.Docker Image.executor": "Run",
+    "Docker.Dockerfile.executor": "Run",
+    "Docker.docker-compose.yaml.app: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yaml: Compose Deployment.executor": "Run",
+    "JUnit.CourseServiceImplTest.executor": "Run",
+    "JUnit.CourseServiceTest.executor": "Run",
+    "JUnit.CourseServiceTest.testCreateCourse_AlreadyExistsById.executor": "Run",
+    "JUnit.CourseServiceTest.testDeleteCourse_DeletesAssignmentsAndSubmissions.executor": "Run",
+    "JUnit.DatabaseConnectionTest.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testDeleteUser.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteArgs.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteArgsDeleteUser.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteArgsUpdate.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteConsumerInsert.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteInsertMissingRequiredField.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testExecuteWithParameterCountMismatchThrows.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testFindManyReturnsAllResults.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testFindManyReturnsEmptyListWhenNoResults.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testFindOneReturnsCorrectResult.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testFindOneReturnsNullWhenNoResult.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testFindOneThrowsExceptionWhenMultipleResults.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testInsertDuplicateEmailThrows.executor": "Run",
+    "JUnit.DatabaseConnectionTest.testInsertDuplicateEmailThrowsException.executor": "Run",
+    "JUnit.InstructorServiceTest.executor": "Run",
+    "JUnit.StudentServiceTest.executor": "Run",
+    "JUnit.UserServiceTest.executor": "Run",
+    "Maven.learning-platform-service [clean].executor": "Run",
+    "Maven.learning-platform-service [compile].executor": "Run",
+    "Maven.learning-platform-service [package].executor": "Run",
+    "Maven.learning-platform-service [site].executor": "Run",
+    "Maven.learning-platform-service [test].executor": "Run",
+    "Maven.learning-platform-service [validate].executor": "Run",
+    "Maven.learning-platform-service [verify].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "last_opened_file_path": "/Users/mhakobyan/IdeaProjects/learning-platform-service/init-db",
+    "onboarding.tips.debug.path": "/Users/mhakobyan/IdeaProjects/learning-platform-service/src/main/java/org/example/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.example.Model" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/init-db" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/markdowns" />
+      <recent name="$PROJECT_DIR$/queries" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="com.example" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.example.Utils" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.CourseServiceTest.testDeleteCourse_DeletesAssignmentsAndSubmissions">
+    <configuration name="App" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.App" />
+      <module name="learning-platform-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CourseServiceTest.testCreateCourse_AlreadyExistsById" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="learning-platform-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example" />
+      <option name="MAIN_CLASS_NAME" value="com.example.CourseServiceTest" />
+      <option name="METHOD_NAME" value="testCreateCourse_AlreadyExistsById" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CourseServiceTest.testDeleteCourse_DeletesAssignmentsAndSubmissions" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="learning-platform-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example" />
+      <option name="MAIN_CLASS_NAME" value="com.example.CourseServiceTest" />
+      <option name="METHOD_NAME" value="testDeleteCourse_DeletesAssignmentsAndSubmissions" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DatabaseConnectionTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="learning-platform-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example" />
+      <option name="MAIN_CLASS_NAME" value="com.example.DatabaseConnectionTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DatabaseConnectionTest.testFindOneThrowsExceptionWhenMultipleResults" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="learning-platform-service" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.example" />
+      <option name="MAIN_CLASS_NAME" value="com.example.DatabaseConnectionTest" />
+      <option name="METHOD_NAME" value="testFindOneThrowsExceptionWhenMultipleResults" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="docker-image" temporary="true">
+      <deployment type="docker-image">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.CourseServiceTest.testDeleteCourse_DeletesAssignmentsAndSubmissions" />
+        <item itemvalue="JUnit.CourseServiceTest.testCreateCourse_AlreadyExistsById" />
+        <item itemvalue="Application.App" />
+        <item itemvalue="JUnit.DatabaseConnectionTest.testFindOneThrowsExceptionWhenMultipleResults" />
+        <item itemvalue="JUnit.DatabaseConnectionTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="01e92d9d-2e83-41bb-835d-9b57eb2067a8" name="Changes" comment="" />
+      <created>1747999251060</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1747999251060</updated>
+    </task>
+    <servers />
+  </component>
+</project>

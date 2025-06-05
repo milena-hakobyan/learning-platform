@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,7 +39,7 @@ class UserServiceTest {
     @Test
     void testRegisterUser_EmailAlreadyExists_ThrowsException() {
         when(userRepo.findByEmail("john@example.com"))
-                .thenReturn(new Student("John Doe", "john123", "john@example.com", "hashedPassword"));
+                .thenReturn(Optional.of(new Student("John Doe", "john123", "john@example.com", "hashedPassword")));
 
         assertThrows(IllegalArgumentException.class, () ->
                 userService.registerUser("John", "john123", "john@example.com", "password", Role.STUDENT));
@@ -47,8 +48,8 @@ class UserServiceTest {
     @Test
     void testLogin_Success() {
         String hashed = StringUtils.applySha256("password");
-        User user = new Student("John", "john123", "john@example.com", hashed);
-        when(userRepo.findByEmail("john@example.com")).thenReturn(user);
+        User user = new User("John", "john123", "john@example.com", hashed, Role.STUDENT);
+        when(userRepo.findByEmail("john@example.com")).thenReturn(Optional.of(user));
 
         User result = userService.login("john@example.com", "password");
 
@@ -66,7 +67,7 @@ class UserServiceTest {
     @Test
     void testUpdateUser_Success() {
         Student student = new Student("John", "john123", "john@example.com", "pass");
-        when(userRepo.findById(student.getUserId())).thenReturn(student);
+        when(userRepo.findById(student.getUserId())).thenReturn(Optional.of(student));
 
         userService.updateUser(student);
 
@@ -84,7 +85,7 @@ class UserServiceTest {
     @Test
     void testGetUserById_Success() {
         Student student = new Student("John", "john123", "john@example.com", "pass");
-        when(userRepo.findById(student.getUserId())).thenReturn(student);
+        when(userRepo.findById(student.getUserId())).thenReturn(Optional.of(student));
 
         User result = userService.getUserById(student.getUserId());
 
@@ -101,7 +102,7 @@ class UserServiceTest {
     @Test
     void testDeleteUser_Success() {
         Student student = new Student("John", "john123", "john@example.com", "pass");
-        when(userRepo.findById(student.getUserId())).thenReturn(student);
+        when(userRepo.findById(student.getUserId())).thenReturn(Optional.of(student));
 
         userService.deleteUser(student.getUserId());
 
@@ -134,7 +135,7 @@ class UserServiceTest {
     @Test
     void testGetUserByEmail_Success() {
         Student student = new Student("John", "john123", "john@example.com", "pass");
-        when(userRepo.findByEmail("john@example.com")).thenReturn(student);
+        when(userRepo.findByEmail("john@example.com")).thenReturn(Optional.of(student));
 
         User result = userService.getUserByEmail("john@example.com");
 
@@ -144,7 +145,7 @@ class UserServiceTest {
     @Test
     void testGetUserByUserName_Success() {
         Student student = new Student("John", "john123", "john@example.com", "pass");
-        when(userRepo.findByUsername("john123")).thenReturn(student);
+        when(userRepo.findByUsername("john123")).thenReturn(Optional.of(student));
 
         User result = userService.getUserByUserName("john123");
 

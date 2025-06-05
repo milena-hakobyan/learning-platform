@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -110,11 +109,11 @@ public class StudentServiceTest {
     }
 
     @Test
-    public void testBrowseCoursesReturnsAllCourses() {
+    public void testBrowseCoursesReturnsAllAvailableCourses() {
         Course anotherCourse = new Course("CS121", "Data Structures", "Learn about arrays, lists", "Core", student.getUserId());
         courseRepo.save(anotherCourse);
 
-        List<Course> allCourses = studentService.browseCourses();
+        List<Course> allCourses = studentService.browseAvailableCourses();
         assertEquals(2, allCourses.size());
     }
 

@@ -5,6 +5,7 @@ import com.example.Model.Assignment;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,13 @@ public class InMemoryAssignmentRepository implements AssignmentRepository {
     }
 
     @Override
-    public Assignment findById(String id) {
-        return assignmentMap.get(id);
+    public Optional<Assignment> findById(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null");
+        }
+        return Optional.ofNullable(assignmentMap.get(id));
     }
+
 
     @Override
     public List<Assignment> findAll() {
@@ -47,11 +52,9 @@ public class InMemoryAssignmentRepository implements AssignmentRepository {
     }
 
     @Override
-    public Assignment findByTitle(String title) {
+    public Optional<Assignment> findByTitle(String title) {
         return assignmentMap.values().stream()
                 .filter(assignment -> assignment.getTitle().equalsIgnoreCase(title))
-                .findFirst()
-                .orElse(null);
-
+                .findFirst();
     }
 }

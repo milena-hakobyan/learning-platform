@@ -112,16 +112,21 @@ public class App {
 
 
         System.out.println("\nList of assignments for Data Structures before removing midterm1:");
-        courseService.getCourseById("CS121").getAssignments().forEach(System.out::println);
+        courseService.getCourseById("CS121")
+                .ifPresent(course -> course.getAssignments().forEach(System.out::println));
         //Removing an assignment from a  course
-        courseService.removeAssignmentFromCourse("CS121", assignmentDS.getAssignmentId());
-        System.out.println("\nList of assignments for Data Structures after removing midterm1:");
-        courseService.getCourseById("CS121").getAssignments().forEach(System.out::println);
+        courseService.removeAssignmentFromCourse("CS121", midtermAssignmentDS.getAssignmentId());
+        System.out.println("\nList of assignments for Data Structures after removing midterm 1:");
+        courseService.getCourseById("CS121")
+                .ifPresent(course -> course.getAssignments().forEach(System.out::println));
+
 
         //Adding a submission(student) and grading the work(instructor)
-        studentService.submitAssignment(student1.getUserId(), midtermAssignmentDS.getAssignmentId(), "...some code...");
-        instructorService.gradeAssignment(midtermAssignmentDS, (Student) student1, new Grade(97,
+        studentService.submitAssignment(student1.getUserId(), assignmentDS.getAssignmentId(), "...some code...");
+        instructorService.gradeAssignment(assignmentDS, (Student) student1, new Grade(97,
                 "Good job! You forgot to implement the remove method (-3)", LocalDateTime.now()));
+
+        System.out.println("\nDisplay student1's submission for DS HW1");
         studentService.getSubmissions(student1.getUserId()).forEach(System.out::println);
     }
 }

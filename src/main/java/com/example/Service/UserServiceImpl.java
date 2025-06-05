@@ -7,7 +7,6 @@ import com.example.Model.User;
 import com.example.Repository.UserRepository;
 import com.example.Utils.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
@@ -17,70 +16,50 @@ public class UserServiceImpl implements UserService {
         this.userRepo = userRepo;
     }
 
-   
     @Override
     public User registerUser(String name, String username, String email, String rawPassword, Role role) {
-        if (userRepo.findByEmail(email) != null) {
+        if (userRepo.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already registered");
         }
+
         String hashedPassword = StringUtils.applySha256(rawPassword);
-        User user = null;
-        switch (role) {
-            case STUDENT:
-                user = new Student(name, username, email, hashedPassword);
-                break;
-            case INSTRUCTOR:
-                user = new Instructor(name, username, email, hashedPassword);
-                break;
-        }
+        User user = switch (role) {
+            case STUDENT -> new Student(name, username, email, hashedPassword);
+            case INSTRUCTOR -> new Instructor(name, username, email, hashedPassword);
+        };
 
         userRepo.save(user);
         return user;
     }
 
-
-
+    @Override
     public User login(String email, String password) {
-        User user = userRepo.findByEmail(email);
-        if (user == null || !user.getPassword().equals(StringUtils.applySha256(password))) {
-            throw new IllegalArgumentException("Invalid credentials");
-        }
-        return user;
+        return userRepo.findByEmail(email)
+                .filter(u -> u.getPassword().equals(StringUtils.applySha256(password)))
+                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
     }
 
     @Override
     public void updateUser(User user) {
-        if (userRepo.findById(user.getUserId()) == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        getExistingUser(user.getUserId()); // will throw if not found
         userRepo.save(user);
     }
 
     @Override
     public User getUserById(String userId) {
-        User user = userRepo.findById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return user;
+        return getExistingUser(userId);
     }
 
     @Override
     public User getUserByEmail(String email) {
-        User user = userRepo.findByEmail(email);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return user;
+        return userRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     @Override
     public User getUserByUserName(String userName) {
-        User user = userRepo.findByUsername(userName);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
-        return user;
+        return userRepo.findByUsername(userName)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     @Override
@@ -90,12 +69,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(String id) {
-        User user = userRepo.findById(id);
-        if (user == null) {
-            throw new IllegalArgumentException("User not found");
-        }
+        getExistingUser(id); // will throw if not found
         userRepo.delete(id);
     }
 
-
+    private User getExistingUser(String userId) {
+        return userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
 }

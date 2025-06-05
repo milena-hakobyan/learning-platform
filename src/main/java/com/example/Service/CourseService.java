@@ -3,6 +3,7 @@ package com.example.Service;
 import com.example.Model.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CourseService {
 
@@ -18,12 +19,11 @@ public interface CourseService {
 
     void addLessonToCourse(String courseId, Lesson lesson);
 
-
     void removeLessonFromCourse(String courseId, String lessonId);
 
     void enrollStudent(String courseId, Student student);
 
-    Course getCourseById(String courseId);
+    Optional<Course> getCourseById(String courseId);
 
     List<Course> getCoursesByInstructor(String instructorId);
 
@@ -31,7 +31,7 @@ public interface CourseService {
 
     List<Course> getCoursesByTags(List<String> tags);
 
-    Course getCourseByTitle(String title);
+    Optional<Course> getCourseByTitle(String title);
 
     List<Course> getAllCourses();
 

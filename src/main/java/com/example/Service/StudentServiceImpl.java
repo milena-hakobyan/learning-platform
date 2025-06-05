@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class StudentServiceImpl implements StudentService {
     private final UserService userService;
@@ -48,7 +49,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void enrollInCourse(String studentId, String courseId) {
         Student student = getStudentById(studentId);
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseService.getCourseById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
         courseService.enrollStudent(courseId, student);
         student.enroll(course);
@@ -58,7 +60,8 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void dropCourse(String studentId, String courseId) {
         Student student = getStudentById(studentId);
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseService.getCourseById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
         if (course == null) {
             throw new IllegalArgumentException("Course not found");
         }
@@ -75,7 +78,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Course> browseCourses() {
+    public List<Course> browseAvailableCourses() {
         return courseService.getAllCourses();
     }
 
@@ -92,20 +95,18 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void submitAssignment(String studentId, String assignmentId, String content) {
-        Student student = getStudentById(studentId); // assumes you have a helper method for casting + lookup
-        Assignment assignment = assignmentRepo.findById(assignmentId);
-        if (assignment == null) throw new IllegalArgumentException("Assignment not found");
+        Student student = getStudentById(studentId);
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        Course course = courseService.getCourseById(assignment.getCourseId());
-        if (course == null) throw new IllegalArgumentException("Course not found");
+        Course course = courseService.getCourseById(assignment.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
         if (!course.getEnrolledStudents().contains(student)) {
             throw new IllegalArgumentException("Student not enrolled in the course");
         }
 
-        Optional<Submission> existing = Optional.ofNullable(
-                submissionRepo.findByAssignmentIdAndStudentId(assignmentId, studentId)
-        );
+        Optional<Submission> existing = submissionRepo.findByAssignmentIdAndStudentId(assignmentId, studentId);
 
         if (existing.isPresent()) {
             throw new IllegalStateException("Assignment already submitted by the student");
@@ -122,40 +123,37 @@ public class StudentServiceImpl implements StudentService {
     public Map<Course, Map<Assignment, Grade>> viewGrades(String studentId) {
         Student student = getStudentById(studentId);
 
-        Map<Course, Map<Assignment, Grade>> grades = new HashMap<>();
-
-        for (Course course : getEnrolledCourses(studentId)) {
-            Map<Assignment, Grade> assignmentGrades = new HashMap<>();
-
-            for (Assignment assignment : course.getAssignments()) {
-                List<Submission> submissions = submissionRepo.findByAssignmentId(assignment.getAssignmentId());
-
-                for (Submission submission : submissions) {
-                    if (submission.getStudent().getUserId().equals(studentId)) {
-                        assignmentGrades.put(assignment, submission.getGrade());
-                    }
-                }
-            }
-
-            if (!assignmentGrades.isEmpty()) {
-                grades.put(course, assignmentGrades);
-            }
-        }
-
-        return grades;
+        return getEnrolledCourses(studentId).stream()
+                .map(course -> Map.entry(course, getGradesForCourse(course, student)))
+                .filter(entry -> !entry.getValue().isEmpty())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
+    private Map<Assignment, Grade> getGradesForCourse(Course course, Student student) {
+        return course.getAssignments().stream()
+                .map(assignment -> Map.entry(assignment, findGradeForStudent(assignment, student)))
+                .filter(entry -> entry.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private Grade findGradeForStudent(Assignment assignment, Student student) {
+        return submissionRepo.findByAssignmentId(assignment.getAssignmentId()).stream()
+                .filter(sub -> sub.getStudent().getUserId().equals(student.getUserId()))
+                .map(Submission::getGrade)
+                .findFirst()
+                .orElse(null);
+    }
+
 
     public void submitAssignment(String studentId, Submission submission) {
         User user = userService.getUserById(studentId);
-        if (user instanceof Student) {
-            Student student = (Student) user;
+        if (user instanceof Student student) {
             student.getSubmissions().add(submission);
             submissionRepo.save(submission);
         } else {
             throw new IllegalArgumentException("User is not a student.");
         }
     }
-
 
 
     @Override

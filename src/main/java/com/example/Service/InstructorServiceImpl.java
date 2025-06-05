@@ -11,7 +11,7 @@ public class InstructorServiceImpl implements InstructorService {
     private final CourseService courseService;
     private final AssignmentRepository assignmentRepo;
     private final SubmissionRepository submissionRepo;
-    private final AnnouncementRepository announcementRepo; // assume exists
+    private final AnnouncementRepository announcementRepo;
 
     public InstructorServiceImpl(UserService userService, CourseService courseService,
                                  AssignmentRepository assignmentRepo,
@@ -85,7 +85,7 @@ public class InstructorServiceImpl implements InstructorService {
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found for student"));
 
         submission.setGrade(grade);
-        submission.setStatus("graded");
+        submission.setStatus(SubmissionStatus.GRADED);
         submissionRepo.save(submission);
     }
 

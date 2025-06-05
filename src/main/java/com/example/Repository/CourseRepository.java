@@ -4,9 +4,10 @@ import com.example.Model.Course;
 import com.example.Model.Student;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CourseRepository extends CrudRepository<Course, String> {
-    Course findByTitle(String title);
+    Optional<Course> findByTitle(String title);
 
     void enrollStudent(String courseId, Student student);
 

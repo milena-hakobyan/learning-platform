@@ -11,7 +11,7 @@ public class Submission {
     private String contentLink;
     private Grade grade;
     private String instructorRemarks;
-    private String status;  //"submitted", "late", "graded"
+    private SubmissionStatus status;  //"submitted", "late", "graded"
 
     public Submission(Student student, Assignment assignment, String contentLink, LocalDateTime submittedAt) {
         this.submissionId = UUID.randomUUID().toString();
@@ -23,9 +23,9 @@ public class Submission {
         this.instructorRemarks = null;
 
         if (submittedAt.isAfter(assignment.getDueDate())) {
-            this.status = "late";
+            this.status = SubmissionStatus.LATE;
         } else {
-            this.status = "submitted";
+            this.status = SubmissionStatus.SUBMITTED;
         }
     }
 
@@ -78,11 +78,11 @@ public class Submission {
         this.grade = grade;
     }
 
-    public String getStatus() {
+    public SubmissionStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(SubmissionStatus status) {
         this.status = status;
     }
 

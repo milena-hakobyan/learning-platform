@@ -6,6 +6,7 @@ import com.example.Model.Student;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryCourseRepository implements CourseRepository {
@@ -22,9 +23,13 @@ public class InMemoryCourseRepository implements CourseRepository {
     }
 
     @Override
-    public Course findById(String id) {
-        return courses.get(id);
+    public Optional<Course> findById(String id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Course ID cannot be null");
+        }
+        return Optional.ofNullable(courses.get(id));
     }
+
 
     @Override
     public List<Course> findAll() {
@@ -32,11 +37,10 @@ public class InMemoryCourseRepository implements CourseRepository {
     }
 
     @Override
-    public Course findByTitle(String title) {
+    public Optional<Course> findByTitle(String title) {
         return courses.values().stream()
                 .filter(course -> course.getTitle().equalsIgnoreCase(title))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.example.Repository.CourseRepository;
 import com.example.Repository.SubmissionRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CourseServiceImpl implements CourseService{
 
@@ -19,18 +20,29 @@ public class CourseServiceImpl implements CourseService{
         this.submissionRepo = submissionRepo;
     }
 
+    private Course getExistingCourse(String courseId) {
+        return courseRepo.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+    }
+
     public void createCourse(Course course) {
-        if (courseRepo.findById(course.getCourseId()) != null) {
+        if (course == null){
+            throw new IllegalArgumentException("Course cannot be null");
+        }
+        if (courseRepo.findById(course.getCourseId()).isPresent()) {
             throw new IllegalArgumentException("Course with id '" + course.getCourseId() + "' already exists.");
         }
-        if (courseRepo.findByTitle(course.getTitle()) != null) {
+        if (courseRepo.findByTitle(course.getTitle()).isPresent()) {
             throw new IllegalArgumentException("Course with title '" + course.getTitle() + "' already exists.");
         }
         courseRepo.save(course);
     }
 
     public void updateCourse(Course course) {
-        if (courseRepo.findById(course.getCourseId()) == null) {
+        if (course == null){
+            throw new IllegalArgumentException("Course cannot be null");
+        }
+        if (courseRepo.findById(course.getCourseId()).isEmpty()) {
             throw new IllegalArgumentException("Course not found with id: " + course.getCourseId());
         }
         courseRepo.save(course);
@@ -47,20 +59,21 @@ public class CourseServiceImpl implements CourseService{
     }
 
     public void addAssignmentToCourse(String courseId, Assignment assignment) {
-        Course course = courseRepo.findById(courseId);
-        if (course == null) throw new IllegalArgumentException("Course not found");
+        Course course = getExistingCourse(courseId);
 
         assignment.setCourseId(courseId);
         course.addAssignment(assignment);
         assignmentRepo.save(assignment);
     }
 
-    public void removeAssignmentFromCourse(String courseId, String assignmentId) {
-        Course course = courseRepo.findById(courseId);
-        if (course == null) throw new IllegalArgumentException("Course not found");
 
-        Assignment assignment = assignmentRepo.findById(assignmentId);
-        if(assignment == null || !assignment.getCourseId().equals(courseId)){
+    public void removeAssignmentFromCourse(String courseId, String assignmentId) {
+        Course course = getExistingCourse(courseId);
+
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+
+        if(!assignment.getCourseId().equals(courseId)){
             throw new IllegalArgumentException("Given course doesn't include an assignment with id " + assignmentId);
         }
 
@@ -72,10 +85,7 @@ public class CourseServiceImpl implements CourseService{
     }
 
     public void addLessonToCourse(String courseId, Lesson lesson) {
-        Course course = courseRepo.findById(courseId);
-        if (course == null) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
-        }
+        Course course = getExistingCourse(courseId);
 
         course.addLesson(lesson);
         courseRepo.save(course); // Save the updated course with new lesson
@@ -83,8 +93,7 @@ public class CourseServiceImpl implements CourseService{
 
 
     public void removeLessonFromCourse(String courseId, String lessonId){
-        Course course = courseRepo.findById(courseId);
-        if (course == null) throw new IllegalArgumentException("Course not found");
+        Course course = getExistingCourse(courseId);
 
         Lesson toBeDeleted = course.getLessons().stream()
                 .filter(lesson -> lesson.getLessonId().equals(lessonId))
@@ -97,20 +106,17 @@ public class CourseServiceImpl implements CourseService{
 
     @Override
     public void enrollStudent(String courseId, Student student) {
-        Course course = courseRepo.findById(courseId);
-        if (course == null) {
-            throw new IllegalArgumentException("Course not found");
-        }
+        Course course = getExistingCourse(courseId);
 
         course.enrollStudent(student);
         courseRepo.save(course);
     }
 
-    public Course getCourseById(String courseId) {
+    public Optional<Course> getCourseById(String courseId) {
         return courseRepo.findById(courseId);
     }
 
-    public List<Course> getCoursesByInstructor(String instructorId) { //todo: add instructor repo!!!
+    public List<Course> getCoursesByInstructor(String instructorId) {
         return courseRepo.findByInstructor(instructorId);
     }
 
@@ -122,7 +128,7 @@ public class CourseServiceImpl implements CourseService{
         return courseRepo.findByTag(tags);
     }
 
-    public Course getCourseByTitle(String title) {
+    public Optional<Course> getCourseByTitle(String title) {
         return courseRepo.findByTitle(title);
     }
 

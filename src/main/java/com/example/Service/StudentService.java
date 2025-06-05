@@ -14,7 +14,7 @@ public interface StudentService extends UserService {
 
     List<Submission> getSubmissions(String studentId);
 
-    List<Course> browseCourses(); // view all available courses
+    List<Course> browseAvailableCourses();
 
     List<Lesson> accessMaterials(String studentId, String courseId);
 

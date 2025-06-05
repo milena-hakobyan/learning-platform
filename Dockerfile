@@ -1,4 +1,4 @@
-# Using openjdk 17 as the base image
+# Using openjdk 21 as the base image
 FROM openjdk:21
 
 # Creating and new app directory for my application files and setting it up as my working directory

@@ -1,5 +1,7 @@
 package com.example.Utils;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,9 +11,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DatabaseConnection {
-    private final DataSource dataSource;
+    private final HikariDataSource dataSource;
 
-    public DatabaseConnection(DataSource dataSource) {
+    public DatabaseConnection(HikariDataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -23,7 +25,7 @@ public class DatabaseConnection {
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Execution failed: " + e.getMessage(), e);
+            throw new RuntimeException("Query failed: " + e.getMessage(), e);
         }
     }
 
@@ -33,7 +35,7 @@ public class DatabaseConnection {
             consumer.accept(stmt);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Execution failed: " + e.getMessage(), e);
+            throw new RuntimeException("Query failed: " + e.getMessage(), e);
         }
     }
 
@@ -84,4 +86,11 @@ public class DatabaseConnection {
             return null;
         }
     }
+
+    public void close() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            dataSource.close();
+        }
+    }
+
 }

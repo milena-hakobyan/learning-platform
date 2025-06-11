@@ -1,28 +1,32 @@
 package com.example.Model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class Lesson {
-    private String lessonId;
+    private Integer lessonId;
     private String title;
     private String content;
-    private List<Material> materials;
+    private Integer courseId;
+    LocalDateTime uploadDate;
+    private List<Material> materials = new ArrayList<>();
 
-    public Lesson(String title, String content) {
-        this.lessonId = UUID.randomUUID().toString();
+    public Lesson(Integer lessonId, String title, String content, Integer courseId, LocalDateTime uploadDate) {
+        this.lessonId = lessonId;
         this.title = title;
         this.content = content;
-        this.materials = new ArrayList<>();
+        this.courseId = courseId;
+        this.uploadDate = uploadDate;
     }
 
-    public String getLessonId() {
+    public Integer getLessonId() {
         return lessonId;
     }
 
-    public void setLessonId(String lessonId) {
+    public void setLessonId(Integer lessonId) {
         this.lessonId = lessonId;
     }
 
@@ -40,6 +44,22 @@ public class Lesson {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Integer getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(Integer courseId) {
+        this.courseId = courseId;
+    }
+
+    public LocalDateTime getUploadDate() {
+        return uploadDate;
+    }
+
+    public void setUploadDate(LocalDateTime uploadDate) {
+        this.uploadDate = uploadDate;
     }
 
     public List<Material> getMaterials() {

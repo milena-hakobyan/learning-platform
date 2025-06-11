@@ -2,50 +2,76 @@ package com.example.Service;
 
 import com.example.Model.*;
 import com.example.Repository.*;
+import com.example.Utils.InputValidationUtils;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class InstructorServiceImpl implements InstructorService {
     private final UserService userService;
+    private final InstructorRepository instructorRepo;
     private final CourseService courseService;
+    private final LessonRepository lessonRepository;
     private final AssignmentRepository assignmentRepo;
     private final SubmissionRepository submissionRepo;
+    private final GradeRepository gradeRepo;
     private final AnnouncementRepository announcementRepo;
 
-    public InstructorServiceImpl(UserService userService, CourseService courseService,
+    public InstructorServiceImpl(UserService userService, InstructorRepository instructorRepo, CourseService courseService, LessonRepository lessonRepository,
                                  AssignmentRepository assignmentRepo,
                                  SubmissionRepository submissionRepo,
+                                 GradeRepository gradeRepo,
                                  AnnouncementRepository announcementRepo) {
         this.userService = userService;
+        this.instructorRepo = instructorRepo;
         this.courseService = courseService;
+        this.lessonRepository = lessonRepository;
         this.assignmentRepo = assignmentRepo;
         this.submissionRepo = submissionRepo;
+        this.gradeRepo = gradeRepo;
         this.announcementRepo = announcementRepo;
     }
 
     @Override
-    public List<Course> getCoursesCreated(String instructorId) {
+    public List<Instructor> getAllInstructors(){
+        return instructorRepo.findAll();
+    }
+
+    @Override
+    public Optional<Instructor> getInstructorById(Integer instructorId){
+        InputValidationUtils.validateInstructorExists(instructorId, userService);
+
+        return instructorRepo.findById(instructorId);
+    }
+
+    @Override
+    public List<Course> getCoursesCreated(Integer instructorId) {
+        InputValidationUtils.validateInstructorExists(instructorId, userService);
+
         return courseService.getCoursesByInstructor(instructorId);
     }
 
     @Override
-    public List<Lesson> getLessonsCreated(String instructorId) {
-        List<Lesson> lessons = new ArrayList<>();
-        for (Course course : getCoursesCreated(instructorId)) {
-            lessons.addAll(course.getLessons());
-        }
-        return lessons;
+    public List<Lesson> getLessonsCreated(Integer instructorId) {
+        InputValidationUtils.validateInstructorExists(instructorId, userService);
+
+        return lessonRepository.findLessonsByInstructorId(instructorId);
     }
 
     @Override
-    public List<Assignment> getAssignmentsCreated(String instructorId) {
-        List<Assignment> assignments = new ArrayList<>();
-        for (Course course : getCoursesCreated(instructorId)) {
-            assignments.addAll(course.getAssignments());
-        }
-        return assignments;
+    public List<Assignment> getAssignmentsCreated(Integer instructorId) {
+        InputValidationUtils.validateInstructorExists(instructorId, userService);
+
+        return assignmentRepo.findAssignmentsByInstructorId(instructorId);
     }
+
+    @Override
+    public List<Announcement> getAnnouncementsPosted(Integer instructorId) {
+        InputValidationUtils.validateInstructorExists(instructorId, userService);
+
+        return announcementRepo.findByInstructorId(instructorId);
+    }
+
 
     @Override
     public void createCourse(Course course) {
@@ -53,98 +79,68 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public void createAssignment(Course course, Assignment assignment) {
-        assignment.setCourseId(course.getCourseId());
-        course.addAssignment(assignment);
-        assignmentRepo.save(assignment);
-        courseService.updateCourse(course);
+    public void deleteCourse(Integer courseId) {
+        courseService.deleteCourse(courseId);
     }
 
     @Override
-    public void createLesson(Course course, Lesson lesson) {
-        course.addLesson(lesson);
-        courseService.updateCourse(course);
+    public void createAssignment(Integer courseId, Assignment assignment) {
+        courseService.addAssignmentToCourse(courseId, assignment);
+    }
+
+    @Override
+    public void deleteAssignment(Integer courseId, Integer assignmentId) {
+        courseService.removeAssignmentFromCourse(courseId, assignmentId);
+    }
+
+    @Override
+    public void createLesson(Integer courseId, Lesson lesson) {
+        courseService.addLessonToCourse(courseId, lesson);
+    }
+
+    @Override
+    public void deleteLesson(Integer courseId, Integer lessonId){
+        courseService.removeLessonFromCourse(courseId, lessonId);
     }
 
     @Override
     public void uploadMaterial(Lesson lesson, Material material) {
-        lesson.addMaterial(material);
+        courseService.addMaterialToLesson(lesson.getLessonId(), material);
     }
 
     @Override
     public void deleteMaterial(Lesson lesson, Material material) {
-        lesson.removeMaterial(material);
+        courseService.removeMaterialFromLesson(lesson.getLessonId(), material.getMaterialId());
     }
 
     @Override
-    public void gradeAssignment(Assignment assignment, Student student, Grade grade) {
-        List<Submission> submissions = submissionRepo.findByAssignmentId(assignment.getAssignmentId());
-        Submission submission = submissions.stream()
-                .filter(s -> s.getStudent().getUserId().equals(student.getUserId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Submission not found for student"));
+    public List<Submission> getSubmissionsForAssignment(Integer assignmentId) {
+        InputValidationUtils.requireAssignmentExists(assignmentId, assignmentRepo);
 
-        submission.setGrade(grade);
+        return submissionRepo.findByAssignmentId(assignmentId);
+    }
+
+
+    @Override
+    public void gradeSubmission(Submission submission, Grade grade) {
+        InputValidationUtils.requireSubmissionExists(submission.getSubmissionId(), submissionRepo);
+        InputValidationUtils.requireNonNull(grade, "Grade cannot be null");
+
+        submission.setGradeId(grade.getGradeId());
         submission.setStatus(SubmissionStatus.GRADED);
-        submissionRepo.save(submission);
+        gradeRepo.save(grade);
+        submissionRepo.update(submission);
     }
 
     @Override
-    public void giveFeedback(Assignment assignment, Student student, String feedback) {
-        List<Submission> submissions = submissionRepo.findByAssignmentId(assignment.getAssignmentId());
-        Submission submission = submissions.stream()
-                .filter(s -> s.getStudent().getUserId().equals(student.getUserId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Submission not found for student"));
+    public void sendAnnouncement(Course course, Integer id, String title, String message) {
+        InputValidationUtils.requireNonNull(course, "Course cannot be null");
+        InputValidationUtils.requireNonNull(course.getCourseId(), "Course ID cannot be null");
+        InputValidationUtils.requireNonNull(title, "Title cannot be null");
+        InputValidationUtils.requireNonNull(message, "Message cannot be null");
 
-        submission.setInstructorRemarks(feedback);
-        submissionRepo.save(submission);
-    }
-
-    @Override
-    public void sendAnnouncement(Course course, String title, String message) {
-        Announcement announcement = new Announcement(title, message, course.getInstructorId(), course);
+        Announcement announcement = new Announcement(id, title, message, course.getInstructorId(), course.getCourseId());
         course.postAnnouncement(announcement);
         announcementRepo.save(announcement);
-    }
-
-    @Override
-    public User getUserById(String id) {
-        return userService.getUserById(id);
-    }
-
-    @Override
-    public User getUserByEmail(String email) {
-        return userService.getUserByEmail(email);
-    }
-
-    @Override
-    public User getUserByUserName(String userName) {
-        return userService.getUserByUserName(userName);
-    }
-
-    @Override
-    public List<User> getUsersByRole(Role role) {
-        return userService.getUsersByRole(role);
-    }
-
-    @Override
-    public User registerUser(String name, String username, String email, String rawPassword, Role role){
-        return userService.registerUser(name, username,  email,  rawPassword, role);
-    }
-
-    @Override
-    public User login(String email, String password) {
-        return userService.login(email, password);
-    }
-
-    @Override
-    public void updateUser(User user) {
-        userService.updateUser(user);
-    }
-
-    @Override
-    public void deleteUser(String id) {
-        userService.deleteUser(id);
     }
 }

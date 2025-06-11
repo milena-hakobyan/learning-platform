@@ -4,21 +4,26 @@ import com.example.Model.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-public interface StudentService extends UserService {
-    List<Course> getEnrolledCourses(String studentId);
+public interface StudentService {
+    Student getStudentById(Integer studentId);
 
-    void enrollInCourse(String studentId, String courseId);
+    List<Course> getEnrolledCourses(Integer studentId);
 
-    void dropCourse(String studentId, String courseId);
+    void enrollInCourse(Integer studentId, Integer courseId);
 
-    List<Submission> getSubmissions(String studentId);
+    void dropCourse(Integer studentId, Integer courseId);
+
+    List<Submission> getSubmissionsByStudentId(Integer studentId);
 
     List<Course> browseAvailableCourses();
 
-    List<Lesson> accessMaterials(String studentId, String courseId);
+    List<Material> accessMaterials(Integer studentId, Integer courseId);
 
-    void submitAssignment(String studentId, String assignmentId, String content);
+    Submission submitAssignment(Integer submissionId, Integer studentId, Integer assignmentId, String content);
 
-    Map<Course, Map<Assignment, Grade>>  viewGrades(String studentId);
+    Map<Assignment, Grade> getGradesForCourse(Course course, Student student);
+
+    Optional<Grade> findGradeForStudent(Assignment assignment, Student student);
 }

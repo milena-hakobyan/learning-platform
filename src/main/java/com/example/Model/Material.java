@@ -1,30 +1,31 @@
 package com.example.Model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class Material {
-    private String materialId;
+    private Integer materialId;
     private String title;
-    private String type;
+    private String contentType;
+    private String category;
     private String url;
-    private Instructor uploadedBy;
-    private LocalDateTime uploadeDate;
+    private Integer instructorId;
+    private LocalDateTime uploadDate;
 
-    public Material(String title, String type, String url, Instructor uploadedBy, LocalDateTime uploadeDate) {
-        this.materialId = UUID.randomUUID().toString();
+    public Material(Integer materialId, String title, String contentType, String category, String url, Integer instructorId, LocalDateTime uploadDate) {
+        this.materialId = materialId;
         this.title = title;
-        this.type = type;
+        this.contentType = contentType;
+        this.category = category;
         this.url = url;
-        this.uploadedBy = uploadedBy;
-        this.uploadeDate = uploadeDate;
+        this.instructorId = instructorId;
+        this.uploadDate = uploadDate;
     }
 
-    public String getMaterialId() {
+    public Integer getMaterialId() {
         return materialId;
     }
 
-    public void setMaterialId(String materialId) {
+    public void setMaterialId(Integer materialId) {
         this.materialId = materialId;
     }
 
@@ -36,12 +37,28 @@ public class Material {
         this.title = title;
     }
 
-    public String getType() {
-        return type;
+    public Integer getInstructorId() {
+        return instructorId;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setInstructorId(Integer instructorId) {
+        this.instructorId = instructorId;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public String getUrl() {
@@ -52,19 +69,11 @@ public class Material {
         this.url = url;
     }
 
-    public Instructor getUploadedBy() {
-        return uploadedBy;
+    public LocalDateTime getUploadDate() {
+        return uploadDate;
     }
 
-    public void setUploadedBy(Instructor uploadedBy) {
-        this.uploadedBy = uploadedBy;
-    }
-
-    public LocalDateTime getUploadeDate() {
-        return uploadeDate;
-    }
-
-    public void setUploadeDate(LocalDateTime uploadeDate) {
-        this.uploadeDate = uploadeDate;
+    public void setUploadDate(LocalDateTime uploadDate) {
+        this.uploadDate = uploadDate;
     }
 }

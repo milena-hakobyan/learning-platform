@@ -1,34 +1,35 @@
 package com.example.Service;
 
 import com.example.Model.*;
-import com.example.Repository.AssignmentRepository;
-import com.example.Repository.CourseRepository;
-import com.example.Repository.SubmissionRepository;
+import com.example.Repository.*;
+import com.example.Utils.InputValidationUtils;
 
 import java.util.List;
 import java.util.Optional;
 
-public class CourseServiceImpl implements CourseService{
+public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepo;
+    private final LessonRepository lessonRepo;
     private final AssignmentRepository assignmentRepo;
     private final SubmissionRepository submissionRepo;
+    private final AnnouncementRepository announcementRepo;
+    private final UserService userService;
 
-    public CourseServiceImpl(CourseRepository courseRepo, AssignmentRepository assignmentRepo, SubmissionRepository submissionRepo) {
+    public CourseServiceImpl(CourseRepository courseRepo, LessonRepository lessonRepo, AssignmentRepository assignmentRepo,
+                             SubmissionRepository submissionRepo, AnnouncementRepository announcementRepo, UserService userService) {
         this.courseRepo = courseRepo;
+        this.lessonRepo = lessonRepo;
         this.assignmentRepo = assignmentRepo;
         this.submissionRepo = submissionRepo;
+        this.announcementRepo = announcementRepo;
+        this.userService = userService;
     }
 
-    private Course getExistingCourse(String courseId) {
-        return courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-    }
-
+    @Override
     public void createCourse(Course course) {
-        if (course == null){
-            throw new IllegalArgumentException("Course cannot be null");
-        }
+        InputValidationUtils.requireNonNull(course, "Course cannot be null");
+
         if (courseRepo.findById(course.getCourseId()).isPresent()) {
             throw new IllegalArgumentException("Course with id '" + course.getCourseId() + "' already exists.");
         }
@@ -38,17 +39,18 @@ public class CourseServiceImpl implements CourseService{
         courseRepo.save(course);
     }
 
+    @Override
     public void updateCourse(Course course) {
-        if (course == null){
-            throw new IllegalArgumentException("Course cannot be null");
-        }
-        if (courseRepo.findById(course.getCourseId()).isEmpty()) {
-            throw new IllegalArgumentException("Course not found with id: " + course.getCourseId());
-        }
+        InputValidationUtils.requireNonNull(course, "Course cannot be null");
+        InputValidationUtils.requireCourseExists(course.getCourseId(), courseRepo);
+
         courseRepo.save(course);
     }
 
-    public void deleteCourse(String courseId) {
+    @Override
+    public void deleteCourse(Integer courseId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+
         assignmentRepo.findByCourseId(courseId)
                 .forEach(assignment -> {
                     submissionRepo.findByAssignmentId(assignment.getAssignmentId())
@@ -58,82 +60,178 @@ public class CourseServiceImpl implements CourseService{
         courseRepo.delete(courseId);
     }
 
-    public void addAssignmentToCourse(String courseId, Assignment assignment) {
-        Course course = getExistingCourse(courseId);
+    @Override
+    public void addAssignmentToCourse(Integer courseId, Assignment assignment) {
+        Course course = InputValidationUtils.requireCourseExists(courseId, courseRepo);
 
-        assignment.setCourseId(courseId);
+        if (assignment.getCourseId() != null && !assignment.getCourseId().equals(courseId)) {
+            throw new IllegalArgumentException("Assignment already belongs to a different course.");
+        }
         course.addAssignment(assignment);
         assignmentRepo.save(assignment);
+        courseRepo.update(course);
     }
 
-
-    public void removeAssignmentFromCourse(String courseId, String assignmentId) {
-        Course course = getExistingCourse(courseId);
+    @Override
+    public void removeAssignmentFromCourse(Integer courseId, Integer assignmentId) {
+        Course course = InputValidationUtils.requireCourseExists(courseId, courseRepo);
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        if(!assignment.getCourseId().equals(courseId)){
+        if (!assignment.getCourseId().equals(courseId)) {
             throw new IllegalArgumentException("Given course doesn't include an assignment with id " + assignmentId);
         }
 
         course.removeAssignment(assignment);
         submissionRepo.findByAssignmentId(assignmentId)
-                        .forEach(submission -> submissionRepo.delete(submission.getSubmissionId()));
+                .forEach(submission -> submissionRepo.delete(submission.getSubmissionId()));
 
         assignmentRepo.delete(assignment.getAssignmentId());
+        courseRepo.update(course);
     }
 
-    public void addLessonToCourse(String courseId, Lesson lesson) {
-        Course course = getExistingCourse(courseId);
+    @Override
+    public void addLessonToCourse(Integer courseId, Lesson lesson) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+        InputValidationUtils.requireNonNull(lesson, "Lesson cannot be null");
+
+        Course course = InputValidationUtils.requireCourseExists(courseId, courseRepo);
 
         course.addLesson(lesson);
-        courseRepo.save(course); // Save the updated course with new lesson
+        courseRepo.update(course);
     }
 
+    @Override
+    public void removeLessonFromCourse(Integer courseId, Integer lessonId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+        InputValidationUtils.requireLessonExists(lessonId, lessonRepo);
 
-    public void removeLessonFromCourse(String courseId, String lessonId){
-        Course course = getExistingCourse(courseId);
+        Course course = InputValidationUtils.requireCourseExists(courseId, courseRepo);
 
         Lesson toBeDeleted = course.getLessons().stream()
                 .filter(lesson -> lesson.getLessonId().equals(lessonId))
                 .findFirst()
-                .orElse(null);
-        if(toBeDeleted == null)
-            throw new IllegalArgumentException("Lesson not found");
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found in course"));
+
         course.removeLesson(toBeDeleted);
+        lessonRepo.delete(lessonId);
+        courseRepo.update(course);
     }
 
     @Override
-    public void enrollStudent(String courseId, Student student) {
-        Course course = getExistingCourse(courseId);
+    public void addMaterialToLesson(Integer lessonId, Material material) {
+        InputValidationUtils.requireLessonExists(lessonId, lessonRepo);
+        InputValidationUtils.requireNonNull(material, "Material cannot be null");
 
-        course.enrollStudent(student);
-        courseRepo.save(course);
+        lessonRepo.addMaterial(lessonId, material);
     }
 
-    public Optional<Course> getCourseById(String courseId) {
+    @Override
+    public void removeMaterialFromLesson(Integer lessonId, Integer materialId) {
+        InputValidationUtils.requireLessonExists(lessonId, lessonRepo);
+        InputValidationUtils.requireNonNull(materialId, "Material ID cannot be null");
+
+        lessonRepo.removeMaterial(lessonId, materialId);
+    }
+
+    @Override
+    public void addMaterialToAssignment(Integer assignmentId, Material material) {
+        InputValidationUtils.requireAssignmentExists(assignmentId, assignmentRepo);
+        InputValidationUtils.requireNonNull(material, "Material cannot be null");
+
+        assignmentRepo.addMaterial(assignmentId, material);
+    }
+
+    @Override
+    public void removeMaterialFromAssignment(Integer assignmentId, Integer materialId) {
+        InputValidationUtils.requireAssignmentExists(assignmentId, assignmentRepo);
+        InputValidationUtils.requireNonNull(materialId, "Material ID cannot be null");
+
+        assignmentRepo.removeMaterial(assignmentId, materialId);
+    }
+
+    @Override
+    public void enrollStudent(Integer courseId, Student student) {
+        Course course = InputValidationUtils.requireCourseExists(courseId, courseRepo);
+        InputValidationUtils.requireNonNull(student, "Student cannot be null");
+
+        if (userService.getUserById(student.getUserId()).isEmpty()) {
+            throw new IllegalArgumentException("User with id '" + student.getUserId() + "' doesn't exist.");
+        }
+
+        course.enrollStudent(student);
+        courseRepo.enrollStudent(courseId, student);
+    }
+
+    @Override
+    public List<Lesson> getLessonsForCourse(Integer courseId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+
+        return lessonRepo.findByCourseId(courseId);
+    }
+
+    @Override
+    public List<Assignment> getAssignmentsForCourse(Integer courseId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+
+        return assignmentRepo.findByCourseId(courseId);
+    }
+
+    @Override
+    public List<Announcement> getAnnouncementsForCourse(Integer courseId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+
+        return announcementRepo.findByCourseId(courseId);
+    }
+
+    @Override
+    public Optional<Course> getCourseById(Integer courseId) {
+        InputValidationUtils.requireNonNull(courseId, "Course Id cannot be null");
+
         return courseRepo.findById(courseId);
     }
 
-    public List<Course> getCoursesByInstructor(String instructorId) {
+    @Override
+    public Optional<Course> getByIdWithLessons(Integer courseId) {
+        Optional<Course> course = getCourseById(courseId);
+        if (course.isPresent()) {
+            List<Lesson> lessons = lessonRepo.findByCourseId(courseId);
+            course.get().setLessons(lessons);
+        }
+        return course;
+    }
+
+    @Override
+    public List<Course> getCoursesByInstructor(Integer instructorId) {
+        InputValidationUtils.requireNonNull(instructorId, "InstructorId cannot be null");
+
         return courseRepo.findByInstructor(instructorId);
     }
 
+    @Override
     public List<Course> getCoursesByCategory(String category) {
+        InputValidationUtils.requireNonNull(category, "Category cannot be null");
+
         return courseRepo.findByCategory(category);
     }
 
-    public List<Course> getCoursesByTags(List<String> tags) {
-        return courseRepo.findByTag(tags);
-    }
-
+    @Override
     public Optional<Course> getCourseByTitle(String title) {
+        InputValidationUtils.requireNonNull(title, "Title cannot be null");
+
         return courseRepo.findByTitle(title);
     }
 
+    @Override
     public List<Course> getAllCourses() {
         return courseRepo.findAll();
     }
 
+    @Override
+    public List<Student> getEnrolledStudents(Integer courseId) {
+        InputValidationUtils.requireCourseExists(courseId, courseRepo);
+
+        return courseRepo.findEnrolledStudents(courseId);
+    }
 }

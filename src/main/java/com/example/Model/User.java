@@ -2,37 +2,34 @@ package com.example.Model;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 import com.example.Utils.StringUtils;
 
 public class User {
-    private final String userId;
-    private String name;
+    private final Integer userId;
     private String userName;
-    private Role role;
+    private String firstName;
+    private String lastName;
     private String email;
+    private Role role;
     private String password;
-    private LocalDateTime registrationDate;
+    private LocalDateTime lastLogin;
+    private boolean isActive;
 
-    public User(String name, String userName, String email, String password, Role role) {
-        this.name = name;
-        this.userId = UUID.randomUUID().toString();
+    public User(Integer userId, String userName, String firstName, String lastName, String email, String password, Role role, LocalDateTime lastLogin, boolean isActive) {
+        this.userId = userId;
         this.userName = userName;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
-        this.password = password; // Store hashed password
+        this.password = password;
         this.role = role;
-        this.registrationDate = LocalDateTime.now();
+        this.lastLogin = lastLogin;
+        this.isActive = isActive;
     }
 
-    public String getUserId() {
+    public Integer getUserId() {
         return userId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUserName() {
@@ -41,6 +38,22 @@ public class User {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public Role getRole() {
@@ -67,12 +80,20 @@ public class User {
         this.password = StringUtils.applySha256(password);
     }
 
-    public LocalDateTime getRegistrationDate() {
-        return registrationDate;
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
     }
 
-    public void setRegistrationDate(LocalDateTime registrationDate) {
-        this.registrationDate = registrationDate;
+    public void setLastLogin(LocalDateTime lastLogin) {
+        this.lastLogin = lastLogin;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     @Override
@@ -82,7 +103,8 @@ public class User {
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
-                ", registrationDate=" + registrationDate +
+                ", lastLogin=" + lastLogin +
+                ", isActive=" + isActive +
                 '}';
     }
 }

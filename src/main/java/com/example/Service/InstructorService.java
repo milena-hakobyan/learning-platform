@@ -3,27 +3,40 @@ package com.example.Service;
 import com.example.Model.*;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface InstructorService extends UserService {
-    List<Course> getCoursesCreated(String instructorId);
+public interface InstructorService {
+    List<Instructor> getAllInstructors();
 
-    List<Lesson> getLessonsCreated(String instructorId);
+    Optional<Instructor> getInstructorById(Integer instructorId);
 
-    List<Assignment> getAssignmentsCreated(String instructorId);
+    List<Course> getCoursesCreated(Integer instructorId);
+
+    List<Lesson> getLessonsCreated(Integer instructorId);
+
+    List<Assignment> getAssignmentsCreated(Integer instructorId);
+
+    List<Announcement> getAnnouncementsPosted(Integer instructorId);
 
     void createCourse(Course course);
 
-    void createAssignment(Course course, Assignment assignment);
+    void deleteCourse(Integer courseId);
 
-    void createLesson(Course course, Lesson lesson);
+    void createAssignment(Integer courseId, Assignment assignment);
+
+    void deleteAssignment(Integer courseId, Integer assignmentId);
+
+    void createLesson(Integer courseId, Lesson lesson);
+
+    void deleteLesson(Integer courseId, Integer lessonId);
 
     void uploadMaterial(Lesson lesson, Material material);
 
     void deleteMaterial(Lesson lesson, Material material);
 
-    void gradeAssignment(Assignment assignment, Student student, Grade grade);
+    List<Submission> getSubmissionsForAssignment(Integer assignmentId);
 
-    void giveFeedback(Assignment assignment, Student student, String feedback);
+    void gradeSubmission(Submission submission, Grade grade);
 
-    void sendAnnouncement(Course course, String title, String message);
+    void sendAnnouncement(Course course, Integer announcementId, String title, String message);
 }

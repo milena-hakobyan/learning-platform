@@ -11,28 +11,44 @@ public interface CourseService {
 
     void updateCourse(Course course);
 
-    void deleteCourse(String courseId);
+    void deleteCourse(Integer courseId);
 
-    void addAssignmentToCourse(String courseId, Assignment assignment);
+    void addAssignmentToCourse(Integer courseId, Assignment assignment);
 
-    void removeAssignmentFromCourse(String courseId, String assignmentId);
+    void removeAssignmentFromCourse(Integer courseId, Integer assignmentId);
 
-    void addLessonToCourse(String courseId, Lesson lesson);
+    List<Assignment> getAssignmentsForCourse(Integer courseId);
 
-    void removeLessonFromCourse(String courseId, String lessonId);
+    List<Lesson> getLessonsForCourse(Integer courseId);
 
-    void enrollStudent(String courseId, Student student);
+    void addLessonToCourse(Integer courseId, Lesson lesson);
 
-    Optional<Course> getCourseById(String courseId);
+    void removeLessonFromCourse(Integer courseId, Integer lessonId);
 
-    List<Course> getCoursesByInstructor(String instructorId);
+    void addMaterialToLesson(Integer lessonId, Material material);
+
+    void removeMaterialFromLesson(Integer lessonId, Integer materialId);
+
+    void addMaterialToAssignment(Integer assignmentId, Material material);
+
+    void removeMaterialFromAssignment(Integer assignmentId, Integer materialId);
+
+    void enrollStudent(Integer courseId, Student student);
+
+    List<Announcement> getAnnouncementsForCourse(Integer courseId);
+
+    Optional<Course> getCourseById(Integer courseId);
+
+    // Example of fetching a parent entity of One-To-Many relationship with all its children
+    Optional<Course> getByIdWithLessons(Integer courseId);
+
+    List<Course> getCoursesByInstructor(Integer instructorId);
 
     List<Course> getCoursesByCategory(String category);
-
-    List<Course> getCoursesByTags(List<String> tags);
 
     Optional<Course> getCourseByTitle(String title);
 
     List<Course> getAllCourses();
 
+    List<Student> getEnrolledStudents(Integer courseId);
 }

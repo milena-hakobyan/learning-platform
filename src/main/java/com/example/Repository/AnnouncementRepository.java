@@ -4,9 +4,9 @@ import com.example.Model.Announcement;
 
 import java.util.List;
 
-public interface AnnouncementRepository extends CrudRepository<Announcement, String> {
+public interface AnnouncementRepository extends CrudRepository<Announcement, Integer> {
 
-    List<Announcement> findByCourseId(String courseId);
+    List<Announcement> findByCourseId(Integer courseId);
 
-    List<Announcement> findByInstructorId(String instructorId);
+    List<Announcement> findByInstructorId(Integer instructorId);
 }

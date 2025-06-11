@@ -6,14 +6,16 @@ import com.example.Model.Student;
 import java.util.List;
 import java.util.Optional;
 
-public interface CourseRepository extends CrudRepository<Course, String> {
+public interface CourseRepository extends CrudRepository<Course, Integer> {
     Optional<Course> findByTitle(String title);
 
-    void enrollStudent(String courseId, Student student);
-
-    List<Course> findByInstructor(String instructorId);
+    List<Course> findByInstructor(Integer instructorId);
 
     List<Course> findByCategory(String category);
 
-    List<Course> findByTag(List<String> tags);
+    List<Student> findEnrolledStudents(Integer courseId);
+
+    void enrollStudent(Integer courseId, Student student);
+
+    boolean verifyStudentAccessToCourse(Integer studentId, Integer courseId);
 }

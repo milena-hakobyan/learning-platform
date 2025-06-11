@@ -4,54 +4,50 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Submission {
-    private String submissionId;
-    private Student student;
-    private Assignment assignment;
+    private Integer submissionId;
+    private Integer studentId;
+    private Integer assignmentId;
     private LocalDateTime submittedAt;
     private String contentLink;
-    private Grade grade;
-    private String instructorRemarks;
-    private SubmissionStatus status;  //"submitted", "late", "graded"
+    private Integer gradeId;
+    private SubmissionStatus status;
 
-    public Submission(Student student, Assignment assignment, String contentLink, LocalDateTime submittedAt) {
-        this.submissionId = UUID.randomUUID().toString();
-        this.student = student;
-        this.assignment = assignment;
+    public Submission(Integer submissionId, Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
+        this.submissionId = submissionId;
+        this.studentId = studentId;
+        this.assignmentId = assignmentId;
         this.contentLink = contentLink;
         this.submittedAt = submittedAt;
-        this.grade = null; // grade will be set later after insturctor's evaluation
-        this.instructorRemarks = null;
+        this.gradeId = null; // grade will be set later after instructor's evaluation
+    }
 
-        if (submittedAt.isAfter(assignment.getDueDate())) {
-            this.status = SubmissionStatus.LATE;
-        } else {
-            this.status = SubmissionStatus.SUBMITTED;
-        }
+    public Submission(Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
+        this(null, studentId, assignmentId, contentLink, submittedAt);
     }
 
 
-    public String getSubmissionId() {
+    public Integer getSubmissionId() {
         return submissionId;
     }
 
-    public void setSubmissionId(String submissionId) {
+    public void setSubmissionId(Integer submissionId) {
         this.submissionId = submissionId;
     }
 
-    public Student getStudent() {
-        return student;
+    public Integer getStudentId() {
+        return studentId;
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
+    public void setStudentId(Student student) {
+        this.studentId = studentId;
     }
 
-    public Assignment getAssignment() {
-        return assignment;
+    public Integer getAssignmentId() {
+        return assignmentId;
     }
 
-    public void setAssignment(Assignment assignment) {
-        this.assignment = assignment;
+    public void setAssignmentId(Integer assignmentId) {
+        this.assignmentId = assignmentId;
     }
 
     public LocalDateTime getSubmittedAt() {
@@ -70,12 +66,16 @@ public class Submission {
         this.contentLink = contentLink;
     }
 
-    public Grade getGrade() {
-        return grade;
+    public void setStudentId(Integer studentId) {
+        this.studentId = studentId;
     }
 
-    public void setGrade(Grade grade) {
-        this.grade = grade;
+    public Integer getGradeId() {
+        return gradeId;
+    }
+
+    public void setGradeId(Integer gradeId) {
+        this.gradeId = gradeId;
     }
 
     public SubmissionStatus getStatus() {
@@ -86,25 +86,15 @@ public class Submission {
         this.status = status;
     }
 
-    public String getInstructorRemarks() {
-        return instructorRemarks;
-    }
-
-    public void setInstructorRemarks(String instructorRemarks) {
-        this.instructorRemarks = instructorRemarks;
-    }
-
     @Override
     public String toString() {
         return "Submission{" +
                 "submissionId='" + submissionId + '\'' +
-                ", student='" + student.getUserName() + '\'' +
-                ", assignment='" + assignment.getTitle() + '\'' +
+                ", studentId='" + studentId + '\'' +
+                ", assignmentId='" + assignmentId + '\'' +
                 ", submittedAt=" + submittedAt +
                 ", contentLink='" + contentLink + '\'' +
-                ", grade=" + (grade != null ? grade.getScore() : "Not graded") + '\'' +
-                ", feedback: " +  (grade != null ? grade.getFeedback(): "No feedback") + '\'' +
-                ", instructorRemarks='" + (instructorRemarks != null ? instructorRemarks : "None") + '\'' +
+                ", gradeId=" + gradeId + '\'' +
                 ", status='" + status + '\'' +
                 '}';
     }

@@ -1,4 +1,4 @@
-package com.example.Utils;
+package com.example.utils;
 
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -25,7 +25,7 @@ public class DatabaseConnection {
             }
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Query failed: " + e.getMessage(), e);
+            throw new DatabaseException("Query failed: " + e.getMessage(), e);
         }
     }
 
@@ -35,7 +35,7 @@ public class DatabaseConnection {
             consumer.accept(stmt);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Query failed: " + e.getMessage(), e);
+            throw new DatabaseException("Query failed: " + e.getMessage(), e);
         }
     }
 
@@ -60,8 +60,7 @@ public class DatabaseConnection {
             }
 
         } catch (SQLException e) {
-            System.err.println("Connection failed: " + e.getMessage());
-            return null;
+            throw new DatabaseException("Query failed: " + e.getMessage(), e);
         }
     }
 
@@ -82,8 +81,7 @@ public class DatabaseConnection {
             }
             return resultList;
         } catch (SQLException e) {
-            System.err.println("Connection failed: " + e.getMessage());
-            return null;
+            throw new DatabaseException("Query failed: " + e.getMessage(), e);
         }
     }
 

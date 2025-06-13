@@ -1,8 +1,8 @@
 package com.example;
 
-import com.example.Utils.DatabaseConnection;
-import com.example.Utils.SingleConnectionDataSource;
+import com.example.utils.SingleConnectionDataSource;
 import com.zaxxer.hikari.HikariDataSource;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -12,15 +12,24 @@ import java.util.concurrent.CountDownLatch;
 
 public class ConnectionPoolingComparison {
     public static void main(String[] args) {
+        Dotenv dotenv = Dotenv.load();
+
+        String host = dotenv.get("DB_HOST");
+        String port = dotenv.get("DB_PORT");
+        String dbName = dotenv.get("DB_NAME");
+        String user = dotenv.get("DB_USER");
+        String password = dotenv.get("DB_PASSWORD");
+
+        String url = String.format("jdbc:postgresql://%s:%s/%s", host, port, dbName);
         try {
             System.out.println("Running with custom SingleConnectionDataSource...");
-            long singleConnectionDuration = runWithCustomDataSource();
+            long singleConnectionDuration = runWithCustomDataSource(url, user, password);
             System.out.println("Time taken (SingleConnection): " + singleConnectionDuration + " ms");
 
             System.out.println("\n========================================\n");
 
             System.out.println("\nRunning with HikariCP...");
-            long hikariDuration = runWithHikariDataSource();
+            long hikariDuration = runWithHikariDataSource(url, user, password);
             System.out.println("Time taken (HikariCP): " + hikariDuration + " ms");
 
 
@@ -29,17 +38,17 @@ public class ConnectionPoolingComparison {
         }
     }
 
-    private static long runWithCustomDataSource() throws SQLException, InterruptedException {
-        SingleConnectionDataSource dataSource = new SingleConnectionDataSource("jdbc:postgresql://localhost:5432/learning-db", "admin", "secret");
+    private static long runWithCustomDataSource(String url, String user, String password) throws SQLException, InterruptedException {
+        SingleConnectionDataSource dataSource = new SingleConnectionDataSource(url, user, password);
         return simulateWithSingleConnection(dataSource);
     }
 
-    private static long runWithHikariDataSource() throws SQLException, InterruptedException {
+    private static long runWithHikariDataSource(String url, String user, String password) throws SQLException, InterruptedException {
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:postgresql://localhost:5432/learning-db");
-        dataSource.setUsername("admin");
-        dataSource.setPassword("secret");
 
+        dataSource.setJdbcUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
         dataSource.setMaximumPoolSize(5);
         dataSource.setConnectionTimeout(3000);
         long duration =  simulateWithHikari(dataSource);

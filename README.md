@@ -175,4 +175,3 @@ docker-compose down
 ---
 
 This setup ensures your database runs inside a container, is easy to spin up, and keeps your host system clean and consistent across environments.
-

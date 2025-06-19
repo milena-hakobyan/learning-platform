@@ -1,31 +1,31 @@
-package com.example.Model;
+package com.example.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class Course {
-    private final String courseId;
+    private Integer courseId;
     private String title;
     private String description;
     private String category;
-    private List<String> tags = new ArrayList<>();
-    private String instructorId;
+    private String url;
+    private Integer instructorId;
     private final List<Lesson> lessons = new ArrayList<>();
     private final List<Assignment> assignments = new ArrayList<>();
     private final List<Student> enrolledStudents = new ArrayList<>();
     private final List<Announcement> announcements = new ArrayList<>();
 
-
-    public Course( String courseId, String title, String description, String category, String  instructorId) {
+    public Course(Integer courseId, String title, String description, String category, String url, Integer instructorId) {
         this.courseId = courseId;
         this.title = title;
         this.description = description;
         this.category = category;
+        this.url = url;
         this.instructorId = instructorId;
     }
 
-    public String getCourseId() {
+    public Integer getCourseId() {
         return courseId;
     }
 
@@ -53,19 +53,19 @@ public class Course {
         this.category = category;
     }
 
-    public List<String> getTags() {
-        return Collections.unmodifiableList(tags);
+    public String getUrl() {
+        return url;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = new ArrayList<>(tags);
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getInstructorId() {
+    public Integer getInstructorId() {
         return instructorId;
     }
 
-    public void setInstructorId(String instructorId) {
+    public void setInstructorId(Integer instructorId) {
         this.instructorId = instructorId;
     }
 
@@ -85,6 +85,11 @@ public class Course {
         return Collections.unmodifiableList(announcements);
     }
 
+    public void setLessons(List<Lesson> newLessons) {
+        this.lessons.clear();
+        this.lessons.addAll(newLessons);
+    }
+
     public void addLesson(Lesson lesson) {
         if (!lessons.contains(lesson)) {
             lessons.add(lesson);
@@ -96,7 +101,7 @@ public class Course {
     }
 
     public void addAssignment(Assignment assignment) {
-        if (!assignments.contains(assignment)) {
+        if (assignment != null && !assignments.contains(assignment)) {
             assignments.add(assignment);
         }
     }
@@ -127,7 +132,7 @@ public class Course {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
-                ", tags=" + tags +
+                ", link='" + url + '\'' +
                 ", instructorId='" + instructorId + '\'' +
                 ", lessonsCount=" + lessons.size() +
                 ", assignmentsCount=" + assignments.size() +

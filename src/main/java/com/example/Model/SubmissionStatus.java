@@ -1,7 +1,7 @@
-package com.example.Model;
+package com.example.model;
 
 public enum SubmissionStatus {
-        SUBMITTED,
-        LATE,
-        GRADED
+    SUBMITTED,
+    LATE,
+    GRADED
 }

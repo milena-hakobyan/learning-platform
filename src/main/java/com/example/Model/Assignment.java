@@ -1,43 +1,45 @@
-package com.example.Model;
+package com.example.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class Assignment {
-    private String assignmentId;
+    private Integer assignmentId;
     private String title;
-    private String courseId;
+    private Integer courseId;
     private String description;
     private LocalDateTime dueDate;
     private double maxScore;
-    private List<Material> materials;
+    private final List<Material> materials = new ArrayList<>();
 
-    public Assignment(String title, String courseId, String description, LocalDateTime dueDate, double maxScore) {
-        this.assignmentId = UUID.randomUUID().toString();
-        this.courseId = courseId;
+    public Assignment(Integer assignmentId, String title, Integer courseId, String description, LocalDateTime dueDate, double maxScore) {
+        this.assignmentId = assignmentId;
         this.title = title;
+        this.courseId = courseId;
         this.description = description;
         this.dueDate = dueDate;
         this.maxScore = maxScore;
-        this.materials = new ArrayList<>();
     }
 
-    public String getAssignmentId() {
+    public Assignment(String title, Integer courseId, String description, LocalDateTime dueDate, double maxScore) {
+        this(null, title, courseId, description, dueDate, maxScore);
+    }
+
+    public Integer getAssignmentId() {
         return assignmentId;
     }
 
-    public void setAssignmentId(String assignmentId) {
+    public void setAssignmentId(Integer assignmentId) {
         this.assignmentId = assignmentId;
     }
 
-    public String getCourseId() {
+    public Integer getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(String courseId) {
+    public void setCourseId(Integer courseId) {
         this.courseId = courseId;
     }
 
@@ -75,10 +77,6 @@ public class Assignment {
 
     public List<Material> getMaterials() {
         return Collections.unmodifiableList(materials);
-    }
-
-    public void setMaterials(List<Material> materials) {
-        this.materials = new ArrayList<>(materials); // Defensive copy
     }
 
     public void addMaterial(Material material) {

@@ -1,30 +1,33 @@
-package com.example.Model;
+package com.example.model;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class Announcement {
-    private String announcementId;
+    private Integer announcementId;
     private String title;
     private String content;
-    private String instructorId;
+    private Integer instructorId;
     private LocalDateTime postedAt;
-    private Course course;
+    private Integer courseId;
 
-    public Announcement(String title, String content, String instructorId, Course course) {
-        this.announcementId = UUID.randomUUID().toString();
+    public Announcement(Integer announcementId, String title, String content, Integer instructorId, Integer courseId, LocalDateTime postedAt) {
+        this.announcementId = announcementId;
         this.title = title;
         this.content = content;
         this.instructorId = instructorId;
-        this.postedAt = LocalDateTime.now();
-        this.course = course;
+        this.courseId = courseId;
+        this.postedAt = postedAt;
     }
 
-    public String getAnnouncementId() {
+    public Announcement(Integer announcementId, String title, String content, Integer instructorId, Integer courseId) {
+        this(announcementId, title, content, instructorId, courseId, null);
+    }
+
+    public Integer getAnnouncementId() {
         return announcementId;
     }
 
-    public void setAnnouncementId(String announcementId) {
+    public void setAnnouncementId(Integer announcementId) {
         this.announcementId = announcementId;
     }
 
@@ -44,11 +47,11 @@ public class Announcement {
         this.content = content;
     }
 
-    public String getPostedById() {
+    public Integer getPostedById() {
         return instructorId;
     }
 
-    public void setPostedBy(String instructorId) {
+    public void setPostedBy(Integer instructorId) {
         this.instructorId = instructorId;
     }
 
@@ -60,11 +63,11 @@ public class Announcement {
         this.postedAt = postedAt;
     }
 
-    public Course getCourse() {
-        return course;
+    public Integer getCourseId() {
+        return courseId;
     }
 
-    public void setCourse(Course course) {
-        this.course = course;
+    public void setCourse(Integer courseId) {
+        this.courseId = courseId;
     }
 }

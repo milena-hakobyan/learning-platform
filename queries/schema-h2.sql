@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     user_role user_role,
     password_hash VARCHAR(255),
     last_login TIMESTAMP,
+    last_action TEXT,
     is_active BOOLEAN DEFAULT TRUE
 );
 
@@ -78,7 +79,8 @@ CREATE TABLE IF NOT EXISTS materials (
     category VARCHAR(100),
     url TEXT NOT NULL,
     instructor_id INTEGER,
-    upload_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    uploaded_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_material_instructor
         FOREIGN KEY (instructor_id)
@@ -108,23 +110,27 @@ CREATE TABLE IF NOT EXISTS assignments (
     due_date DATE NOT NULL,
     max_score INT NOT NULL,
     course_id INT NOT NULL,
+    material_id INT,
 
     CONSTRAINT fk_assignment_course
         FOREIGN KEY (course_id)
         REFERENCES courses(id)
-        ON DELETE CASCADE
-);
+        ON DELETE CASCADE,
 
+    CONSTRAINT fk_assignment_material
+        FOREIGN KEY (material_id)
+        REFERENCES materials(id)
+        ON DELETE SET NULL
+);
 
 -- Submissions (1 per assignment per student)
 CREATE TABLE IF NOT EXISTS submissions (
     id SERIAL PRIMARY KEY,
     assignment_id INTEGER NOT NULL,
     student_id INTEGER NOT NULL,
-    content_link TEXT NOT NULL,
+    content TEXT NOT NULL,
     grade_id INTEGER,
     status VARCHAR(50) DEFAULT 'submitted',
-    submitted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_submission_assignment
         FOREIGN KEY (assignment_id)
@@ -146,14 +152,12 @@ CREATE TABLE IF NOT EXISTS grades (
     submission_id INTEGER UNIQUE NOT NULL,
     score DECIMAL(5,2) NOT NULL CHECK (score >= 0),
     feedback TEXT,
-    graded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_grade_submission
         FOREIGN KEY (submission_id)
         REFERENCES submissions(id)
         ON DELETE CASCADE
 );
-
 
 -- Link submission to grade
 ALTER TABLE submissions
@@ -216,7 +220,7 @@ CREATE TABLE enrollments (
  );
 
 
- CREATE TABLE IF NOT EXISTS lesson_materials (
+ CREATE TABLE IF NOT EXISTS lesson_material (
      lesson_id INTEGER NOT NULL,
      material_id INTEGER NOT NULL,
      PRIMARY KEY (lesson_id, material_id),
@@ -230,17 +234,17 @@ CREATE TABLE enrollments (
          ON DELETE CASCADE
  );
 
- -- assignment_material table: link materials to assignments
- CREATE TABLE IF NOT EXISTS assignment_materials (
+ -- lesson_assignment table: link lessons to assignments (one-to-many or many-to-many)
+ CREATE TABLE IF NOT EXISTS lesson_assignment (
+     lesson_id INTEGER NOT NULL,
      assignment_id INTEGER NOT NULL,
-     material_id INTEGER NOT NULL,
-     PRIMARY KEY (assignment_id, material_id),
-     CONSTRAINT fk_assignment_material_assignment
+     PRIMARY KEY (lesson_id, assignment_id),
+     CONSTRAINT fk_lesson_assignment_lesson
+         FOREIGN KEY (lesson_id)
+         REFERENCES lessons(id)
+         ON DELETE CASCADE,
+     CONSTRAINT fk_lesson_assignment_assignment
          FOREIGN KEY (assignment_id)
          REFERENCES assignments(id)
-         ON DELETE CASCADE,
-     CONSTRAINT fk_assignment_material_material
-         FOREIGN KEY (material_id)
-         REFERENCES materials(id)
          ON DELETE CASCADE
  );

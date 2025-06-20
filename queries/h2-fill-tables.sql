@@ -12,7 +12,7 @@ VALUES
 ('student10', 'Mia', 'Wilson', 'mia@example.com', 'STUDENT', 'hash10', NOW()),
 ('instructor1', 'Bob', 'Smith', 'bob@example.com', 'INSTRUCTOR', 'hash11', NOW()),
 ('instructor2', 'Diana', 'Lee', 'diana@example.com', 'INSTRUCTOR', 'hash12', NOW()),
-('instructor3', 'Johnny', 'Depp', 'johny@example.com', 'INSTRUCTOR', 'hash13', NOW()),
+('instructor3', 'Johnny', 'Depp', 'johnny@example.com', 'INSTRUCTOR', 'hash13', NOW()),
 ('instructor4', 'Jane', 'Doe', 'jane@example.com', 'INSTRUCTOR', 'hash14', NOW()),
 ('instructor5', 'Mark', 'Taylor', 'mark@example.com', 'INSTRUCTOR', 'hash15', NOW()),
 ('admin1', 'Carol', 'Morris', 'carol@example.com', 'ADMIN', 'hash16', NOW()),
@@ -38,20 +38,21 @@ VALUES
 
 INSERT INTO instructors (user_id, bio, expertise, total_courses_created, rating, is_verified)
 VALUES
-(11, 'Java and Spring expert.', ARRAY['Java', 'Spring'], 3, 4.8, TRUE),
-(12, 'Frontend developer', ARRAY['HTML', 'CSS', 'React'], 2, 4.5, FALSE),
-(13, 'Data Scientist', ARRAY['Python', 'Machine Learning'], 4, 4.9, TRUE),
-(14, 'DevOps Engineer', ARRAY['Docker', 'Kubernetes'], 5, 4.7, TRUE),
-(15, 'Mobile App Developer', ARRAY['Flutter', 'Dart'], 2, 4.6, FALSE);
+(11, 'Java and Spring expert.', 'Java, Spring', 3, 4.8, TRUE),
+(12, 'Frontend developer', 'HTML, CSS, React', 2, 4.5, FALSE),
+(13, 'Data Scientist', 'Python, Machine Learning', 4, 4.9, TRUE),
+(14, 'DevOps Engineer', 'Docker, Kubernetes', 5, 4.7, TRUE),
+(15, 'Mobile App Developer', 'Flutter, Dart', 2, 4.6, FALSE);
 
 
 INSERT INTO admins (user_id, access_level, privileges, is_super_admin)
 VALUES
-(16, 5, ARRAY['user_mgmt', 'course_approval'], TRUE),
-(17, 4, ARRAY['user_mgmt'], FALSE),
-(18, 3, ARRAY['course_approval'], FALSE),
-(19, 2, ARRAY['reporting'], FALSE),
-(20, 1, ARRAY['support'], FALSE);
+(16, 5, 'user_mgmt, course_approval', TRUE),
+(17, 4, 'user_mgmt', FALSE),
+(18, 3, 'course_approval', FALSE),
+(19, 2, 'reporting', FALSE),
+(20, 1, 'support', FALSE);
+
 
 INSERT INTO courses (title, description, category, url, instructor_id)
 VALUES
@@ -97,43 +98,44 @@ VALUES
 
 
 
-INSERT INTO assignments (title, description, due_date, max_score, course_id)
+INSERT INTO assignments (title, description, due_date, max_score, course_id, material_id)
 VALUES
-('Java Assignment', 'Write a simple Java class', CURRENT_DATE + INTERVAL '5 days', 100, 1),
-('React Assignment', 'Create a React component', CURRENT_DATE + INTERVAL '7 days', 100, 2),
-('Python Assignment', 'Analyze data with Pandas', CURRENT_DATE + INTERVAL '6 days', 100, 3),
-('Docker Assignment', 'Build a Docker image', CURRENT_DATE + INTERVAL '8 days', 100, 4),
-('Flutter Assignment', 'Design a Flutter UI', CURRENT_DATE + INTERVAL '9 days', 100, 5),
-('Advanced Java Assignment', 'Implement Java Streams', CURRENT_DATE + INTERVAL '10 days', 100, 6),
-('CSS Assignment', 'Create a Flexbox layout', CURRENT_DATE + INTERVAL '4 days', 100, 7),
-('ML Assignment', 'Train a simple model', CURRENT_DATE + INTERVAL '11 days', 100, 8),
-('Kubernetes Assignment', 'Deploy an app on K8s', CURRENT_DATE + INTERVAL '12 days', 100, 9),
-('Dart Assignment', 'Write Dart functions', CURRENT_DATE + INTERVAL '3 days', 100, 10);
+('Java Assignment', 'Write a simple Java class', CURRENT_DATE + 5, 100, 1, 1),
+('React Assignment', 'Create a React component', CURRENT_DATE + 7, 100, 2, 2),
+('Python Assignment', 'Analyze data with Pandas', CURRENT_DATE + 6, 100, 3, 3),
+('Docker Assignment', 'Build a Docker image', CURRENT_DATE + 8, 100, 4, 4),
+('Flutter Assignment', 'Design a Flutter UI', CURRENT_DATE + 9, 100, 5, 5),
+('Advanced Java Assignment', 'Implement Java Streams', CURRENT_DATE + 10, 100, 6, 6),
+('CSS Assignment', 'Create a Flexbox layout', CURRENT_DATE + 4, 100, 7, 7),
+('ML Assignment', 'Train a simple model', CURRENT_DATE + 11, 100, 8, 8),
+('Kubernetes Assignment', 'Deploy an app on K8s', CURRENT_DATE + 12, 100, 9, 9),
+('Dart Assignment', 'Write Dart functions', CURRENT_DATE + 3, 100, 10, 10);
 
 
 
 
-INSERT INTO submissions (assignment_id, student_id, content_link)
+
+INSERT INTO submissions (assignment_id, student_id, content)
 VALUES
 (1, 1, 'My Java class implementation.'),
-(2, 2, 'My React component.'),
-(3, 3, 'Data analysis with Pandas.'),
-(4, 4, 'Docker image built.'),
-(5, 5, 'Flutter UI designed.'),
-(6, 6, 'Java Streams implemented.'),
-(7, 7, 'Flexbox layout created.'),
-(8, 8, 'Trained a simple model.'),
-(9, 9, 'App deployed on K8s.'),
-(10, 10, 'Dart functions written.'),
 (1, 4, 'Java classes with design patterns.'),
+(2, 2, 'My React component.'),
 (2, 5, 'React app with Redux integration.'),
+(3, 3, 'Data analysis with Pandas.'),
 (3, 6, 'Pandas advanced data manipulation.'),
+(4, 4, 'Docker image built.'),
 (4, 7, 'Docker compose setup created.'),
+(5, 5, 'Flutter UI designed.'),
 (5, 8, 'Flutter app with Firebase backend.'),
 (6, 9, 'Java Streams with collectors.'),
+(6, 6, 'Java Streams implemented.'),
+(7, 7, 'Flexbox layout created.'),
 (7, 10, 'Flexbox responsive design.'),
+(8, 8, 'Trained a simple model.'),
 (8, 1, 'Machine learning model training.'),
 (9, 2, 'Kubernetes cluster setup.'),
+(9, 9, 'App deployed on K8s.'),
+(10, 10, 'Dart functions written.'),
 (10, 3, 'Dart Flutter widgets customization.');
 
 
@@ -153,8 +155,12 @@ INSERT INTO activity_logs (user_id, action, timestamp) VALUES
 INSERT INTO enrollments (user_id, course_id, enrollment_date)
 SELECT DISTINCT s.student_id, a.course_id, CURRENT_DATE
 FROM submissions s
-	JOIN assignments a ON s.assignment_id = a.id
-ON CONFLICT (user_id, course_id) DO NOTHING;  -- to avoid duplicate enrollments if already exist
+JOIN assignments a ON s.assignment_id = a.id
+WHERE NOT EXISTS (
+    SELECT 1 FROM enrollments e
+    WHERE e.user_id = s.student_id AND e.course_id = a.course_id
+);
+
 
 INSERT INTO grades (submission_id, score, feedback)
 VALUES
@@ -217,20 +223,20 @@ INSERT INTO announcements (title, content, instructor_id, course_id) VALUES
 ('Dart Homework Deadline', 'Submit your Dart programming homework by Sunday.', 15, 10);
 
 
-INSERT INTO assignment_materials (assignment_id, material_id)
+INSERT INTO lesson_assignment (lesson_id, assignment_id)
 VALUES
-(1, 1),  -- Java Variables Quiz linked to Java Intro Slides
-(2, 2),  -- React Components Homework linked to React Cheat Sheet
-(3, 3),  -- Python Libraries Exercise linked to Python Data Analysis
-(4, 4),  -- Docker Images Task linked to Docker Commands
-(5, 5),  -- Flutter Layouts Project linked to Flutter Widgets
-(6, 6),  -- Java Streams Assignment linked to Advanced Java Slides
-(7, 7),  -- CSS Flexbox Challenge linked to CSS Grid Tutorial
-(8, 8),  -- Supervised Learning Quiz linked to ML Algorithms
-(9, 9),  -- Kubernetes Services Lab linked to Kubernetes Deployment
-(10, 10); -- Dart Functions Test linked to Dart Basics
+(1, 1),  -- Java Variables lesson linked to Java Variables Quiz
+(2, 2),  -- React Components lesson linked to React Components Homework
+(3, 3),  -- Python Libraries lesson linked to Python Libraries Exercise
+(4, 4),  -- Docker Images lesson linked to Docker Images Task
+(5, 5),  -- Flutter Layouts lesson linked to Flutter Layouts Project
+(6, 6),  -- Java Streams lesson linked to Java Streams Assignment
+(7, 7),  -- CSS Flexbox lesson linked to CSS Flexbox Challenge
+(8, 8),  -- Supervised Learning lesson linked to Supervised Learning Quiz
+(9, 9),  -- Kubernetes Services lesson linked to Kubernetes Services Lab
+(10, 10); -- Dart Functions lesson linked to Dart Functions Test
 
-INSERT INTO lesson_materials (lesson_id, material_id)
+INSERT INTO lesson_material (lesson_id, material_id)
 VALUES
 (1, 1),  -- Java Variables linked to Java Intro Slides
 (2, 2),  -- React Components linked to React Cheat Sheet
@@ -242,3 +248,5 @@ VALUES
 (8, 8),  -- Supervised Learning linked to ML Algorithms
 (9, 9),  -- Kubernetes Services linked to Kubernetes Deployment
 (10, 10); -- Dart Functions linked to Dart Basics
+
+

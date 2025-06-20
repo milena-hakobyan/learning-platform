@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS courses (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    category VARCHAR(100),
     url TEXT,
     instructor_id INT NOT NULL,
 
@@ -194,3 +195,53 @@ CREATE TABLE IF NOT EXISTS announcements (
         REFERENCES courses(id)
         ON DELETE CASCADE
 );
+
+
+CREATE TABLE enrollments (
+     user_id INTEGER NOT NULL,
+     course_id INTEGER NOT NULL,
+     enrollment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (user_id, course_id),
+     FOREIGN KEY (user_id) REFERENCES students(user_id),
+     FOREIGN KEY (course_id) REFERENCES courses(id)
+ );
+
+
+
+ CREATE TABLE IF NOT EXISTS activity_logs (
+     log_id SERIAL PRIMARY KEY,
+     user_id INTEGER NOT NULL,
+     action TEXT NOT NULL,
+     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     CONSTRAINT fk_activity_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+ );
+
+
+ CREATE TABLE IF NOT EXISTS lesson_material (
+     lesson_id INTEGER NOT NULL,
+     material_id INTEGER NOT NULL,
+     PRIMARY KEY (lesson_id, material_id),
+     CONSTRAINT fk_lesson_material_lesson
+         FOREIGN KEY (lesson_id)
+         REFERENCES lessons(id)
+         ON DELETE CASCADE,
+     CONSTRAINT fk_lesson_material_material
+         FOREIGN KEY (material_id)
+         REFERENCES materials(id)
+         ON DELETE CASCADE
+ );
+
+ -- lesson_assignment table: link lessons to assignments (one-to-many or many-to-many)
+ CREATE TABLE IF NOT EXISTS lesson_assignment (
+     lesson_id INTEGER NOT NULL,
+     assignment_id INTEGER NOT NULL,
+     PRIMARY KEY (lesson_id, assignment_id),
+     CONSTRAINT fk_lesson_assignment_lesson
+         FOREIGN KEY (lesson_id)
+         REFERENCES lessons(id)
+         ON DELETE CASCADE,
+     CONSTRAINT fk_lesson_assignment_assignment
+         FOREIGN KEY (assignment_id)
+         REFERENCES assignments(id)
+         ON DELETE CASCADE
+ );

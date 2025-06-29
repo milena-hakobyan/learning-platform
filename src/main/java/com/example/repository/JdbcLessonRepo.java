@@ -25,14 +25,13 @@ public class JdbcLessonRepo implements LessonRepository {
     }
 
     @Override
-    public void update(Lesson lesson) {
-        String updateQuery = "UPDATE lessons SET title = ?, content_description = ?, course_id = ? WHERE id = ?;";
-
-        dbConnection.execute(updateQuery,
+    public Lesson update(Lesson lesson) {
+        String query = "UPDATE lessons SET title = ?, content_description = ?, course_id = ? WHERE id = ? RETURNING *";
+        return dbConnection.findOne(query, this::mapLesson,
                 lesson.getTitle(),
                 lesson.getContent(),
                 lesson.getCourseId(),
-                lesson.getLessonId()
+                lesson.getId()
         );
     }
 
@@ -57,13 +56,13 @@ public class JdbcLessonRepo implements LessonRepository {
     }
 
     @Override
-    public List<Lesson> findByCourseId(Integer courseId) {
+    public List<Lesson> findAllByCourseId(Integer courseId) {
         String query = "SELECT * FROM lessons WHERE course_id = ?";
         return dbConnection.findMany(query, this::mapLesson, courseId);
     }
 
     @Override
-    public List<Lesson> findLessonsByInstructorId(Integer instructorId) {
+    public List<Lesson> findAllLessonsByInstructorId(Integer instructorId) {
         String query = """
                     SELECT l.* FROM lessons l
                     JOIN courses c ON l.course_id = c.id
@@ -74,11 +73,11 @@ public class JdbcLessonRepo implements LessonRepository {
     }
 
     @Override
-    public List<Material> findMaterialsByLessonId(Integer lessonId) {
+    public List<Material> findAllMaterialsByLessonId(Integer lessonId) {
         String query = """
                     SELECT m.*
                     FROM materials m
-                    JOIN lesson_material lm ON m.id = lm.material_id
+                    JOIN lesson_materials lm ON m.id = lm.material_id
                     WHERE lm.lesson_id = ?
                 """;
 
@@ -120,14 +119,14 @@ public class JdbcLessonRepo implements LessonRepository {
             }
         }, material.getTitle());
 
-        String query2 = "INSERT INTO lesson_material (lesson_id, material_id) VALUES (?, ?);";
+        String query2 = "INSERT INTO lesson_materials (lesson_id, material_id) VALUES (?, ?);";
         dbConnection.execute(query2, lessonId, materialId);
 
     }
 
     @Override
     public void removeMaterial(Integer lessonId, Integer materialId) {
-        String query = "DELETE FROM lesson_material WHERE lesson_id = ? AND material_id = ?;";
+        String query = "DELETE FROM lesson_materials WHERE lesson_id = ? AND material_id = ?;";
 
         dbConnection.execute(query, lessonId, materialId);
     }

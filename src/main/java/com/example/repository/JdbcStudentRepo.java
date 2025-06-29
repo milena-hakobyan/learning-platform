@@ -25,27 +25,31 @@ public class JdbcStudentRepo implements StudentRepository {
 
         String insertStudentQuery = "INSERT INTO students (user_id, progress_percentage, completed_courses, current_courses) VALUES (?, ?, ?, ?)";
         dbConnection.execute(insertStudentQuery,
-                savedUser.getUserId(),
+                savedUser.getId(),
                 student.getProgressPercentage(),
                 student.getCompletedCourses(),
                 student.getCurrentCourses()
         );
 
-        return findById(savedUser.getUserId()).orElseThrow(() -> new RuntimeException("Failed to retrieve saved student"));
+        return findById(savedUser.getId()).orElseThrow(() -> new RuntimeException("Failed to retrieve saved student"));
     }
 
 
     @Override
-    public void update(Student student) {
+    public Student update(Student student) {
         String updateQuery = "UPDATE students SET progress_percentage = ?, completed_courses = ?, current_courses = ? WHERE user_id = ?;";
 
         dbConnection.execute(updateQuery,
                 student.getProgressPercentage(),
                 student.getCompletedCourses(),
                 student.getCurrentCourses(),
-                student.getUserId()
+                student.getId()
         );
+
+        return findById(student.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to retrieve updated student"));
     }
+
 
     @Override
     public void delete(Integer userId) {
@@ -83,7 +87,7 @@ public class JdbcStudentRepo implements StudentRepository {
     }
 
     @Override
-    public List<Course> findEnrolledCourses(Integer studentId) {
+    public List<Course> findAllEnrolledCourses(Integer studentId) {
         String query = """
                     SELECT c.*
                     FROM enrollments e JOIN courses c ON e.course_id = c.id

@@ -23,20 +23,20 @@ public class JdbcActivityLogRepo implements ActivityLogRepository {
     }
 
     @Override
-    public void update(ActivityLog entity) {
-        String updateQuery = "UPDATE activity_logs SET user_id = ?, action = ?, timestamp = ? WHERE log_id = ?";
-        dbConnection.execute(updateQuery, entity.getUserId(), entity.getAction(), entity.getTimestamp(), entity.getId());
+    public ActivityLog update(ActivityLog entity) {
+        String updateQuery = "UPDATE activity_logs SET user_id = ?, action = ?, timestamp = ? WHERE id = ?";
+        return dbConnection.findOne(updateQuery, this::mapActivityLog,entity.getUserId(), entity.getAction(), entity.getTimestamp(), entity.getId());
     }
 
     @Override
     public void delete(Integer logId) {
-        String deleteQuery = "DELETE FROM activity_logs WHERE log_id = ?";
+        String deleteQuery = "DELETE FROM activity_logs WHERE id = ?";
         dbConnection.execute(deleteQuery, logId);
     }
 
     @Override
     public Optional<ActivityLog> findById(Integer logId) {
-        String query = "SELECT * FROM activity_logs WHERE log_id = ?";
+        String query = "SELECT * FROM activity_logs WHERE id = ?";
         return Optional.ofNullable(dbConnection.findOne(query, this::mapActivityLog, logId));
     }
 
@@ -47,7 +47,7 @@ public class JdbcActivityLogRepo implements ActivityLogRepository {
     }
 
     @Override
-    public List<ActivityLog> findByUserId(int userId) {
+    public List<ActivityLog> findAllByUserId(int userId) {
         String query = "SELECT * FROM activity_logs WHERE user_id = ? ORDER BY timestamp DESC";
         return dbConnection.findMany(query, this::mapActivityLog, userId);
     }
@@ -55,7 +55,7 @@ public class JdbcActivityLogRepo implements ActivityLogRepository {
     private ActivityLog mapActivityLog(ResultSet rs) {
         try {
             return new ActivityLog(
-                    rs.getInt("log_id"),
+                    rs.getInt("id"),
                     rs.getInt("user_id"),
                     rs.getString("action"),
                     rs.getTimestamp("timestamp").toLocalDateTime()

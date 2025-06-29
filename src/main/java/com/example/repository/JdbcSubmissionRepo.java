@@ -29,24 +29,22 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
     }
 
     @Override
-    public void update(Submission submission) {
+    public Submission update(Submission submission) {
         String sql = """
                     UPDATE submissions
-                    SET assignment_id = ?, student_id = ?, content_link = ?, grade_id = ?, status = ?, submitted_at = ?
-                    WHERE submission_id = ?;
+                    SET assignment_id = ?, student_id = ?, content_link = ?, status = ?, submitted_at = ?
+                    WHERE id = ?
+                    RETURNING *;
                 """;
 
-        dbConnection.execute(
-                sql,
+        return dbConnection.findOne(sql, this::mapSubmission,
                 submission.getAssignmentId(),
                 submission.getStudentId(),
                 submission.getContentLink(),
-                submission.getGradeId(),
-                submission.getStatus(),
+                submission.getStatus() != null ? submission.getStatus().name() : null,
                 submission.getSubmittedAt(),
                 submission.getSubmissionId()
         );
-
     }
 
     @Override
@@ -58,7 +56,7 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
 
     @Override
     public Optional<Submission> findById(Integer submissionId) {
-        String sql = "SELECT * FROM submissions WHERE submission_id = ?;";
+        String sql = "SELECT * FROM submissions WHERE id = ?;";
         Submission submission = dbConnection.findOne(sql, this::mapSubmission, submissionId);
 
         return Optional.ofNullable(submission);
@@ -72,14 +70,14 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
     }
 
     @Override
-    public List<Submission> findByStudentId(Integer studentId) {
+    public List<Submission> findAllByStudentId(Integer studentId) {
         String sql = "SELECT * FROM submissions WHERE student_id = ?;";
 
         return dbConnection.findMany(sql, this::mapSubmission, studentId);
     }
 
     @Override
-    public List<Submission> findByAssignmentId(Integer assignmentId) {
+    public List<Submission> findAllByAssignmentId(Integer assignmentId) {
         String sql = "SELECT * FROM submissions WHERE assignment_id = ?;";
 
         return dbConnection.findMany(sql, this::mapSubmission, assignmentId);
@@ -98,7 +96,7 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
     }
 
     @Override
-    public List<Submission> findByStatus(SubmissionStatus status) {
+    public List<Submission> findAllByStatus(SubmissionStatus status) {
         String sql = "SELECT * FROM submissions WHERE status = ?;";
 
         return dbConnection.findMany(sql, this::mapSubmission, status.name().toLowerCase());
@@ -115,7 +113,7 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
     private Submission mapSubmission(ResultSet rs) {
         try {
             Submission submission = new Submission(
-                    rs.getInt("submission_id"),
+                    rs.getInt("id"),
                     rs.getInt("student_id"),
                     rs.getInt("assignment_id"),
                     rs.getString("content_link"),

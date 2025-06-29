@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface AnnouncementRepository extends CrudRepository<Announcement, Integer> {
 
-    List<Announcement> findByCourseId(Integer courseId);
+    List<Announcement> findAllByCourseId(Integer courseId);
 
-    List<Announcement> findByInstructorId(Integer instructorId);
+    List<Announcement> findAllByInstructorId(Integer instructorId);
 }

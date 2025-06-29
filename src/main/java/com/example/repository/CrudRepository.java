@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface CrudRepository<T, ID> {
     T save(T entity);
 
-    void update(T entity);
+    T update(T entity);
 
     void delete(ID id);
 

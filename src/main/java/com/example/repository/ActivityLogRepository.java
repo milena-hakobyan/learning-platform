@@ -5,5 +5,5 @@ import com.example.model.ActivityLog;
 import java.util.List;
 
 public interface ActivityLogRepository extends CrudRepository<ActivityLog, Integer> {
-    List<ActivityLog> findByUserId(int userId);
+    List<ActivityLog> findAllByUserId(int userId);
 }

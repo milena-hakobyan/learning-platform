@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Lesson {
-    private Integer lessonId;
+    private Integer id;
     private String title;
     private String content;
     private Integer courseId;
@@ -14,19 +14,19 @@ public class Lesson {
     private List<Material> materials = new ArrayList<>();
 
     public Lesson(Integer lessonId, String title, String content, Integer courseId, LocalDateTime uploadDate) {
-        this.lessonId = lessonId;
+        this.id = lessonId;
         this.title = title;
         this.content = content;
         this.courseId = courseId;
         this.uploadDate = uploadDate;
     }
 
-    public Integer getLessonId() {
-        return lessonId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setLessonId(Integer lessonId) {
-        this.lessonId = lessonId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -80,7 +80,7 @@ public class Lesson {
     @Override
     public String toString() {
         return "Lesson{" +
-                "lessonId='" + lessonId + '\'' +
+                "lessonId='" + id + '\'' +
                 ", title='" + title + '\'' +
                 '}';
     }

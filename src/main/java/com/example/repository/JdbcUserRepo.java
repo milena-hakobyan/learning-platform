@@ -28,19 +28,22 @@ public class JdbcUserRepo implements UserRepository {
 
 
     @Override
-    public void update(User user) {
-        String query = "UPDATE users SET " +
-                "user_name = ?, " +
-                "first_name = ?, " +
-                "last_name = ?, " +
-                "email = ?, " +
-                "user_role = ?, " +
-                "password_hash = ?, " +
-                "last_login = ?, " +
-                "is_active = ? " +
-                "WHERE user_id = ?;";
+    public User update(User user) {
+        String query = """
+                        UPDATE users SET
+                        user_name = ?,
+                        first_name = ?,
+                        last_name = ?,
+                        email = ?,
+                        user_role = ?,
+                        password_hash = ?,
+                        last_login = ?,
+                        is_active = ? "
+                        WHERE id = ?
+                        RETURNING *;
+                """;
 
-        dbConnection.execute(query,
+        return dbConnection.findOne(query, this::mapUser,
                 user.getUserName(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -49,26 +52,26 @@ public class JdbcUserRepo implements UserRepository {
                 user.getPassword(),
                 user.getLastLogin(),
                 user.isActive(),
-                user.getUserId()
+                user.getId()
         );
     }
 
     @Override
     public void delete(Integer userId) {
-        String query = "DELETE FROM users WHERE user_id = ?";
+        String query = "DELETE FROM users WHERE id = ?";
         dbConnection.execute(query, userId);
     }
 
     @Override
     public void deactivateUser(Integer userId) {
-        String query = "UPDATE users SET is_active = FALSE WHERE user_id = ?";
+        String query = "UPDATE users SET is_active = FALSE WHERE id = ?";
 
         dbConnection.execute(query, userId);
     }
 
     @Override
     public Optional<User> findById(Integer userId) {
-        String query = "SELECT * FROM users WHERE user_id = ?";
+        String query = "SELECT * FROM users WHERE id = ?";
 
         return Optional.ofNullable(dbConnection.findOne(query, this::mapUser, userId));
     }
@@ -95,7 +98,7 @@ public class JdbcUserRepo implements UserRepository {
     }
 
     @Override
-    public List<User> findByRole(Role role) {
+    public List<User> findAllByRole(Role role) {
         String query = "SELECT * FROM users WHERE user_role = ?;";
 
         return dbConnection.findMany(query, this::mapUser, role);
@@ -109,19 +112,19 @@ public class JdbcUserRepo implements UserRepository {
 
     @Override
     public void ensureEmailAndUsernameAvailable(String email, String username) {
-       findByEmail(email).ifPresent(user -> {
-           throw new IllegalArgumentException("Email already registered");
-       });
-       findByUsername(username).ifPresent(user -> {
-           throw new IllegalArgumentException("Username already exists");
-       });
+        findByEmail(email).ifPresent(user -> {
+            throw new IllegalArgumentException("Email already registered");
+        });
+        findByUsername(username).ifPresent(user -> {
+            throw new IllegalArgumentException("Username already exists");
+        });
     }
 
 
     private User mapUser(ResultSet rs) {
         try {
             return new User(
-                    rs.getInt("user_id"),
+                    rs.getInt("id"),
                     rs.getString("user_name"),
                     rs.getString("first_name"),
                     rs.getString("last_name"),

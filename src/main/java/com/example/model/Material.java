@@ -3,7 +3,7 @@ package com.example.model;
 import java.time.LocalDateTime;
 
 public class Material {
-    private Integer materialId;
+    private Integer id;
     private String title;
     private String contentType;
     private String category;
@@ -12,7 +12,7 @@ public class Material {
     private LocalDateTime uploadDate;
 
     public Material(Integer materialId, String title, String contentType, String category, String url, Integer instructorId, LocalDateTime uploadDate) {
-        this.materialId = materialId;
+        this.id = materialId;
         this.title = title;
         this.contentType = contentType;
         this.category = category;
@@ -21,12 +21,12 @@ public class Material {
         this.uploadDate = uploadDate;
     }
 
-    public Integer getMaterialId() {
-        return materialId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setMaterialId(Integer materialId) {
-        this.materialId = materialId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {

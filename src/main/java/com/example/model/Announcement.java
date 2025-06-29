@@ -3,7 +3,7 @@ package com.example.model;
 import java.time.LocalDateTime;
 
 public class Announcement {
-    private Integer announcementId;
+    private Integer id;
     private String title;
     private String content;
     private Integer instructorId;
@@ -11,7 +11,7 @@ public class Announcement {
     private Integer courseId;
 
     public Announcement(Integer announcementId, String title, String content, Integer instructorId, Integer courseId, LocalDateTime postedAt) {
-        this.announcementId = announcementId;
+        this.id = announcementId;
         this.title = title;
         this.content = content;
         this.instructorId = instructorId;
@@ -23,12 +23,12 @@ public class Announcement {
         this(announcementId, title, content, instructorId, courseId, null);
     }
 
-    public Integer getAnnouncementId() {
-        return announcementId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setAnnouncementId(Integer announcementId) {
-        this.announcementId = announcementId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getTitle() {

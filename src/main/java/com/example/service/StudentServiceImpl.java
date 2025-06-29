@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class StudentServiceImpl implements StudentService {
-    private final UserService userService;
-    private final CourseService courseService;
+    private final CourseManagementService courseManagementService;
+    private final CourseEnrollmentService enrollmentService;
     private final StudentRepository studentRepo;
     private final SubmissionRepository submissionRepo;
     private final LessonRepository lessonRepo;
@@ -19,14 +19,14 @@ public class StudentServiceImpl implements StudentService {
     private final ActivityLogRepository activityLogRepo;
 
 
-    public StudentServiceImpl(UserService userService, CourseService courseService, StudentRepository studentRepo,
+    public StudentServiceImpl(UserService userService, CourseManagementService courseManagementService, CourseEnrollmentService enrollmentService, StudentRepository studentRepo,
                               AssignmentRepository assignmentRepo, GradeRepository gradeRepo, SubmissionRepository submissionRepo, LessonRepository lessonRepo, ActivityLogRepository activityLogRepo) {
-        this.courseService = courseService;
+        this.courseManagementService = courseManagementService;
+        this.enrollmentService = enrollmentService;
         this.studentRepo = studentRepo;
         this.submissionRepo = submissionRepo;
         this.assignmentRepo = assignmentRepo;
         this.gradeRepo = gradeRepo;
-        this.userService = userService;
         this.lessonRepo = lessonRepo;
         this.activityLogRepo = activityLogRepo;
     }
@@ -42,20 +42,20 @@ public class StudentServiceImpl implements StudentService {
     public List<Course> getEnrolledCourses(Integer studentId) {
         studentRepo.ensureStudentExists(studentId);
 
-        return studentRepo.findEnrolledCourses(studentId);
+        return studentRepo.findAllEnrolledCourses(studentId);
     }
 
     @Override
     public List<Submission> getSubmissionsByStudentId(Integer studentId) {
         studentRepo.ensureStudentExists(studentId);
 
-        return submissionRepo.findByStudentId(studentId);
+        return submissionRepo.findAllByStudentId(studentId);
     }
 
     @Override
     public Map<Assignment, Grade> getGradesForCourse(Integer courseId, Integer studentId) {
         studentRepo.ensureStudentExists(studentId);
-        courseService.ensureStudentEnrollment(courseId, studentId);
+        enrollmentService.ensureStudentEnrollment(courseId, studentId);
 
         return gradeRepo.findGradesByStudentIdForCourse(studentId, courseId);
     }
@@ -72,9 +72,9 @@ public class StudentServiceImpl implements StudentService {
     public void enrollInCourse(Integer studentId, Integer courseId) {
         studentRepo.ensureStudentExists(studentId);
 
-        Course course = courseService.getCourseById(courseId).get();
+        Course course = courseManagementService.getCourseById(courseId).get();
 
-        courseService.enrollStudent(courseId, studentId);
+        enrollmentService.enrollStudent(courseId, studentId);
         activityLogRepo.save(new ActivityLog(studentId, "Enrolled in course: " + course.getTitle()));
     }
 
@@ -83,18 +83,18 @@ public class StudentServiceImpl implements StudentService {
     public void dropCourse(Integer studentId, Integer courseId) {
         studentRepo.ensureStudentExists(studentId);
 
-        Course course = courseService.getCourseById(courseId).get();
+        Course course = courseManagementService.getCourseById(courseId).get();
 
-        courseService.ensureStudentEnrollment(studentId, courseId);
+        enrollmentService.ensureStudentEnrollment(studentId, courseId);
 
-        courseService.unenrollStudent(courseId, studentId);
+        enrollmentService.unenrollStudent(courseId, studentId);
         activityLogRepo.save(new ActivityLog(studentId, "Dropped course: " + course.getTitle()));
     }
 
 
     @Override
     public List<Course> browseAvailableCourses() {
-        return courseService.getAllCourses();
+        return courseManagementService.getAllCourses();
     }
 
     @Override
@@ -104,7 +104,7 @@ public class StudentServiceImpl implements StudentService {
         lessonRepo.ensureStudentAccessToLesson(studentId, lessonId);
 
         activityLogRepo.save(new ActivityLog(studentId, "Accessed materials for lesson ID: " + lessonId));
-        return lessonRepo.findMaterialsByLessonId(lessonId);
+        return lessonRepo.findAllMaterialsByLessonId(lessonId);
     }
 
     @Override
@@ -115,10 +115,10 @@ public class StudentServiceImpl implements StudentService {
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        Course course = courseService.getCourseById(assignment.getCourseId())
+        Course course = courseManagementService.getCourseById(assignment.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        courseService.ensureStudentEnrollment(studentId, course.getCourseId());
+        enrollmentService.ensureStudentEnrollment(studentId, course.getId());
 
         submissionRepo.findByAssignmentIdAndStudentId(assignmentId, studentId)
                 .ifPresent(submission -> {

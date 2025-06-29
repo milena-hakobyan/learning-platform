@@ -3,26 +3,26 @@ package com.example.model;
 import java.time.LocalDateTime;
 
 public class Grade {
-    private Integer gradeId;
+    private Integer id;
     private double score;
-    private Integer submissionId;
+    private Integer submissionId; //needs to be removed, this is a 1-to-1 relationship
     private String feedback;
     private LocalDateTime gradedAt;
 
     public Grade(Integer gradeId, double score, Integer submissionId, String feedback, LocalDateTime gradedAt) {
-        this.gradeId = gradeId;
+        this.id = gradeId;
         this.score = score;
         this.submissionId = submissionId;
         this.feedback = feedback;
         this.gradedAt = gradedAt;
     }
 
-    public Integer getGradeId() {
-        return gradeId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setGradeId(Integer gradeId) {
-        this.gradeId = gradeId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getSubmissionId() {

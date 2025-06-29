@@ -5,19 +5,21 @@ import java.util.Collections;
 import java.util.List;
 
 public class Course {
-    private Integer courseId;
+    private Integer id;
     private String title;
     private String description;
     private String category;
     private String url;
     private Integer instructorId;
+
+
     private final List<Lesson> lessons = new ArrayList<>();
     private final List<Assignment> assignments = new ArrayList<>();
     private final List<Student> enrolledStudents = new ArrayList<>();
     private final List<Announcement> announcements = new ArrayList<>();
 
     public Course(Integer courseId, String title, String description, String category, String url, Integer instructorId) {
-        this.courseId = courseId;
+        this.id = courseId;
         this.title = title;
         this.description = description;
         this.category = category;
@@ -25,8 +27,8 @@ public class Course {
         this.instructorId = instructorId;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Integer getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -128,7 +130,7 @@ public class Course {
     @Override
     public String toString() {
         return "Course {" +
-                "courseId='" + courseId + '\'' +
+                "courseId='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +

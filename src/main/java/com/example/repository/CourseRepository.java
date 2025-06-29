@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface CourseRepository extends CrudRepository<Course, Integer> {
     Optional<Course> findByTitle(String title);
 
-    List<Course> findByInstructor(Integer instructorId);
+    List<Course> findAllByInstructor(Integer instructorId);
 
-    List<Course> findByCategory(String category);
+    List<Course> findAllByCategory(String category);
 
     List<Student> findEnrolledStudents(Integer courseId);
 

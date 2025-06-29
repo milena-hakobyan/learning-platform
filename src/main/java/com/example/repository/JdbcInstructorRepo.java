@@ -23,17 +23,29 @@ public class JdbcInstructorRepo implements InstructorRepository {
         User savedUser = userRepo.save(instructor);
 
         String insertInstructorQuery = "INSERT INTO instructors (user_id, bio, total_courses_created, rating, is_verified) VALUES (?, ?, ?, ?, ?)";
-        dbConnection.execute(insertInstructorQuery, savedUser.getUserId(), instructor.getBio(), instructor.getTotalCoursesCreated(), instructor.getRating(), instructor.isVerified());
+        dbConnection.execute(insertInstructorQuery, savedUser.getId(), instructor.getBio(), instructor.getTotalCoursesCreated(), instructor.getRating(), instructor.isVerified());
 
-        return findById(savedUser.getUserId()).orElseThrow(() -> new RuntimeException("Failed to retrieve saved instructor"));
+        return findById(savedUser.getId()).orElseThrow(() -> new RuntimeException("Failed to retrieve saved instructor"));
     }
 
     @Override
-    public void update(Instructor instructor) {
-        String updateQuery = "UPDATE instructors SET bio = ?, total_courses_created = ?, rating = ?, is_verified = ? WHERE user_id = ?";
+    public Instructor update(Instructor instructor) {
+        String updateQuery = """
+                    UPDATE instructors
+                    SET bio = ?, total_courses_created = ?, rating = ?, is_verified = ?
+                    WHERE user_id = ?
+                    RETURNING *;
+                """;
 
-        dbConnection.execute(updateQuery, instructor.getBio(), instructor.getTotalCoursesCreated(), instructor.getRating(), instructor.isVerified(), instructor.getUserId());
+        dbConnection.findOne(updateQuery, rs -> {
+            // no need to return full Instructor because we return from findById
+            return true;
+        }, instructor.getBio(), instructor.getTotalCoursesCreated(), instructor.getRating(), instructor.isVerified(), instructor.getId());
+
+        return findById(instructor.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to retrieve updated instructor"));
     }
+
 
     @Override
     public void delete(Integer userId) {
@@ -48,7 +60,7 @@ public class JdbcInstructorRepo implements InstructorRepository {
                            u.last_login, u.is_active,
                            i.bio, i.total_courses_created, i.rating, i.is_verified
                     FROM instructors i
-                    JOIN users u ON i.user_id = u.user_id
+                    JOIN users u ON i.user_id = u.id
                     WHERE i.user_id = ?
                 """;
 
@@ -63,7 +75,7 @@ public class JdbcInstructorRepo implements InstructorRepository {
                            u.last_login, u.is_active,
                            i.bio, i.total_courses_created, i.rating, i.is_verified
                     FROM instructors i
-                    JOIN users u ON i.user_id = u.user_id
+                    JOIN users u ON i.user_id = u.id
                 """;
 
         return dbConnection.findMany(query, this::mapToInstructor);
@@ -80,7 +92,19 @@ public class JdbcInstructorRepo implements InstructorRepository {
 
     private Instructor mapToInstructor(ResultSet rs) {
         try {
-            return new Instructor(rs.getInt("user_id"), rs.getString("user_name"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), rs.getString("password_hash"), rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toLocalDateTime() : null, rs.getBoolean("is_active"), rs.getString("bio"), rs.getInt("total_courses_created"), rs.getDouble("rating"), rs.getBoolean("is_verified"));
+            return new Instructor(
+                    rs.getInt("user_id"),
+                    rs.getString("user_name"),
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("email"),
+                    rs.getString("password_hash"),
+                    rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toLocalDateTime() : null,
+                    rs.getBoolean("is_active"),
+                    rs.getString("bio"),
+                    rs.getInt("total_courses_created"),
+                    rs.getDouble("rating"),
+                    rs.getBoolean("is_verified"));
         } catch (SQLException e) {
             throw new RuntimeException("Failed to map ResultSet to Instructor", e);
         }

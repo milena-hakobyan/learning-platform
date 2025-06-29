@@ -6,11 +6,11 @@ import com.example.model.Material;
 import java.util.List;
 
 public interface LessonRepository extends CrudRepository<Lesson, Integer>{
-    List<Lesson> findByCourseId(Integer courseId);
+    List<Lesson> findAllByCourseId(Integer courseId);
 
-    List<Lesson> findLessonsByInstructorId(Integer instructorId);
+    List<Lesson> findAllLessonsByInstructorId(Integer instructorId);
 
-    List<Material> findMaterialsByLessonId(Integer lessonId);
+    List<Material> findAllMaterialsByLessonId(Integer lessonId);
 
     void addMaterial(Integer lessonId, Material material);
 

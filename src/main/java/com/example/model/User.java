@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.example.utils.StringUtils;
 
 public class User {
-    private final Integer userId;
+    private final Integer id;
     private String userName;
     private String firstName;
     private String lastName;
@@ -15,8 +15,8 @@ public class User {
     private LocalDateTime lastLogin;
     private boolean isActive;
 
-    public User(Integer userId, String userName, String firstName, String lastName, String email, String password, Role role, LocalDateTime lastLogin, boolean isActive) {
-        this.userId = userId;
+    public User(Integer id, String userName, String firstName, String lastName, String email, String password, Role role, LocalDateTime lastLogin, boolean isActive) {
+        this.id = id;
         this.userName = userName;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -33,8 +33,8 @@ public class User {
         this(null, userName, firstName, lastName, email, password, role, lastLogin, true);
     }
 
-    public Integer getUserId() {
-        return userId;
+    public Integer getId() {
+        return id;
     }
 
     public String getUserName() {
@@ -104,7 +104,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "userId='" + userId + '\'' +
+                "userId='" + id + '\'' +
                 ", userName='" + userName + '\'' +
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +

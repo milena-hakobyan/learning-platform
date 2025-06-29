@@ -8,7 +8,6 @@ public class Submission {
     private Integer assignmentId;
     private LocalDateTime submittedAt;
     private String contentLink;
-    private Integer gradeId;
     private SubmissionStatus status;
 
     public Submission(Integer submissionId, Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
@@ -17,7 +16,6 @@ public class Submission {
         this.assignmentId = assignmentId;
         this.contentLink = contentLink;
         this.submittedAt = submittedAt;
-        this.gradeId = null; // grade will be set later after instructor's evaluation
     }
 
     public Submission(Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
@@ -69,14 +67,6 @@ public class Submission {
         this.studentId = studentId;
     }
 
-    public Integer getGradeId() {
-        return gradeId;
-    }
-
-    public void setGradeId(Integer gradeId) {
-        this.gradeId = gradeId;
-    }
-
     public SubmissionStatus getStatus() {
         return status;
     }
@@ -93,7 +83,6 @@ public class Submission {
                 ", assignmentId='" + assignmentId + '\'' +
                 ", submittedAt=" + submittedAt +
                 ", contentLink='" + contentLink + '\'' +
-                ", gradeId=" + gradeId + '\'' +
                 ", status='" + status + '\'' +
                 '}';
     }

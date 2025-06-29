@@ -6,33 +6,36 @@ import java.util.Collections;
 import java.util.List;
 
 public class Assignment {
-    private Integer assignmentId;
+    private Integer id;
     private String title;
-    private Integer courseId;
     private String description;
     private LocalDateTime dueDate;
     private double maxScore;
     private final List<Material> materials = new ArrayList<>();
 
-    public Assignment(Integer assignmentId, String title, Integer courseId, String description, LocalDateTime dueDate, double maxScore) {
-        this.assignmentId = assignmentId;
+    private Integer courseId;
+
+
+    public Assignment(Integer assignmentId, String title, String description, LocalDateTime dueDate, double maxScore, Integer courseId ) {
+        this.id = assignmentId;
         this.title = title;
-        this.courseId = courseId;
         this.description = description;
         this.dueDate = dueDate;
         this.maxScore = maxScore;
+        this.courseId = courseId;
+
     }
 
-    public Assignment(String title, Integer courseId, String description, LocalDateTime dueDate, double maxScore) {
-        this(null, title, courseId, description, dueDate, maxScore);
+    public Assignment(String title, String description, LocalDateTime dueDate, double maxScore, Integer courseId) {
+        this(null, title, description, dueDate, maxScore, courseId);
     }
 
-    public Integer getAssignmentId() {
-        return assignmentId;
+    public Integer getId() {
+        return id;
     }
 
-    public void setAssignmentId(Integer assignmentId) {
-        this.assignmentId = assignmentId;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Integer getCourseId() {
@@ -90,7 +93,7 @@ public class Assignment {
     @Override
     public String toString() {
         return "Assignment{" +
-                "assignmentId='" + assignmentId + '\'' +
+                "assignmentId='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", dueDate=" + dueDate +
                 ", maxScore=" + maxScore +

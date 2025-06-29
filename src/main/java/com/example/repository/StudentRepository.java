@@ -6,7 +6,7 @@ import com.example.model.Student;
 import java.util.List;
 
 public interface StudentRepository extends CrudRepository<Student, Integer>{
-    List<Course> findEnrolledCourses(Integer studentId);
+    List<Course> findAllEnrolledCourses(Integer studentId);
 
     void ensureStudentExists(Integer studentId);
 }

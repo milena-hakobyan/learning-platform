@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface GradeRepository extends CrudRepository<Grade, Integer> {
-    List<Grade> findGradesByStudentId(Integer studentId);
+    List<Grade> findAllGradesByStudentId(Integer studentId);
 
     Optional<Grade> findByAssignmentIdAndStudentId(Integer assignmentId, Integer studentId);
 

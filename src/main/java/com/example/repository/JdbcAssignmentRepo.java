@@ -3,10 +3,14 @@ package com.example.repository;
 import com.example.model.Assignment;
 import com.example.model.Material;
 import com.example.utils.DatabaseConnection;
+import com.example.utils.DatabaseException;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,17 +31,17 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
     }
 
     @Override
-    public void update(Assignment assignment) {
+    public Assignment update(Assignment assignment) {
         String updateQuery = "UPDATE assignments SET title = ?, description = ?, due_date = ?, max_score = ?, course_id = ? " +
                 "WHERE id = ?;";
 
-        dbConnection.execute(updateQuery,
+        return dbConnection.findOne(updateQuery, this::mapAssignment,
                 assignment.getTitle(),
                 assignment.getDescription(),
                 assignment.getDueDate().toLocalDate(),
                 assignment.getMaxScore(),
                 assignment.getCourseId(),
-                assignment.getAssignmentId()
+                assignment.getId()
         );
     }
 
@@ -62,14 +66,14 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
     }
 
     @Override
-    public List<Assignment> findByCourseId(Integer courseId) {
+    public List<Assignment> findAllByCourseId(Integer courseId) {
         String query = "SELECT * FROM assignments WHERE course_id = ?;";
         return dbConnection.findMany(query, this::mapAssignment, courseId);
     }
 
     @Override
-    public List<Assignment> findAssignmentsByInstructorId(Integer instructorId) {
-       String query = """
+    public List<Assignment> findAllAssignmentsByInstructorId(Integer instructorId) {
+        String query = """
                     SELECT a.* FROM assignments a
                     JOIN courses c ON a.course_id = c.id
                     WHERE c.instructor_id = ?;
@@ -79,7 +83,7 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
     }
 
     @Override
-    public List<Assignment> findByDueDateBefore(LocalDateTime date) {
+    public List<Assignment> findAllByDueDateBefore(LocalDateTime date) {
         String query = "SELECT * FROM assignments WHERE due_date < ?;";
         return dbConnection.findMany(query, this::mapAssignment, date.toLocalDate());
     }
@@ -92,36 +96,54 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
 
     @Override
     public void addMaterial(Integer assignmentId, Material material) {
-        String insertMaterial = "INSERT INTO materials (title, content_type, category, url, instructor_id) VALUES (?, ?, ?, ?, ?);";
-        dbConnection.execute(insertMaterial,
-                material.getTitle(),
-                material.getContentType(),
-                material.getCategory(),
-                material.getUrl(),
-                material.getInstructorId()
-        );
+        String insertMaterial = """
+                INSERT INTO materials (title, content_type, category, url, instructor_id)
+                VALUES (?, ?, ?, ?, ?)
+                RETURNING id;
+                """;
 
-        String findMaterialId = "SELECT id FROM materials WHERE title = ? AND content_type = ? AND url = ? AND instructor_id = ? ORDER BY id DESC LIMIT 1;";
-        Integer materialId = dbConnection.findOne(findMaterialId, rs -> {
-                    try {
-                        return rs.getInt("id");
-                    } catch (SQLException e) {
-                        throw new RuntimeException("Failed to get generated material ID", e);
-                    }
-                },
-                material.getTitle(),
-                material.getContentType(),
-                material.getUrl(),
-                material.getInstructorId()
-        );
+        String linkQuery = """ 
+                INSERT INTO assignment_materials (assignment_id, material_id)
+                VALUES (?, ?);
+                """;
 
-        String linkQuery = "INSERT INTO assignment_material (assignment_id, material_id) VALUES (?, ?);";
-        dbConnection.execute(linkQuery, assignmentId, materialId);
+        try (Connection conn = dbConnection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (
+                    PreparedStatement insertMaterialStmt = conn.prepareStatement(insertMaterial);
+                    PreparedStatement linkQueryStmt = conn.prepareStatement(linkQuery)
+            ) {
+                insertMaterialStmt.setString(1, material.getTitle());
+                insertMaterialStmt.setString(2, material.getContentType());
+                insertMaterialStmt.setString(3, material.getCategory());
+                insertMaterialStmt.setString(4, material.getUrl());
+                insertMaterialStmt.setObject(5, material.getInstructorId());
+
+                ResultSet rs = insertMaterialStmt.executeQuery();
+                if (!rs.next()) {
+                    throw new SQLException("Failed to insert material, no ID returned.");
+                }
+                int materialId = rs.getInt("id");
+
+                linkQueryStmt.setInt(1, assignmentId);
+                linkQueryStmt.setInt(2, materialId);
+                linkQueryStmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new DatabaseException("Transaction failed and was rolled back: " + e.getMessage(), e);
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Connection or rollback failed: " + e.getMessage(), e);
+        }
     }
+
 
     @Override
     public void removeMaterial(Integer assignmentId, Integer materialId) {
-        String query = "DELETE FROM assignment_material WHERE assignment_id = ? AND material_id = ?;";
+        String query = "DELETE FROM assignment_materials WHERE assignment_id = ? AND material_id = ?;";
 
         dbConnection.execute(query, assignmentId, materialId);
     }
@@ -141,11 +163,11 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
             return new Assignment(
                     rs.getInt("id"),
                     rs.getString("title"),
-                    rs.getInt("course_id"),
                     rs.getString("description"),
                     rs.getDate("due_date").toLocalDate().atStartOfDay(),
-                    rs.getDouble("max_score")
-            );
+                    rs.getDouble("max_score"),
+                    rs.getInt("course_id")
+                    );
         } catch (SQLException e) {
             throw new RuntimeException("Error mapping ResultSet to Assignment", e);
         }

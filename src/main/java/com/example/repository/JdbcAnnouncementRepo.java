@@ -22,27 +22,35 @@ public class JdbcAnnouncementRepo implements AnnouncementRepository {
         String query = "INSERT INTO announcements (title, content, instructor_id, course_id) " +
                 "VALUES (?, ?, ?, ?) RETURNING *";
 
-        return dbConnection.findOne(query, this::mapAnnouncement , entity.getTitle(), entity.getContent(), entity.getPostedById(), entity.getCourseId());
+        return dbConnection.findOne(query, this::mapAnnouncement, entity.getTitle(), entity.getContent(), entity.getPostedById(), entity.getCourseId());
     }
 
 
     @Override
-    public void update(Announcement announcement) {
-        if (announcement == null || announcement.getAnnouncementId() == null) {
+    public Announcement update(Announcement announcement) {
+        if (announcement == null || announcement.getId() == null) {
             throw new IllegalArgumentException("Announcement or Announcement ID cannot be null");
         }
 
-        String updateQuery = "UPDATE announcements SET title = ?, content = ?, instructor_id = ?, course_id = ? " +
-                "WHERE id = ?;";
+        String updateQuery = """
+                    UPDATE announcements SET
+                        title = ?,
+                        content = ?,
+                        instructor_id = ?,
+                        course_id = ?
+                    WHERE id = ?
+                    RETURNING *;
+                """;
 
-        dbConnection.execute(updateQuery,
+        return dbConnection.findOne(updateQuery, this::mapAnnouncement,
                 announcement.getTitle(),
                 announcement.getContent(),
                 announcement.getPostedById(),
                 announcement.getCourseId(),
-                announcement.getAnnouncementId()
+                announcement.getId()
         );
     }
+
 
     @Override
     public void delete(Integer announcementId) {
@@ -54,7 +62,7 @@ public class JdbcAnnouncementRepo implements AnnouncementRepository {
 
     @Override
     public Optional<Announcement> findById(Integer announcementId) {
-        if(announcementId == null) throw new IllegalArgumentException("Announcement Id cannot be null");
+        if (announcementId == null) throw new IllegalArgumentException("Announcement Id cannot be null");
 
         String query = "SELECT * FROM announcements WHERE id = ?;";
         return Optional.ofNullable(dbConnection.findOne(query, this::mapAnnouncement, announcementId));
@@ -67,16 +75,16 @@ public class JdbcAnnouncementRepo implements AnnouncementRepository {
     }
 
     @Override
-    public List<Announcement> findByCourseId(Integer courseId) {
-        if(courseId == null) throw new IllegalArgumentException("Course Id cannot be null");
+    public List<Announcement> findAllByCourseId(Integer courseId) {
+        if (courseId == null) throw new IllegalArgumentException("Course Id cannot be null");
 
         String query = "SELECT * FROM announcements WHERE course_id = ?;";
         return dbConnection.findMany(query, this::mapAnnouncement, courseId);
     }
 
     @Override
-    public List<Announcement> findByInstructorId(Integer instructorId) {
-        if(instructorId == null) throw new IllegalArgumentException("Instructor Id cannot be null");
+    public List<Announcement> findAllByInstructorId(Integer instructorId) {
+        if (instructorId == null) throw new IllegalArgumentException("Instructor Id cannot be null");
 
         String query = "SELECT * FROM announcements WHERE instructor_id = ?;";
         return dbConnection.findMany(query, this::mapAnnouncement, instructorId);

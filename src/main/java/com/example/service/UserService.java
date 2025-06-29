@@ -13,11 +13,6 @@ public interface UserService {
     Optional<User> getUserByUserName(String userName);
 
     List<User> getUsersByRole(Role role);
-
-    Student registerStudent(String username, String firstName, String lastName, String email, String rawPassword);
-
-    Instructor registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio);
-
     Optional<User> login(String email, String password);
 
     void updateUser(User user);

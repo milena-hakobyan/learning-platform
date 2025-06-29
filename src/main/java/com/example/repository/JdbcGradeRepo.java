@@ -31,15 +31,22 @@ public class JdbcGradeRepo implements GradeRepository {
     }
 
     @Override
-    public void update(Grade entity) {
+    public Grade update(Grade entity) {
         String updateQuery = """
                 UPDATE grades
                 SET submission_id = ?, score = ?, feedback = ?
-                WHERE id = ?;
+                WHERE id = ?
+                RETURNING *;
                 """;
 
-        dbConnection.execute(updateQuery, entity.getSubmissionId(), entity.getScore(), entity.getFeedback(), entity.getGradeId());
+        return dbConnection.findOne(updateQuery, this::mapGrade,
+                entity.getSubmissionId(),
+                entity.getScore(),
+                entity.getFeedback(),
+                entity.getId()
+        );
     }
+
 
     @Override
     public void delete(Integer gradeId) {
@@ -54,11 +61,11 @@ public class JdbcGradeRepo implements GradeRepository {
     }
 
     @Override
-    public List<Grade> findGradesByStudentId(Integer studentId) {
+    public List<Grade> findAllGradesByStudentId(Integer studentId) {
         String query = """
                 SELECT g.id, g.score, g.submission_id, g.feedback, g.graded_at
                 FROM grades g
-                JOIN submissions s ON g.submission_id = s.submission_id
+                JOIN submissions s ON g.submission_id = s.id
                 WHERE s.student_id = ?
                 """;
 
@@ -74,55 +81,21 @@ public class JdbcGradeRepo implements GradeRepository {
                     WHERE s.assignment_id = ? AND s.student_id = ?
                 """;
 
-        return Optional.ofNullable(dbConnection.findOne(query, rs -> {
-            try {
-                return new Grade(
-                        rs.getInt("grade_id"),
-                        rs.getDouble("score"),
-                        rs.getInt("submission_id"),
-                        rs.getString("feedback"),
-                        rs.getTimestamp("graded_at").toLocalDateTime()
-                );
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }, assignmentId, studentId));
+        return Optional.ofNullable(dbConnection.findOne(query, this::mapGrade, assignmentId, studentId));
     }
 
     @Override
     public Map<Assignment, Grade> findGradesByStudentIdForCourse(Integer studentId, Integer courseId) {
         String query = """
                     SELECT g.id AS grade_id, g.score, g.submission_id, g.feedback, g.graded_at,
-                           a.id, a.title, a.description, a.due_date, a.course_id
+                           a.id AS assignment_id, a.title, a.description, a.due_date, a.course_id
                     FROM grades g
                         JOIN submissions s ON g.submission_id = s.id
                         JOIN assignments a ON s.assignment_id = a.id
                     WHERE s.student_id = ? AND a.course_id = ?
                 """;
 
-        return dbConnection.findMany(query, rs -> {
-                    try {
-                        Assignment assignment = new Assignment(
-                                rs.getInt("assignment_id"),
-                                rs.getString("title"),
-                                rs.getInt("column_id"),
-                                rs.getString("description"),
-                                rs.getTimestamp("due_date").toLocalDateTime(),
-                                rs.getInt("course_id")
-                        );
-                        Grade grade = new Grade(
-                                rs.getInt("grade_id"),
-                                rs.getDouble("score"),
-                                rs.getInt("submission_id"),
-                                rs.getString("feedback"),
-                                rs.getTimestamp("graded_at").toLocalDateTime()
-                        );
-                        return Map.entry(assignment, grade);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }, studentId, courseId).stream()
+        return dbConnection.findMany(query, this::mapAssignmentGrade, studentId, courseId).stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
@@ -146,4 +119,30 @@ public class JdbcGradeRepo implements GradeRepository {
             throw new RuntimeException("Error mapping ResultSet to Grade", e);
         }
     }
+
+    private Map.Entry<Assignment, Grade> mapAssignmentGrade(ResultSet rs) {
+        try {
+            Assignment assignment = new Assignment(
+                    rs.getInt("assignment_id"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getTimestamp("due_date").toLocalDateTime(),
+                    rs.getInt("max_score"),
+                    rs.getInt("course_id")
+            );
+
+            Grade grade = new Grade(
+                    rs.getInt("grade_id"),
+                    rs.getDouble("score"),
+                    rs.getInt("submission_id"),
+                    rs.getString("feedback"),
+                    rs.getTimestamp("graded_at").toLocalDateTime()
+            );
+
+            return Map.entry(assignment, grade);
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to map Assignment and Grade", e);
+        }
+    }
+
 }

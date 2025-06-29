@@ -25,41 +25,11 @@ public class UserServiceImpl implements UserService {
         this.instructorRepo = instructorRepo;
     }
 
-    @Override
-    public Student registerStudent(String username, String firstName, String lastName, String email, String rawPassword) {
-        userRepo.ensureEmailAndUsernameAvailable(username, email);
-
-        Student student = new Student(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
-                LocalDateTime.now());
-
-        saveUser(student);
-        return student;
-    }
-
-    @Override
-    public Instructor registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio) {
-        userRepo.ensureEmailAndUsernameAvailable(username, email);
-
-        Instructor instructor = new Instructor(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
-                LocalDateTime.now(), bio);
-
-        saveUser(instructor);
-        return instructor;
-    }
-
-    private void saveUser(User user) {
-        userRepo.save(user);
-        if (user instanceof Student) {
-            studentRepo.save((Student) user);
-        } else if (user instanceof Instructor) {
-            instructorRepo.save((Instructor) user);
-        }
-    }
 
     @Override
     public void updateUser(User user) {
         Objects.requireNonNull(user, "UserService: user cannot be null");
-        userRepo.ensureUserExists(user.getUserId());
+        userRepo.ensureUserExists(user.getId());
 
         userRepo.update(user);
     }
@@ -104,7 +74,7 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsersByRole(Role role) {
         Objects.requireNonNull(role, "UserService: role cannot be null");
 
-        return userRepo.findByRole(role);
+        return userRepo.findAllByRole(role);
     }
 
     @Override

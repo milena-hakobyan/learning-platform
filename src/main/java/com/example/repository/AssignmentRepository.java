@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AssignmentRepository extends CrudRepository<Assignment, Integer> {
-    List<Assignment> findByCourseId(Integer courseId);
+    List<Assignment> findAllByCourseId(Integer courseId);
 
-    List<Assignment> findAssignmentsByInstructorId(Integer instructorId);
+    List<Assignment> findAllAssignmentsByInstructorId(Integer instructorId);
 
-    List<Assignment> findByDueDateBefore(LocalDateTime date);
+    List<Assignment> findAllByDueDateBefore(LocalDateTime date);
 
     Optional<Assignment> findByTitle(String title);
 

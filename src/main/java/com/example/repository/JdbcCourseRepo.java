@@ -4,6 +4,7 @@ import com.example.model.Course;
 import com.example.model.Student;
 import com.example.utils.DatabaseConnection;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
@@ -24,10 +25,22 @@ public class JdbcCourseRepo implements CourseRepository {
     }
 
     @Override
-    public void update(Course entity) {
-        String updateQuery = "UPDATE courses SET title = ?, description = ?, category = ?, url = ?, instructor_id = ? " + "WHERE id = ?";
+    public Course update(Course entity) {
+        String updateQuery = """
+                UPDATE courses
+                SET title = ?, description = ?, category = ?, url = ?, instructor_id = ?
+                WHERE id = ?
+                RETURNING *;
+                """;
 
-        dbConnection.execute(updateQuery, entity.getTitle(), entity.getDescription(), entity.getCategory(), entity.getUrl(), entity.getInstructorId(), entity.getCourseId());
+        return dbConnection.findOne(updateQuery, this::mapCourse,
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getCategory(),
+                entity.getUrl(),
+                entity.getInstructorId(),
+                entity.getId()
+        );
     }
 
     @Override
@@ -56,13 +69,13 @@ public class JdbcCourseRepo implements CourseRepository {
     }
 
     @Override
-    public List<Course> findByInstructor(Integer instructorId) {
+    public List<Course> findAllByInstructor(Integer instructorId) {
         String query = "SELECT * FROM courses WHERE instructor_id = ?;";
         return dbConnection.findMany(query, this::mapCourse, instructorId);
     }
 
     @Override
-    public List<Course> findByCategory(String category) {
+    public List<Course> findAllByCategory(String category) {
         String query = "SELECT * FROM courses WHERE category = ?;";
         return dbConnection.findMany(query, this::mapCourse, category);
     }
@@ -82,13 +95,7 @@ public class JdbcCourseRepo implements CourseRepository {
                      WHERE e.course_id = ?
                 """;
 
-        return dbConnection.findMany(query, rs -> {
-            try {
-                return new Student(rs.getInt("user_id"), rs.getString("username"), rs.getString("first_name"), rs.getString("last_name"), rs.getString("email"), rs.getString("password_hash"), rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toLocalDateTime() : null, rs.getBoolean("is_active"), rs.getDouble("progress_percentage"), rs.getInt("completed_courses"), rs.getInt("current_courses"));
-            } catch (SQLException e) {
-                throw new RuntimeException("Error mapping student", e);
-            }
-        }, courseId);
+        return dbConnection.findMany(query, this::mapStudent, courseId);
     }
 
 
@@ -122,7 +129,7 @@ public class JdbcCourseRepo implements CourseRepository {
         }
     }
 
-    private Course mapCourse(java.sql.ResultSet rs) {
+    private Course mapCourse(ResultSet rs) {
         try {
             return new Course(
                     rs.getInt("id"),
@@ -135,4 +142,25 @@ public class JdbcCourseRepo implements CourseRepository {
             throw new RuntimeException("Error mapping ResultSet to Course", e);
         }
     }
+
+    private Student mapStudent(ResultSet rs) {
+        try {
+            return new Student(
+                    rs.getInt("user_id"),
+                    rs.getString("username"),
+                    rs.getString("first_name"),
+                    rs.getString("last_name"),
+                    rs.getString("email"),
+                    rs.getString("password_hash"),
+                    rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toLocalDateTime() : null,
+                    rs.getBoolean("is_active"),
+                    rs.getDouble("progress_percentage"),
+                    rs.getInt("completed_courses"),
+                    rs.getInt("current_courses")
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException("Error mapping ResultSet to Student", e);
+        }
+    }
+
 }

@@ -1,3 +1,4 @@
+-- Insert Users
 INSERT INTO users (user_name, first_name, last_name, email, user_role, password_hash, last_login)
 VALUES
 ('student1', 'Alice', 'Walker', 'alice@example.com', 'STUDENT', 'hash1', NOW()),
@@ -21,7 +22,7 @@ VALUES
 ('admin4', 'Kevin', 'Walker', 'kevin@example.com', 'ADMIN', 'hash19', NOW()),
 ('admin5', 'Rachel', 'Hall', 'rachel@example.com', 'ADMIN', 'hash20', NOW());
 
-
+-- Insert Students
 INSERT INTO students (user_id, progress_percentage, completed_courses, current_courses)
 VALUES
 (1, 80.00, 4, 2),
@@ -35,24 +36,25 @@ VALUES
 (9, 95.00, 7, 0),
 (10, 50.00, 1, 5);
 
-
+-- Insert Instructors
 INSERT INTO instructors (user_id, bio, expertise, total_courses_created, rating, is_verified)
 VALUES
-(11, 'Java and Spring expert.', ARRAY['Java', 'Spring'], 3, 4.8, TRUE),
-(12, 'Frontend developer', ARRAY['HTML', 'CSS', 'React'], 2, 4.5, FALSE),
-(13, 'Data Scientist', ARRAY['Python', 'Machine Learning'], 4, 4.9, TRUE),
-(14, 'DevOps Engineer', ARRAY['Docker', 'Kubernetes'], 5, 4.7, TRUE),
-(15, 'Mobile App Developer', ARRAY['Flutter', 'Dart'], 2, 4.6, FALSE);
+(11, 'Java and Spring expert.', 'Java, Spring', 3, 4.8, TRUE),
+(12, 'Frontend developer', 'HTML, CSS, React', 2, 4.5, FALSE),
+(13, 'Data Scientist', 'Python, Machine Learning', 4, 4.9, TRUE),
+(14, 'DevOps Engineer', 'Docker, Kubernetes', 5, 4.7, TRUE),
+(15, 'Mobile App Developer', 'Flutter, Dart', 2, 4.6, FALSE);
 
-
+-- Insert Admins
 INSERT INTO admins (user_id, access_level, privileges, is_super_admin)
 VALUES
-(16, 5, ARRAY['user_mgmt', 'course_approval'], TRUE),
-(17, 4, ARRAY['user_mgmt'], FALSE),
-(18, 3, ARRAY['course_approval'], FALSE),
-(19, 2, ARRAY['reporting'], FALSE),
-(20, 1, ARRAY['support'], FALSE);
+(16, 5, 'user_mgmt, course_approval', TRUE),
+(17, 4, 'user_mgmt', FALSE),
+(18, 3, 'course_approval', FALSE),
+(19, 2, 'reporting', FALSE),
+(20, 1, 'support', FALSE);
 
+-- Insert Courses
 INSERT INTO courses (title, description, category, url, instructor_id)
 VALUES
 ('Java Basics', 'Learn core Java concepts', 'Programming', 'http://example.com/java', 11),
@@ -65,7 +67,6 @@ VALUES
 ('Machine Learning', 'Introduction to ML concepts', 'Data Science', 'http://example.com/ml', 13),
 ('Kubernetes Basics', 'Orchestrate containers', 'DevOps', 'http://example.com/k8s', 14),
 ('Dart Programming', 'Learn Dart language', 'Programming', 'http://example.com/dart', 15);
-
 
 
 INSERT INTO materials (title, content_type, category, url, instructor_id)
@@ -150,11 +151,11 @@ INSERT INTO activity_logs (user_id, action, timestamp) VALUES
 (10, 'Updated profile information', '2025-05-20 12:00:00');
 
 
-INSERT INTO enrollments (user_id, course_id, enrollment_date)
+INSERT INTO enrollments (student_id, course_id, enrollment_date)
 SELECT DISTINCT s.student_id, a.course_id, CURRENT_DATE
 FROM submissions s
 	JOIN assignments a ON s.assignment_id = a.id
-ON CONFLICT (user_id, course_id) DO NOTHING;  -- to avoid duplicate enrollments if already exist
+ON CONFLICT (student_id, course_id) DO NOTHING;  -- to avoid duplicate enrollments if already exist
 
 INSERT INTO grades (submission_id, score, feedback)
 VALUES
@@ -179,8 +180,6 @@ VALUES
 (19, 90.5, 'Kubernetes configuration is solid.'),
 (20, 88.0, 'Custom widgets implemented well.');
 
-
-UPDATE submissions SET grade_id = id WHERE id BETWEEN 1 AND 20;
 
 UPDATE submissions SET status = 'graded' WHERE id BETWEEN 1 AND 20;
 

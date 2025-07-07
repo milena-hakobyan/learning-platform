@@ -2,12 +2,14 @@ package com.example.service;
 
 import com.example.model.*;
 import com.example.repository.*;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Service
 public class StudentServiceImpl implements StudentService {
     private final CourseManagementService courseManagementService;
     private final CourseEnrollmentService enrollmentService;

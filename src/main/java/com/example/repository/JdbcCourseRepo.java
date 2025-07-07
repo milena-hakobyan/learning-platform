@@ -3,6 +3,7 @@ package com.example.repository;
 import com.example.model.Course;
 import com.example.model.Student;
 import com.example.utils.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+
+@Repository
 public class JdbcCourseRepo implements CourseRepository {
     private final DatabaseConnection dbConnection;
 

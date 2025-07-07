@@ -1,4 +1,4 @@
-package com.example;
+package com.example.tasks;
 
 import com.example.utils.DatabaseConnection;
 import com.zaxxer.hikari.HikariDataSource;

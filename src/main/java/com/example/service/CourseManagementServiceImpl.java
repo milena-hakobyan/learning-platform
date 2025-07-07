@@ -2,11 +2,13 @@ package com.example.service;
 
 import com.example.model.*;
 import com.example.repository.*;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Service
 public class CourseManagementServiceImpl implements CourseManagementService {
 
     private final CourseRepository courseRepo;

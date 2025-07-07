@@ -2,12 +2,14 @@ package com.example.repository;
 
 import com.example.model.ActivityLog;
 import com.example.utils.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class JdbcActivityLogRepo implements ActivityLogRepository {
     private final DatabaseConnection dbConnection;
 

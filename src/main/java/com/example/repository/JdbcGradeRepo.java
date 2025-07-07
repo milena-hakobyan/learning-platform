@@ -3,6 +3,7 @@ package com.example.repository;
 import com.example.model.Assignment;
 import com.example.model.Grade;
 import com.example.utils.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
+@Repository
 public class JdbcGradeRepo implements GradeRepository {
     private final DatabaseConnection dbConnection;
 

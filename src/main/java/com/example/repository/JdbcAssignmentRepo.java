@@ -4,6 +4,7 @@ import com.example.model.Assignment;
 import com.example.model.Material;
 import com.example.utils.DatabaseConnection;
 import com.example.utils.DatabaseException;
+import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@Repository
 public class JdbcAssignmentRepo implements AssignmentRepository {
     private final DatabaseConnection dbConnection;
 

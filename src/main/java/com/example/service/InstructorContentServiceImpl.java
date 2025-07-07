@@ -2,32 +2,28 @@ package com.example.service;
 
 import com.example.model.*;
 import com.example.repository.*;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class InstructorContentServiceImpl implements InstructorContentService {
-    private final UserService userService;
     private final InstructorRepository instructorRepo;
     private final AssignmentService assignmentService;
     private final LessonRepository lessonRepo;
     private final LessonService lessonService;
     private final AssignmentRepository assignmentRepo;
-    private final SubmissionRepository submissionRepo;
-    private final GradeRepository gradeRepo;
     private final ActivityLogRepository activityLogRepo;
     private final InstructorAuthorizationService instructorService;
 
 
     public InstructorContentServiceImpl(UserService userService, InstructorRepository instructorRepo, AssignmentService assignmentService, LessonRepository lessonRepo, LessonService lessonService, AssignmentRepository assignmentRepo, SubmissionRepository submissionRepo, GradeRepository gradeRepo, ActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorService) {
-        this.userService = userService;
         this.instructorRepo = instructorRepo;
         this.assignmentService = assignmentService;
         this.lessonRepo = lessonRepo;
         this.lessonService = lessonService;
         this.assignmentRepo = assignmentRepo;
-        this.submissionRepo = submissionRepo;
-        this.gradeRepo = gradeRepo;
         this.activityLogRepo = activityLogRepo;
         this.instructorService = instructorService;
     }

@@ -4,9 +4,11 @@ import com.example.model.ActivityLog;
 import com.example.model.Course;
 import com.example.repository.ActivityLogRepository;
 import com.example.repository.InstructorRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class InstructorCourseServiceImpl implements InstructorCourseService {
     private final ActivityLogRepository activityLogRepo;
     private final CourseManagementService courseService;

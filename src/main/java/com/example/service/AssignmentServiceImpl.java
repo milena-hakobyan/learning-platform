@@ -6,10 +6,12 @@ import com.example.model.Submission;
 import com.example.repository.AssignmentRepository;
 import com.example.repository.CourseRepository;
 import com.example.repository.SubmissionRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class AssignmentServiceImpl implements AssignmentService {
     private final CourseRepository courseRepo;
     private final AssignmentRepository assignmentRepo;

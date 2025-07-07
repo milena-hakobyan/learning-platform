@@ -2,9 +2,11 @@ package com.example.service;
 
 import com.example.model.Student;
 import com.example.repository.CourseRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     private final CourseRepository courseRepo;
 

@@ -3,6 +3,7 @@ package com.example.repository;
 import com.example.model.Submission;
 import com.example.model.SubmissionStatus;
 import com.example.utils.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+
+@Repository
 public class JdbcSubmissionRepo implements SubmissionRepository {
     private final DatabaseConnection dbConnection;
 

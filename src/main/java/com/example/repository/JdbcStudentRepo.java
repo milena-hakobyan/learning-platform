@@ -4,12 +4,14 @@ import com.example.model.Course;
 import com.example.model.Student;
 import com.example.model.User;
 import com.example.utils.DatabaseConnection;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class JdbcStudentRepo implements StudentRepository {
     private final DatabaseConnection dbConnection;
     private final UserRepository userRepo;

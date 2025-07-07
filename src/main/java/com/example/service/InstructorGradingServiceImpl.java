@@ -5,10 +5,12 @@ import com.example.model.Grade;
 import com.example.model.Submission;
 import com.example.model.SubmissionStatus;
 import com.example.repository.*;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class InstructorGradingServiceImpl implements InstructorGradingService {
     private final InstructorRepository instructorRepo;
     private final AssignmentRepository assignmentRepo;

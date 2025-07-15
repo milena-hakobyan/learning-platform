@@ -1,4 +1,4 @@
-package com.example;
+package com.example.tasks;
 
 import io.github.cdimascio.dotenv.Dotenv;
 

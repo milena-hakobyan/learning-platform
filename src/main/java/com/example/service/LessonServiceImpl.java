@@ -5,10 +5,12 @@ import com.example.model.Lesson;
 import com.example.model.Material;
 import com.example.repository.CourseRepository;
 import com.example.repository.LessonRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class LessonServiceImpl implements LessonService {
     private final CourseRepository courseRepo;
     private final LessonRepository lessonRepo;

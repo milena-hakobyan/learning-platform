@@ -7,9 +7,11 @@ import com.example.repository.InstructorRepository;
 import com.example.repository.StudentRepository;
 import com.example.repository.UserRepository;
 import com.example.utils.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Service
 public class RegistrationServiceImpl implements RegistrationService{
     private final UserRepository userRepo;
     private final StudentRepository studentRepo;

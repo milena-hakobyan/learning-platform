@@ -28,10 +28,11 @@ public class LessonServiceImpl implements LessonService {
     }
 
 
+
     @Override
     public void addLessonToCourse(Integer courseId, Lesson lesson) {
-        courseRepo.ensureCourseExists(courseId);
         Objects.requireNonNull(lesson, "Lesson cannot be null");
+        courseRepo.ensureCourseExists(courseId);
 
         lesson.setCourseId(courseId);
 
@@ -43,30 +44,29 @@ public class LessonServiceImpl implements LessonService {
         courseRepo.ensureCourseExists(courseId);
         lessonRepo.ensureLessonExists(lessonId);
 
-        Course course = courseRepo.findById(courseId).get();
+        Lesson lesson = lessonRepo.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
 
-        boolean lessonBelongsToCourse = course.getLessons().stream()
-                .anyMatch(lesson -> lesson.getId().equals(lessonId));
-
-        if (!lessonBelongsToCourse) {
+        if (!lesson.getCourseId().equals(courseId)) {
             throw new IllegalArgumentException("Lesson does not belong to the given course");
         }
 
         lessonRepo.delete(lessonId);
     }
 
+
     @Override
     public void addMaterialToLesson(Integer lessonId, Material material) {
-        lessonRepo.ensureLessonExists(lessonId);
         Objects.requireNonNull(material, "Material cannot be null");
+        lessonRepo.ensureLessonExists(lessonId);
 
         lessonRepo.addMaterial(lessonId, material);
     }
 
     @Override
     public void removeMaterialFromLesson(Integer lessonId, Integer materialId) {
-        lessonRepo.ensureLessonExists(lessonId);
         Objects.requireNonNull(materialId, "Material ID cannot be null");
+        lessonRepo.ensureLessonExists(lessonId);
 
         lessonRepo.removeMaterial(lessonId, materialId);
     }

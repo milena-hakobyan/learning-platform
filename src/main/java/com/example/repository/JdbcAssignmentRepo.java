@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,6 +90,18 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
     }
 
     @Override
+    public List<Material> findMaterialsByAssignmentId(Integer assignmentId) {
+        String sql = """
+                    SELECT m.id, m.title, m.content_type, m.category, m.url, m.instructor_id, m.upload_date
+                    FROM materials m
+                    JOIN assignment_materials am ON m.id = am.material_id
+                    WHERE am.assignment_id = ?;
+                """;
+        return dbConnection.findMany(sql, this::mapMaterial, assignmentId);
+    }
+
+
+    @Override
     public Optional<Assignment> findByTitle(String title) {
         String query = "SELECT * FROM assignments WHERE title = ?;";
         return Optional.ofNullable(dbConnection.findOne(query, this::mapAssignment, title));
@@ -159,6 +170,21 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
         }
     }
 
+    private Material mapMaterial(ResultSet rs) {
+        try {
+            return new Material(
+                    rs.getInt("id"),
+                    rs.getString("title"),
+                    rs.getString("content_type"),
+                    rs.getString("category"),
+                    rs.getString("url"),
+                    rs.getInt("instructor_id"),
+                    rs.getTimestamp("upload_date").toLocalDateTime()
+            );
+        } catch (SQLException e) {
+            throw new RuntimeException("Error mapping ResultSet to Material", e);
+        }
+    }
 
     private Assignment mapAssignment(ResultSet rs) {
         try {
@@ -169,7 +195,7 @@ public class JdbcAssignmentRepo implements AssignmentRepository {
                     rs.getDate("due_date").toLocalDate().atStartOfDay(),
                     rs.getDouble("max_score"),
                     rs.getInt("course_id")
-                    );
+            );
         } catch (SQLException e) {
             throw new RuntimeException("Error mapping ResultSet to Assignment", e);
         }

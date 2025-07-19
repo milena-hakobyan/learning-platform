@@ -51,28 +51,26 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
 
-
     @Override
     public void addMaterialToAssignment(Integer assignmentId, Material material) {
-        assignmentRepo.ensureAssignmentExists(assignmentId);
         Objects.requireNonNull(material, "Material cannot be null");
+        assignmentRepo.ensureAssignmentExists(assignmentId);
 
         assignmentRepo.addMaterial(assignmentId, material);
     }
 
     @Override
     public void removeMaterialFromAssignment(Integer assignmentId, Integer materialId) {
-        assignmentRepo.ensureAssignmentExists(assignmentId);
         Objects.requireNonNull(materialId, "Material ID cannot be null");
+        assignmentRepo.ensureAssignmentExists(assignmentId);
 
         assignmentRepo.removeMaterial(assignmentId, materialId);
     }
+
     @Override
     public List<Assignment> getAssignmentsForCourse(Integer courseId) {
         courseRepo.ensureCourseExists(courseId);
 
         return assignmentRepo.findAllByCourseId(courseId);
     }
-
-
 }

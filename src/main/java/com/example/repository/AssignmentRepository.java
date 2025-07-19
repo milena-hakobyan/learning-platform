@@ -14,6 +14,8 @@ public interface AssignmentRepository extends CrudRepository<Assignment, Integer
 
     List<Assignment> findAllByDueDateBefore(LocalDateTime date);
 
+    List<Material> findMaterialsByAssignmentId(Integer assignmentId);
+
     Optional<Assignment> findByTitle(String title);
 
     void addMaterial(Integer assignmentId, Material material);

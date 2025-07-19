@@ -120,7 +120,10 @@ public class JdbcLessonRepo implements LessonRepository {
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to get generated material ID", e);
             }
-        }, material.getTitle());
+        }, material.getTitle(),
+                material.getContentType(),
+                material.getUrl(),
+                material.getInstructorId());
 
         String query2 = "INSERT INTO lesson_materials (lesson_id, material_id) VALUES (?, ?);";
         dbConnection.execute(query2, lessonId, materialId);
@@ -140,7 +143,7 @@ public class JdbcLessonRepo implements LessonRepository {
         SELECT 1
         FROM lessons l
             JOIN enrollments e ON l.course_id = e.course_id
-        WHERE e.user_id = ? AND l.id = ? LIMIT 1;
+        WHERE e.student_id = ? AND l.id = ? LIMIT 1;
     """;
 
         boolean hasAccess = dbConnection.findOne(query, rs -> true, studentId, lessonId) != null;
@@ -173,4 +176,6 @@ public class JdbcLessonRepo implements LessonRepository {
             throw new RuntimeException("Error mapping ResultSet to Lesson", e);
         }
     }
+
+
 }

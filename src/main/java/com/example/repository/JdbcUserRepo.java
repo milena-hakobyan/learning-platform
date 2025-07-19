@@ -22,7 +22,7 @@ public class JdbcUserRepo implements UserRepository {
     @Override
     public User save(User user) {
         String query = "INSERT INTO users (user_name, first_name, last_name, email, user_role, password_hash, last_login) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *;";
+                "VALUES (?, ?, ?, ?, ?::user_role, ?, ?) RETURNING *;";
 
         return dbConnection.findOne(query, this::mapUser, user.getUserName(), user.getFirstName(), user.getLastName(),
                 user.getEmail(), user.getRole().toString(), user.getPassword(), user.getLastLogin());
@@ -37,10 +37,10 @@ public class JdbcUserRepo implements UserRepository {
                         first_name = ?,
                         last_name = ?,
                         email = ?,
-                        user_role = ?,
+                        user_role = ?::user_role,
                         password_hash = ?,
                         last_login = ?,
-                        is_active = ? "
+                        is_active = ?
                         WHERE id = ?
                         RETURNING *;
                 """;
@@ -50,7 +50,7 @@ public class JdbcUserRepo implements UserRepository {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
-                user.getRole().toString(),
+                user.getRole().name(),
                 user.getPassword(),
                 user.getLastLogin(),
                 user.isActive(),
@@ -101,9 +101,9 @@ public class JdbcUserRepo implements UserRepository {
 
     @Override
     public List<User> findAllByRole(Role role) {
-        String query = "SELECT * FROM users WHERE user_role = ?;";
+        String query = "SELECT * FROM users WHERE user_role = ?::user_role;";
 
-        return dbConnection.findMany(query, this::mapUser, role);
+        return dbConnection.findMany(query, this::mapUser, role.name());
     }
 
     @Override
@@ -113,7 +113,14 @@ public class JdbcUserRepo implements UserRepository {
     }
 
     @Override
-    public void ensureEmailAndUsernameAvailable(String email, String username) {
+    public void ensureEmailAndUsernameAvailable(String username, String email) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username must not be null or empty");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Email must not be null or empty");
+        }
+
         findByEmail(email).ifPresent(user -> {
             throw new IllegalArgumentException("Email already registered");
         });

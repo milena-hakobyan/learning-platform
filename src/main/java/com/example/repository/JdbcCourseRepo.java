@@ -90,10 +90,10 @@ public class JdbcCourseRepo implements CourseRepository {
         }
 
         String query = """
-                     SELECT u.id AS user_id, u.username, u.email, u.first_name, u.last_name, u.password_hash,
+                     SELECT u.id AS user_id, u.user_name, u.email, u.first_name, u.last_name, u.password_hash,
                             u.last_login, u.is_active, s.progress_percentage, s.completed_courses, s.current_courses
                      FROM enrollments e
-                     JOIN users u ON u.id = e.user_id
+                     JOIN users u ON u.id = e.student_id
                      JOIN students s ON s.user_id = u.id
                      WHERE e.course_id = ?
                 """;
@@ -104,14 +104,14 @@ public class JdbcCourseRepo implements CourseRepository {
 
     @Override
     public void enrollStudent(Integer courseId, Integer studentId) {
-        String query = "INSERT INTO enrollments (user_id, course_id) VALUES (?, ?);";
+        String query = "INSERT INTO enrollments (student_id, course_id) VALUES (?, ?);";
 
         dbConnection.execute(query, studentId, courseId);
     }
 
     @Override
     public void unenrollStudent(Integer courseId, Integer studentId) {
-        String query = "DELETE FROM enrollments WHERE user_id = ? AND course_id = ?;";
+        String query = "DELETE FROM enrollments WHERE student_id = ? AND course_id = ?;";
 
         dbConnection.execute(query, studentId, courseId);
     }
@@ -119,7 +119,7 @@ public class JdbcCourseRepo implements CourseRepository {
 
     @Override
     public boolean isStudentEnrolled(Integer studentId, Integer courseId) {
-        String query = "SELECT 1 FROM enrollments WHERE user_id = ? AND course_id = ? LIMIT 1";
+        String query = "SELECT 1 FROM enrollments WHERE student_id = ? AND course_id = ? LIMIT 1";
         return dbConnection.findOne(query, rs -> true, studentId, courseId) != null;
     }
 
@@ -150,7 +150,7 @@ public class JdbcCourseRepo implements CourseRepository {
         try {
             return new Student(
                     rs.getInt("user_id"),
-                    rs.getString("username"),
+                    rs.getString("user_name"),
                     rs.getString("first_name"),
                     rs.getString("last_name"),
                     rs.getString("email"),

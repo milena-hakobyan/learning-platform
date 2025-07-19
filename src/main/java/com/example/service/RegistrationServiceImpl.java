@@ -30,8 +30,7 @@ public class RegistrationServiceImpl implements RegistrationService{
         Student student = new Student(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
                 LocalDateTime.now());
 
-        saveUser(student);
-        return student;
+        return (Student) saveUser(student);
     }
 
     @Override
@@ -41,16 +40,15 @@ public class RegistrationServiceImpl implements RegistrationService{
         Instructor instructor = new Instructor(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
                 LocalDateTime.now(), bio);
 
-        saveUser(instructor);
-        return instructor;
+        return (Instructor) saveUser(instructor);
     }
 
-    public void saveUser(User user) {
-        userRepo.save(user);
+    public User saveUser(User user) {
         if (user instanceof Student) {
-            studentRepo.save((Student) user);
+            user = studentRepo.save((Student) user);
         } else if (user instanceof Instructor) {
-            instructorRepo.save((Instructor) user);
+            user = instructorRepo.save((Instructor) user);
         }
+        return user;
     }
 }

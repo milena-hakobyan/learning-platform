@@ -18,7 +18,7 @@ public class InstructorContentServiceImpl implements InstructorContentService {
     private final InstructorAuthorizationService instructorService;
 
 
-    public InstructorContentServiceImpl(UserService userService, InstructorRepository instructorRepo, AssignmentService assignmentService, LessonRepository lessonRepo, LessonService lessonService, AssignmentRepository assignmentRepo, SubmissionRepository submissionRepo, GradeRepository gradeRepo, ActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorService) {
+    public InstructorContentServiceImpl(InstructorRepository instructorRepo, AssignmentService assignmentService, LessonRepository lessonRepo, LessonService lessonService, AssignmentRepository assignmentRepo, ActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorService) {
         this.instructorRepo = instructorRepo;
         this.assignmentService = assignmentService;
         this.lessonRepo = lessonRepo;

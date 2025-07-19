@@ -36,6 +36,4 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     public void unenrollStudent(Integer courseId, Integer studentId) {
         courseRepo.unenrollStudent(courseId, studentId);
     }
-
-
 }

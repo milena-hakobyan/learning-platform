@@ -21,7 +21,7 @@ public class StudentServiceImpl implements StudentService {
     private final ActivityLogRepository activityLogRepo;
 
 
-    public StudentServiceImpl(UserService userService, CourseManagementService courseManagementService, CourseEnrollmentService enrollmentService, StudentRepository studentRepo,
+    public StudentServiceImpl(CourseManagementService courseManagementService, CourseEnrollmentService enrollmentService, StudentRepository studentRepo,
                               AssignmentRepository assignmentRepo, GradeRepository gradeRepo, SubmissionRepository submissionRepo, LessonRepository lessonRepo, ActivityLogRepository activityLogRepo) {
         this.courseManagementService = courseManagementService;
         this.enrollmentService = enrollmentService;

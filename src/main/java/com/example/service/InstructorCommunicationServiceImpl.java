@@ -32,7 +32,6 @@ public class InstructorCommunicationServiceImpl implements InstructorCommunicati
         return announcementRepo.findAllByInstructorId(instructorId);
     }
 
-
     @Override
     public void sendAnnouncement(Integer instructorId, Integer courseId, String title, String message) {
         instructorRepo.ensureInstructorExists(instructorId);

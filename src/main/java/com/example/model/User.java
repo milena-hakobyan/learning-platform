@@ -1,21 +1,51 @@
 package com.example.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.example.utils.StringUtils;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "users")
 public class User {
-    private Integer id;
-    private String userName;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private Role role;
-    private String password;
-    private LocalDateTime lastLogin;
-    private boolean isActive;
 
-    public User(Integer id, String userName, String firstName, String lastName, String email, String password, Role role, LocalDateTime lastLogin, boolean isActive) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "user_name", unique = true, nullable = false)
+    private String userName;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false)
+    private Role role;
+
+    @Column(name = "password_hash")
+    private String password;
+
+    private LocalDateTime lastLogin;
+
+    @Column(name = "is_active")
+    private boolean active;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActivityLog> activityLogs = new ArrayList<>();
+
+    public User() {
+    }
+
+    public User(Long id, String userName, String firstName, String lastName, String email, String password, Role role, LocalDateTime lastLogin, boolean active) {
         this.id = id;
         this.userName = userName;
         this.firstName = firstName;
@@ -24,20 +54,19 @@ public class User {
         this.password = password;
         this.role = role;
         this.lastLogin = lastLogin;
-        this.isActive = isActive;
+        this.active = active;
     }
 
-    // this constructor is for user-registration
     public User(String userName, String firstName, String lastName, String email, String password,
                 Role role, LocalDateTime lastLogin) {
         this(null, userName, firstName, lastName, email, password, role, lastLogin, true);
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -98,11 +127,29 @@ public class User {
     }
 
     public boolean isActive() {
-        return isActive;
+        return active;
     }
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.active = active;
+    }
+
+    public List<ActivityLog> getActivityLogs() {
+        return activityLogs;
+    }
+
+    public void setActivityLogs(List<ActivityLog> activityLogs) {
+        this.activityLogs = activityLogs;
+    }
+
+    public void addActivityLog(ActivityLog log) {
+        activityLogs.add(log);
+        log.setUser(this);
+    }
+
+    public void removeActivityLog(ActivityLog log) {
+        activityLogs.remove(log);
+        log.setUser(null);
     }
 
     @Override
@@ -113,7 +160,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
                 ", lastLogin=" + lastLogin +
-                ", isActive=" + isActive +
+                ", isActive=" + active +
                 '}';
     }
 }

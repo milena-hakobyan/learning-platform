@@ -1,49 +1,76 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
+@Entity
+@Table(name = "assignments")
 public class Assignment {
-    private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
+
     private String description;
+
+    @Column(nullable = false)
     private LocalDateTime dueDate;
+
+    @Column(nullable = false)
     private double maxScore;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "assignment_materials",
+            joinColumns = @JoinColumn(name = "assignment_id"),
+            inverseJoinColumns = @JoinColumn(name = "material_id")
+    )
     private final List<Material> materials = new ArrayList<>();
 
-    private Integer courseId;
 
+    public Assignment() {
+    }
 
-    public Assignment(Integer assignmentId, String title, String description, LocalDateTime dueDate, double maxScore, Integer courseId ) {
+    public Assignment(Long assignmentId, String title, String description, LocalDateTime dueDate, double maxScore, Course course) {
         this.id = assignmentId;
         this.title = title;
         this.description = description;
         this.dueDate = dueDate;
         this.maxScore = maxScore;
-        this.courseId = courseId;
+        this.course = course;
 
     }
 
-    public Assignment(String title, String description, LocalDateTime dueDate, double maxScore, Integer courseId) {
-        this(null, title, description, dueDate, maxScore, courseId);
+    public Assignment(String title, String description, LocalDateTime dueDate, double maxScore, Course course) {
+        this(null, title, description, dueDate, maxScore, course);
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public String getTitle() {

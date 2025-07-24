@@ -1,34 +1,67 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
+@Table(name = "courses")
 public class Course {
-    private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
+
     private String description;
+
     private String category;
+
     private String url;
-    private Integer instructorId;
 
+    @ManyToOne
+    @JoinColumn(name = "instructor_id", nullable = false)
+    private Instructor instructor;
 
+    @OneToMany(mappedBy = "course")
     private final List<Lesson> lessons = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
     private final List<Assignment> assignments = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "enrollments",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
     private final List<Student> enrolledStudents = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course")
     private final List<Announcement> announcements = new ArrayList<>();
 
-    public Course(Integer courseId, String title, String description, String category, String url, Integer instructorId) {
-        this.id = courseId;
+    public Course() {
+    }
+
+    public Course(Long id, String title, String description, String category, String url, Instructor instructor) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.category = category;
         this.url = url;
-        this.instructorId = instructorId;
+        this.instructor = instructor;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -63,12 +96,12 @@ public class Course {
         this.url = url;
     }
 
-    public Integer getInstructorId() {
-        return instructorId;
+    public Instructor getInstructor() {
+        return instructor;
     }
 
-    public void setInstructorId(Integer instructorId) {
-        this.instructorId = instructorId;
+    public void setInstructor(Instructor instructorId) {
+        this.instructor = instructorId;
     }
 
     public List<Lesson> getLessons() {
@@ -95,35 +128,47 @@ public class Course {
     public void addLesson(Lesson lesson) {
         if (!lessons.contains(lesson)) {
             lessons.add(lesson);
+            lesson.setCourse(this);
         }
     }
 
     public void removeLesson(Lesson lesson) {
-        lessons.remove(lesson);
+        if (lessons.remove(lesson)) {
+            lesson.setCourse(null);
+        }
     }
 
     public void addAssignment(Assignment assignment) {
         if (assignment != null && !assignments.contains(assignment)) {
             assignments.add(assignment);
+            assignment.setCourse(this);
         }
     }
 
     public void removeAssignment(Assignment assignment) {
-        assignments.remove(assignment);
+        if (assignments.remove(assignment)) {
+            assignment.setCourse(null);
+        }
     }
 
     public void enrollStudent(Student student) {
         if (!enrolledStudents.contains(student)) {
             enrolledStudents.add(student);
+            student.getEnrolledCourses().add(this);
         }
     }
 
     public void removeStudent(Student student) {
-        enrolledStudents.remove(student);
+        if (enrolledStudents.remove(student)) {
+            student.getEnrolledCourses().remove(this);
+        }
     }
 
     public void postAnnouncement(Announcement msg) {
-        announcements.add(msg);
+        if (!announcements.contains(msg)) {
+            announcements.add(msg);
+            msg.setCourse(this);
+        }
     }
 
 
@@ -135,7 +180,7 @@ public class Course {
                 ", description='" + description + '\'' +
                 ", category='" + category + '\'' +
                 ", link='" + url + '\'' +
-                ", instructorId='" + instructorId + '\'' +
+                ", instructorId='" + instructor.getId() + '\'' +
                 ", lessonsCount=" + lessons.size() +
                 ", assignmentsCount=" + assignments.size() +
                 ", enrolledStudentsCount=" + enrolledStudents.size() +

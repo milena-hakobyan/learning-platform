@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 
 public class Grade {
     private Integer id;
-    private double score;
+    private Double score;
     private Integer submissionId; //needs to be removed, this is a 1-to-1 relationship
     private String feedback;
     private LocalDateTime gradedAt;
 
-    public Grade(Integer gradeId, double score, Integer submissionId, String feedback, LocalDateTime gradedAt) {
+    public Grade(Integer gradeId, Double score, Integer submissionId, String feedback, LocalDateTime gradedAt) {
         this.id = gradeId;
         this.score = score;
         this.submissionId = submissionId;

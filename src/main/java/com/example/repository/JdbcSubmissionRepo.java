@@ -125,7 +125,7 @@ public class JdbcSubmissionRepo implements SubmissionRepository {
 
             String statusStr = rs.getString("status");
             if (statusStr != null) {
-                submission.setStatus(SubmissionStatus.valueOf(statusStr));
+                submission.setStatus(SubmissionStatus.valueOf(statusStr.toUpperCase()));
             }
 
             return submission;

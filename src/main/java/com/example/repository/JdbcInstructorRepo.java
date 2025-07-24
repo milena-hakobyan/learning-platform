@@ -24,6 +24,7 @@ public class JdbcInstructorRepo implements InstructorRepository {
     @Override
     public Instructor save(Instructor instructor) {
         User savedUser = userRepo.save(instructor);
+        instructor.setId(savedUser.getId());
 
         String insertInstructorQuery = "INSERT INTO instructors (user_id, bio, total_courses_created, rating, is_verified) VALUES (?, ?, ?, ?, ?)";
         dbConnection.execute(insertInstructorQuery, savedUser.getId(), instructor.getBio(), instructor.getTotalCoursesCreated(), instructor.getRating(), instructor.isVerified());
@@ -52,14 +53,14 @@ public class JdbcInstructorRepo implements InstructorRepository {
 
     @Override
     public void delete(Integer userId) {
-        String deleteUserQuery = "DELETE FROM users WHERE user_id = ?";
+        String deleteUserQuery = "DELETE FROM users WHERE id = ?";
         dbConnection.execute(deleteUserQuery, userId);
     }
 
     @Override
     public Optional<Instructor> findById(Integer id) {
         String query = """
-                    SELECT u.user_id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
+                    SELECT u.id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
                            u.last_login, u.is_active,
                            i.bio, i.total_courses_created, i.rating, i.is_verified
                     FROM instructors i
@@ -74,7 +75,7 @@ public class JdbcInstructorRepo implements InstructorRepository {
     @Override
     public List<Instructor> findAll() {
         String query = """
-                    SELECT u.user_id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
+                    SELECT u.id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
                            u.last_login, u.is_active,
                            i.bio, i.total_courses_created, i.rating, i.is_verified
                     FROM instructors i
@@ -96,7 +97,7 @@ public class JdbcInstructorRepo implements InstructorRepository {
     private Instructor mapToInstructor(ResultSet rs) {
         try {
             return new Instructor(
-                    rs.getInt("user_id"),
+                    rs.getInt("id"),
                     rs.getString("user_name"),
                     rs.getString("first_name"),
                     rs.getString("last_name"),

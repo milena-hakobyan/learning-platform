@@ -27,7 +27,7 @@ public class JdbcGradeRepo implements GradeRepository {
 
         String query = """
                 INSERT INTO grades (submission_id, score, feedback) VALUES (?, ?, ?)
-                RETURNING id, submission_id, score, feedback
+                RETURNING *
                 """;
 
         return dbConnection.findOne(query, this::mapGrade, entity.getSubmissionId(), entity.getScore(), entity.getFeedback());

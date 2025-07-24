@@ -46,6 +46,4 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
 
         return courseService.getCoursesByInstructor(instructorId);
     }
-
-
 }

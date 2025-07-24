@@ -27,7 +27,6 @@ public class UserServiceImpl implements UserService {
         this.instructorRepo = instructorRepo;
     }
 
-
     @Override
     public void updateUser(User user) {
         Objects.requireNonNull(user, "UserService: user cannot be null");

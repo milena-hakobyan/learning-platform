@@ -26,5 +26,4 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
 
         return instructorRepo.findById(instructorId);
     }
-
 }

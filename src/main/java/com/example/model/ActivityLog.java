@@ -3,13 +3,13 @@ package com.example.model;
 import java.time.LocalDateTime;
 
 public class ActivityLog {
-    private int id;
-    private int userId;
+    private Integer id;
+    private Integer userId;
     private String action;
     private LocalDateTime timestamp;
 
 
-    public ActivityLog(int id, int userId, String action, LocalDateTime timestamp) {
+    public ActivityLog(Integer id, Integer userId, String action, LocalDateTime timestamp) {
         this.id = id;
         this.userId = userId;
         this.action = action;
@@ -21,19 +21,19 @@ public class ActivityLog {
         this.action = action;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.example.utils.StringUtils;
 
 public class User {
-    private final Integer id;
+    private Integer id;
     private String userName;
     private String firstName;
     private String lastName;
@@ -35,6 +35,10 @@ public class User {
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getUserName() {

@@ -29,15 +29,16 @@ public class InstructorGradingServiceImpl implements InstructorGradingService {
 
     @Override
     public void gradeSubmission(Integer instructorId, Integer submissionId, Grade grade) {
+        Objects.requireNonNull(grade, "Grade cannot be null");
         instructorRepo.ensureInstructorExists(instructorId);
         submissionRepo.ensureSubmissionExists(submissionId);
-        Objects.requireNonNull(grade, "Grade cannot be null");
 
         Submission submission = submissionRepo.findById(submissionId)
                 .orElseThrow(() ->  new IllegalArgumentException("Submission not found"));
 
         submission.setStatus(SubmissionStatus.GRADED);
         gradeRepo.save(grade);
+
         submissionRepo.update(submission);
         activityLogRepo.save(new ActivityLog(instructorId, "Graded submission ID: " + submission.getSubmissionId()));
     }

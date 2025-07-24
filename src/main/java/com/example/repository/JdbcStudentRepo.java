@@ -55,18 +55,18 @@ public class JdbcStudentRepo implements StudentRepository {
 
     @Override
     public void delete(Integer userId) {
-        String deleteUserQuery = "DELETE FROM users WHERE user_id = ?";
+        String deleteUserQuery = "DELETE FROM users WHERE id = ?";
         dbConnection.execute(deleteUserQuery, userId);
     }
 
     @Override
     public Optional<Student> findById(Integer id) {
         String query = """
-                    SELECT u.user_id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
+                    SELECT u.id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
                            u.last_login, u.is_active,
                            s.progress_percentage, s.completed_courses, s.current_courses
                     FROM students s
-                    JOIN users u ON s.user_id = u.user_id
+                    JOIN users u ON s.user_id = u.id
                     WHERE s.user_id = ?
                 """;
 
@@ -78,11 +78,11 @@ public class JdbcStudentRepo implements StudentRepository {
     @Override
     public List<Student> findAll() {
         String query = """
-                    SELECT u.user_id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
+                    SELECT u.id, u.user_name, u.first_name, u.last_name, u.email, u.password_hash,
                            u.last_login, u.is_active,
                            s.progress_percentage, s.completed_courses, s.current_courses
                     FROM students s
-                    JOIN users u ON s.user_id = u.user_id
+                    JOIN users u ON s.user_id = u.id
                 """;
 
         return dbConnection.findMany(query, this::mapToStudent);
@@ -93,7 +93,7 @@ public class JdbcStudentRepo implements StudentRepository {
         String query = """
                     SELECT c.*
                     FROM enrollments e JOIN courses c ON e.course_id = c.id
-                    WHERE e.user_id = ?
+                    WHERE e.student_id = ?
                 """;
 
         return dbConnection.findMany(query, rs -> {
@@ -123,7 +123,7 @@ public class JdbcStudentRepo implements StudentRepository {
     private Student mapToStudent(ResultSet rs) {
         try {
             return new Student(
-                    rs.getInt("user_id"),
+                    rs.getInt("id"),
                     rs.getString("user_name"),
                     rs.getString("first_name"),
                     rs.getString("last_name"),

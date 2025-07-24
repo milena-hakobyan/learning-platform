@@ -29,7 +29,6 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     @Override
     public void createCourse(Course course) {
         Objects.requireNonNull(course, "Course cannot be null");
-        courseRepo.ensureCourseExists(course.getId());
 
         if (courseRepo.findByTitle(course.getTitle()).isPresent()) {
             throw new IllegalArgumentException("Course with title '" + course.getTitle() + "' already exists.");
@@ -42,7 +41,7 @@ public class CourseManagementServiceImpl implements CourseManagementService {
         Objects.requireNonNull(course, "Course cannot be null");
         courseRepo.ensureCourseExists(course.getId());
 
-        courseRepo.save(course);
+        courseRepo.update(course);
     }
 
     @Override

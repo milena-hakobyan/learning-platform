@@ -20,18 +20,18 @@ public class EnvAndBeansPrinter implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        System.out.println("==== ENVIRONMENT PROPERTIES ====");
-        for (var propertySource : ((org.springframework.core.env.AbstractEnvironment) environment).getPropertySources()) {
-            if (propertySource.getSource() instanceof java.util.Map<?, ?> map) {
-                map.forEach((k, v) -> System.out.printf("%s = %s%n", k, v));
-            }
-        }
-
-        System.out.println("\n==== BEAN DEFINITIONS ====");
-        String[] beanNames = context.getBeanDefinitionNames();
-
-        for (String name : beanNames) {
-            System.out.println(name);
-        }
+//        System.out.println("==== ENVIRONMENT PROPERTIES ====");
+//        for (var propertySource : ((org.springframework.core.env.AbstractEnvironment) environment).getPropertySources()) {
+//            if (propertySource.getSource() instanceof java.util.Map<?, ?> map) {
+//                map.forEach((k, v) -> System.out.printf("%s = %s%n", k, v));
+//            }
+//        }
+//
+//        System.out.println("\n==== BEAN DEFINITIONS ====");
+//        String[] beanNames = context.getBeanDefinitionNames();
+//
+//        for (String name : beanNames) {
+//            System.out.println(name);
+//        }
     }
 }

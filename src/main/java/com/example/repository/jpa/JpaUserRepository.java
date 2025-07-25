@@ -19,9 +19,6 @@ public interface JpaUserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByRole(Role role);
 
-    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.id = :userId")
-    boolean existsById(@Param("userId") Integer userId);
-
     @Query("""
         SELECT COUNT(u) = 0 FROM User u
         WHERE u.username = :username OR u.email = :email

@@ -99,7 +99,7 @@ public class ActivityLogLifecycleTest {
     */
 
     @Test
-    void saveActivityLog_withId_usingRepo_shouldThrowException() {
+    void saveUser_withId_usingRepo_shouldThrowException() {
         User user = createUser();
         user.setId(5L);
 
@@ -121,7 +121,7 @@ public class ActivityLogLifecycleTest {
     }
 
     @Test
-    void saveUser_withId_usingMerge_shouldThrowOrUpdate() {
+    void saveUser_withId_usingMerge_shouldThrow() {
         User user = createUser();
         user.setId(5L);
 

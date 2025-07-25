@@ -1,50 +1,74 @@
 package com.example.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "submissions", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"assignment_id", "student_id"})
+})
 public class Submission {
-    private Integer submissionId;
-    private Integer studentId;
-    private Integer assignmentId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "assignment_id", nullable = false)
+    private Assignment assignment;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "student_id", nullable = false)
+    private Student student;
+
+    @Column(name = "submitted_at", nullable = false)
     private LocalDateTime submittedAt;
+
+    @Column(name = "content_link", nullable = false)
     private String contentLink;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private SubmissionStatus status;
 
-    public Submission(Integer submissionId, Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
-        this.submissionId = submissionId;
-        this.studentId = studentId;
-        this.assignmentId = assignmentId;
+    public Submission() {
+    }
+
+    public Submission(Long id, Student student, Assignment assignment, String contentLink, LocalDateTime submittedAt) {
+        this.id = id;
+        this.student = student;
+        this.assignment = assignment;
         this.contentLink = contentLink;
         this.submittedAt = submittedAt;
+        this.status = SubmissionStatus.SUBMITTED; // default if needed
     }
 
-    public Submission(Integer studentId, Integer assignmentId, String contentLink, LocalDateTime submittedAt) {
-        this(null, studentId, assignmentId, contentLink, submittedAt);
+    public Submission(Student student, Assignment assignment, String contentLink, LocalDateTime submittedAt) {
+        this(null, student, assignment, contentLink, submittedAt);
     }
 
-
-    public Integer getSubmissionId() {
-        return submissionId;
+    public Long getId() {
+        return id;
     }
 
-    public void setSubmissionId(Integer submissionId) {
-        this.submissionId = submissionId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Integer getStudentId() {
-        return studentId;
+    public Assignment getAssignment() {
+        return assignment;
     }
 
-    public void setStudentId(Student student) {
-        this.studentId = studentId;
+    public void setAssignment(Assignment assignment) {
+        this.assignment = assignment;
     }
 
-    public Integer getAssignmentId() {
-        return assignmentId;
+    public Student getStudent() {
+        return student;
     }
 
-    public void setAssignmentId(Integer assignmentId) {
-        this.assignmentId = assignmentId;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
     public LocalDateTime getSubmittedAt() {
@@ -63,10 +87,6 @@ public class Submission {
         this.contentLink = contentLink;
     }
 
-    public void setStudentId(Integer studentId) {
-        this.studentId = studentId;
-    }
-
     public SubmissionStatus getStatus() {
         return status;
     }
@@ -78,13 +98,12 @@ public class Submission {
     @Override
     public String toString() {
         return "Submission{" +
-                "submissionId='" + submissionId + '\'' +
-                ", studentId='" + studentId + '\'' +
-                ", assignmentId='" + assignmentId + '\'' +
+                "id=" + id +
+                ", student=" + (student != null ? student.getId() : null) +
+                ", assignment=" + (assignment != null ? assignment.getId() : null) +
                 ", submittedAt=" + submittedAt +
                 ", contentLink='" + contentLink + '\'' +
-                ", status='" + status + '\'' +
+                ", status=" + status +
                 '}';
     }
-
 }

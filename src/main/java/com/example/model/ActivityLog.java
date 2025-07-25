@@ -1,40 +1,56 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "activity_logs")
 public class ActivityLog {
-    private Integer id;
-    private Integer userId;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(nullable = false)
     private String action;
+
     private LocalDateTime timestamp;
 
 
-    public ActivityLog(Integer id, Integer userId, String action, LocalDateTime timestamp) {
+    public ActivityLog(){
+    }
+
+    public ActivityLog(Long id, User user, String action, LocalDateTime timestamp) {
         this.id = id;
-        this.userId = userId;
+        this.user = user;
         this.action = action;
         this.timestamp = timestamp;
     }
 
-    public ActivityLog(int userId, String action) {
-        this.userId = userId;
+    public ActivityLog(User user, String action) {
+        this.user = user;
         this.action = action;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getAction() {

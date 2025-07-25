@@ -1,33 +1,55 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "announcements")
 public class Announcement {
-    private Integer id;
-    private String title;
-    private String content;
-    private Integer instructorId;
-    private LocalDateTime postedAt;
-    private Integer courseId;
 
-    public Announcement(Integer announcementId, String title, String content, Integer instructorId, Integer courseId, LocalDateTime postedAt) {
-        this.id = announcementId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String content;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "instructor_id", nullable = false)
+    private Instructor instructor;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
+    @Column(name = "posted_date")
+    private LocalDateTime postedAt;
+
+    public Announcement() {
+    }
+
+    public Announcement(Long id, String title, String content, Instructor instructor, Course course, LocalDateTime postedAt) {
+        this.id = id;
         this.title = title;
         this.content = content;
-        this.instructorId = instructorId;
-        this.courseId = courseId;
+        this.instructor = instructor;
+        this.course = course;
         this.postedAt = postedAt;
     }
 
-    public Announcement(Integer announcementId, String title, String content, Integer instructorId, Integer courseId) {
-        this(announcementId, title, content, instructorId, courseId, null);
+    public Announcement(Long id, String title, String content, Instructor instructor, Course course) {
+        this(id, title, content, instructor, course, null);
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -47,12 +69,20 @@ public class Announcement {
         this.content = content;
     }
 
-    public Integer getPostedById() {
-        return instructorId;
+    public Instructor getInstructor() {
+        return instructor;
     }
 
-    public void setPostedBy(Integer instructorId) {
-        this.instructorId = instructorId;
+    public void setInstructor(Instructor instructor) {
+        this.instructor = instructor;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public LocalDateTime getPostedAt() {
@@ -61,13 +91,5 @@ public class Announcement {
 
     public void setPostedAt(LocalDateTime postedAt) {
         this.postedAt = postedAt;
-    }
-
-    public Integer getCourseId() {
-        return courseId;
-    }
-
-    public void setCourse(Integer courseId) {
-        this.courseId = courseId;
     }
 }

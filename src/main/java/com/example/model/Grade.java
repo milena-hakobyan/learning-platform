@@ -1,59 +1,59 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "grades")
 public class Grade {
-    private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private Double score;
-    private Integer submissionId; //needs to be removed, this is a 1-to-1 relationship
+
+    @OneToOne
+    @JoinColumn(name = "submission_id", unique = true, nullable = false)
+    private Submission submission;
+
     private String feedback;
+
+    @Column(name = "graded_at")
     private LocalDateTime gradedAt;
 
-    public Grade(Integer gradeId, Double score, Integer submissionId, String feedback, LocalDateTime gradedAt) {
-        this.id = gradeId;
-        this.score = score;
-        this.submissionId = submissionId;
-        this.feedback = feedback;
-        this.gradedAt = gradedAt;
+    public Grade() {
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
+    public Grade(Long id, Double score, Submission submission, String feedback, LocalDateTime gradedAt) {
         this.id = id;
-    }
-
-    public Integer getSubmissionId() {
-        return submissionId;
-    }
-
-    public void setSubmissionId(Integer submissionId) {
-        this.submissionId = submissionId;
-    }
-
-    public String getFeedback() {
-        return feedback;
-    }
-
-    public void setFeedback(String feedback) {
+        this.score = score;
+        this.submission = submission;
         this.feedback = feedback;
+        this.gradedAt = gradedAt;
     }
 
-    public double getScore() {
-        return score;
-    }
+    public Long getId() { return id; }
 
-    public void setScore(double score) {
+    public void setId(Long id) { this.id = id; }
+
+    public Double getScore() { return score; }
+
+    public void setScore(Double score) {
+        if (score != null && score < 0) {
+            throw new IllegalArgumentException("Score cannot be negative");
+        }
         this.score = score;
     }
 
-    public LocalDateTime getGradedAt() {
-        return gradedAt;
-    }
+    public Submission getSubmission() { return submission; }
+    public void setSubmission(Submission submission) { this.submission = submission; }
 
-    public void setGradedAt(LocalDateTime gradedAt) {
-        this.gradedAt = gradedAt;
-    }
+    public String getFeedback() { return feedback; }
+    public void setFeedback(String feedback) { this.feedback = feedback; }
+
+    public LocalDateTime getGradedAt() { return gradedAt; }
+    public void setGradedAt(LocalDateTime gradedAt) { this.gradedAt = gradedAt; }
 }

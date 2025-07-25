@@ -1,31 +1,56 @@
 package com.example.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
+@Table(name = "lessons")
 public class Lesson {
-    private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
+
+    @Column(name = "content_description")
     private String content;
-    private Integer courseId;
-    LocalDateTime uploadDate;
+
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    @Column(name = "upload_date")
+    private LocalDateTime uploadDate;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+            name = "lesson_materials",
+            joinColumns = @JoinColumn(name = "lesson_id"),
+            inverseJoinColumns = @JoinColumn(name = "material_id")
+    )
     private List<Material> materials = new ArrayList<>();
 
-    public Lesson(Integer lessonId, String title, String content, Integer courseId, LocalDateTime uploadDate) {
+    public Lesson(){}
+
+    public Lesson(Long lessonId, String title, String content, Course course, LocalDateTime uploadDate) {
         this.id = lessonId;
         this.title = title;
         this.content = content;
-        this.courseId = courseId;
+        this.course = course;
         this.uploadDate = uploadDate;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,12 +70,12 @@ public class Lesson {
         this.content = content;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public LocalDateTime getUploadDate() {
@@ -66,7 +91,7 @@ public class Lesson {
     }
 
     public void setMaterials(List<Material> materials) {
-        this.materials = new ArrayList<>(materials); // Defensive copy
+        this.materials = new ArrayList<>(materials);
     }
 
     public void addMaterial(Material material) {

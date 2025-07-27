@@ -1,4 +1,4 @@
-package com.example.repository.jpa;
+package com.example.repository;
 
 import com.example.model.Role;
 import com.example.model.User;
@@ -24,9 +24,4 @@ public interface JpaUserRepository extends JpaRepository<User, Long> {
         WHERE u.username = :username OR u.email = :email
     """)
     boolean isUsernameAndEmailAvailable(@Param("username") String username, @Param("email") String email);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE User u SET u.active = false WHERE u.id = :userId")
-    void deactivateUser(@Param("userId") Integer userId);
 }

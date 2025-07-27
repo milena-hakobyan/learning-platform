@@ -3,18 +3,12 @@ package com.example.unit;
 import com.example.model.Course;
 import com.example.model.Lesson;
 import com.example.model.Material;
-import com.example.repository.CourseRepository;
-import com.example.repository.LessonRepository;
-import com.example.service.LessonService;
 import com.example.service.LessonServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;

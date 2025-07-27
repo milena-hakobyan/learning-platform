@@ -1,16 +1,12 @@
 package com.example.unit;
 
 import com.example.model.Student;
-import com.example.repository.CourseRepository;
-import com.example.service.CourseEnrollmentService;
 import com.example.service.CourseEnrollmentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;

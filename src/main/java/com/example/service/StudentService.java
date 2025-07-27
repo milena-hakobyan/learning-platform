@@ -7,23 +7,23 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface StudentService {
-    Optional<Student> getStudentById(Integer studentId);
+    Optional<Student> getStudentById(Long studentId);
 
-    List<Course> getEnrolledCourses(Integer studentId);
+    List<Course> getEnrolledCourses(Long studentId);
 
-    List<Submission> getSubmissionsByStudentId(Integer studentId);
+    List<Submission> getSubmissionsByStudentId(Long studentId);
 
     List<Course> browseAvailableCourses();
 
-    List<Material> accessMaterials(Integer studentId, Integer courseId);
+    List<Material> accessMaterials(Long studentId, Long courseId);
 
-    Map<Assignment, Grade> getGradesForCourse(Integer courseId, Integer studentId);
+    List<Grade> getGradesForCourse(Long courseId, Long studentId);
 
-    Optional<Grade> getAssignmentGradeForStudent(Integer assignmentId, Integer studentId);
+    Optional<Grade> getAssignmentGradeForStudent(Long assignmentId, Long studentId);
 
-    void enrollInCourse(Integer studentId, Integer courseId);
+    void enrollInCourse(Long studentId, Long courseId);
 
-    void dropCourse(Integer studentId, Integer courseId);
+    void dropCourse(Long studentId, Long courseId);
 
-    void submitAssignment(Integer submissionId, Integer studentId, Integer assignmentId, String content);
+    void submitAssignment(Long submissionId, Long studentId, Long assignmentId, String content);
 }

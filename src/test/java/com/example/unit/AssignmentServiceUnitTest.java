@@ -3,18 +3,12 @@ package com.example.unit;
 import com.example.model.Assignment;
 import com.example.model.Material;
 import com.example.model.Submission;
-import com.example.repository.AssignmentRepository;
-import com.example.repository.CourseRepository;
-import com.example.repository.SubmissionRepository;
-import com.example.service.AssignmentService;
 import com.example.service.AssignmentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;

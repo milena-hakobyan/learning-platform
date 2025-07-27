@@ -1,9 +1,6 @@
 package com.example.service;
 
-import com.example.model.ActivityLog;
-import com.example.model.Grade;
-import com.example.model.Submission;
-import com.example.model.SubmissionStatus;
+import com.example.model.*;
 import com.example.repository.*;
 import org.springframework.stereotype.Service;
 
@@ -12,45 +9,71 @@ import java.util.Objects;
 
 @Service
 public class InstructorGradingServiceImpl implements InstructorGradingService {
-    private final InstructorRepository instructorRepo;
-    private final AssignmentRepository assignmentRepo;
-    private final SubmissionRepository submissionRepo;
-    private final GradeRepository gradeRepo;
-    private final ActivityLogRepository activityLogRepo;
+    private final JpaInstructorRepository instructorRepo;
+    private final JpaUserRepository userRepo;
+    private final JpaAssignmentRepository assignmentRepo;
+    private final JpaSubmissionRepository submissionRepo;
+    private final JpaGradeRepository gradeRepo;
+    private final JpaActivityLogRepository activityLogRepo;
+    private final InstructorAuthorizationService instructorAuthorizationService;
 
-    public InstructorGradingServiceImpl(InstructorRepository instructorRepo, AssignmentRepository assignmentRepo, SubmissionRepository submissionRepo, GradeRepository gradeRepo, ActivityLogRepository activityLogRepo) {
+    public InstructorGradingServiceImpl(JpaInstructorRepository instructorRepo, JpaUserRepository userRepo, JpaAssignmentRepository assignmentRepo, JpaSubmissionRepository submissionRepo, JpaGradeRepository gradeRepo, JpaActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorAuthorizationService) {
         this.instructorRepo = instructorRepo;
+        this.userRepo = userRepo;
         this.assignmentRepo = assignmentRepo;
         this.submissionRepo = submissionRepo;
         this.gradeRepo = gradeRepo;
         this.activityLogRepo = activityLogRepo;
+        this.instructorAuthorizationService = instructorAuthorizationService;
     }
 
-
     @Override
-    public void gradeSubmission(Integer instructorId, Integer submissionId, Grade grade) {
+    public void gradeSubmission(Long instructorId, Long submissionId, Grade grade) {
         Objects.requireNonNull(grade, "Grade cannot be null");
-        instructorRepo.ensureInstructorExists(instructorId);
-        submissionRepo.ensureSubmissionExists(submissionId);
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(submissionId, "Submission ID cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Invalid Instructor ID");
+        }
 
         Submission submission = submissionRepo.findById(submissionId)
-                .orElseThrow(() ->  new IllegalArgumentException("Submission not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Submission not found"));
 
         submission.setStatus(SubmissionStatus.GRADED);
         gradeRepo.save(grade);
 
-        submissionRepo.update(submission);
-        activityLogRepo.save(new ActivityLog(instructorId, "Graded submission ID: " + submission.getSubmissionId()));
+        submissionRepo.save(submission);
+
+        User user = userRepo.findById(instructorId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        ActivityLog activityLog = new ActivityLog(user, "Graded submission ID: " + submission.getId());
+        activityLogRepo.save(activityLog);
     }
 
+
     @Override
-    public java.util.List<Submission> getSubmissionsForAssignment(Integer instructorId, Integer assignmentId) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        assignmentRepo.ensureAssignmentExists(assignmentId);
+    public List<Submission> getSubmissionsForAssignment(Long instructorId, Long assignmentId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(assignmentId, "Submission ID cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Invalid Instructor ID");
+        }
+
+        if (!assignmentRepo.existsById(assignmentId)) {
+            throw new IllegalArgumentException("Invalid Assignment ID");
+        }
 
         List<Submission> submissions = submissionRepo.findAllByAssignmentId(assignmentId);
 
-        activityLogRepo.save(new ActivityLog(instructorId, "Viewed submissions for assignment with id : " + assignmentId));
+
+        User user = userRepo.findById(instructorId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        ActivityLog activityLog = new ActivityLog(user, "Viewed submissions for assignment with id : " + assignmentId);
+        activityLogRepo.save(activityLog);
         return submissions;
     }
 

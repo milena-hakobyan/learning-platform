@@ -1,4 +1,4 @@
-package com.example.repository.jpa;
+package com.example.repository;
 
 import com.example.model.ActivityLog;
 import org.springframework.data.jpa.repository.JpaRepository;

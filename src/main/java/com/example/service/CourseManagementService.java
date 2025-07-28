@@ -11,14 +11,14 @@ public interface CourseManagementService {
 
     void updateCourse(Course course);
 
-    void deleteCourse(Integer courseId);
+    void deleteCourse(Long courseId);
 
-    Optional<Course> getCourseById(Integer courseId);
+    Optional<Course> getCourseById(Long courseId);
 
     // Example of fetching a parent entity of One-To-Many relationship with all its children
-    Optional<Course> getByIdWithLessons(Integer courseId);
+    Optional<Course> getByIdWithLessons(Long courseId);
 
-    List<Course> getCoursesByInstructor(Integer instructorId);
+    List<Course> getCoursesByInstructor(Long instructorId);
 
     List<Course> getCoursesByCategory(String category);
 
@@ -26,5 +26,5 @@ public interface CourseManagementService {
 
     List<Course> getAllCourses();
 
-    List<Announcement> getAnnouncementsForCourse(Integer courseId);
+    List<Announcement> getAnnouncementsForCourse(Long courseId);
 }

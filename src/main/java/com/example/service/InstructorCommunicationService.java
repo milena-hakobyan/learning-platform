@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public interface InstructorCommunicationService {
-    List<Announcement> getAnnouncementsPosted(Integer instructorId);
+    List<Announcement> getAnnouncementsPosted(Long instructorId);
 
-    void sendAnnouncement(Integer instructorId, Integer courseId, String title, String message);
+    void sendAnnouncement(Long instructorId, Long courseId, String title, String message);
 }

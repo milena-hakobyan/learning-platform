@@ -6,7 +6,7 @@ import com.example.model.Submission;
 import java.util.List;
 
 public interface InstructorGradingService {
-    void gradeSubmission(Integer instructorId, Integer submissionId, Grade grade);
+    void gradeSubmission(Long instructorId, Long submissionId, Grade grade);
 
-    List<Submission> getSubmissionsForAssignment(Integer instructorId, Integer assignmentId);
+    List<Submission> getSubmissionsForAssignment(Long instructorId, Long assignmentId);
 }

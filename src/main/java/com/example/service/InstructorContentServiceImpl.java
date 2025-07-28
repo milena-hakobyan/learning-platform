@@ -9,17 +9,19 @@ import java.util.Objects;
 
 @Service
 public class InstructorContentServiceImpl implements InstructorContentService {
-    private final InstructorRepository instructorRepo;
+    private final JpaInstructorRepository instructorRepo;
+    private final JpaUserRepository userRepository;
     private final AssignmentService assignmentService;
-    private final LessonRepository lessonRepo;
+    private final JpaLessonRepository lessonRepo;
     private final LessonService lessonService;
-    private final AssignmentRepository assignmentRepo;
-    private final ActivityLogRepository activityLogRepo;
+    private final JpaAssignmentRepository assignmentRepo;
+    private final JpaActivityLogRepository activityLogRepo;
     private final InstructorAuthorizationService instructorService;
 
 
-    public InstructorContentServiceImpl(InstructorRepository instructorRepo, AssignmentService assignmentService, LessonRepository lessonRepo, LessonService lessonService, AssignmentRepository assignmentRepo, ActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorService) {
+    public InstructorContentServiceImpl(JpaInstructorRepository instructorRepo, JpaUserRepository userRepository, AssignmentService assignmentService, JpaLessonRepository lessonRepo, LessonService lessonService, JpaAssignmentRepository assignmentRepo, JpaActivityLogRepository activityLogRepo, InstructorAuthorizationService instructorService) {
         this.instructorRepo = instructorRepo;
+        this.userRepository = userRepository;
         this.assignmentService = assignmentService;
         this.lessonRepo = lessonRepo;
         this.lessonService = lessonService;
@@ -29,88 +31,158 @@ public class InstructorContentServiceImpl implements InstructorContentService {
     }
 
     @Override
-    public List<Lesson> getLessonsCreated(Integer instructorId) {
-        instructorRepo.ensureInstructorExists(instructorId);
-
+    public List<Lesson> getLessonsCreated(Long instructorId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
+        }
         return lessonRepo.findAllLessonsByInstructorId(instructorId);
     }
 
     @Override
-    public List<Assignment> getAssignmentsCreated(Integer instructorId) {
-        instructorRepo.ensureInstructorExists(instructorId);
-
-        return assignmentRepo.findAllAssignmentsByInstructorId(instructorId);
+    public List<Assignment> getAssignmentsCreated(Long instructorId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
+        }
+        return assignmentRepo.findAllByInstructorId(instructorId);
     }
 
 
     @Override
-    public void createAssignment(Integer instructorId, Integer courseId, Assignment assignment) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        Objects.requireNonNull(assignment);
+    public void createAssignment(Long instructorId, Long courseId, Assignment assignment) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(courseId, "Course ID cannot be null");
+        Objects.requireNonNull(assignment, "Assignment cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
         assignmentService.addAssignmentToCourse(courseId, assignment);
-        activityLogRepo.save(new ActivityLog(instructorId, "Created assignment: " + assignment.getTitle()));
+
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        ActivityLog activityLog = new ActivityLog(user, "Created assignment: " + assignment.getTitle());
+        activityLogRepo.save(activityLog);
     }
 
     @Override
-    public void deleteAssignment(Integer instructorId, Integer courseId, Integer assignmentId) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        Objects.requireNonNull(assignmentId);
+    public void deleteAssignment(Long instructorId, Long courseId, Long assignmentId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(courseId, "Course ID cannot be null");
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
+
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         assignmentService.removeAssignmentFromCourse(courseId, assignmentId);
-        activityLogRepo.save(new ActivityLog(instructorId, "Deleted assignment ID: " + assignmentId + " from course: " + course.getTitle()));
+
+        ActivityLog activityLog = new ActivityLog(user, "Deleted assignment ID: " + assignmentId + " from course: " + course.getTitle());
+        activityLogRepo.save(activityLog);
     }
 
     @Override
-    public void createLesson(Integer instructorId, Integer courseId, Lesson lesson) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        Objects.requireNonNull(lesson);
+    public void createLesson(Long instructorId, Long courseId, Lesson lesson) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(courseId, "Course ID cannot be null");
+        Objects.requireNonNull(lesson, "Lesson cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
+
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         lessonService.addLessonToCourse(courseId, lesson);
-        activityLogRepo.save(new ActivityLog(instructorId, "Created lesson: " + lesson.getTitle() + " in course: " + course.getTitle()));
+
+        ActivityLog activityLog = new ActivityLog(user, "Created lesson: " + lesson.getTitle() + " in course: " + course.getTitle());
+        activityLogRepo.save(activityLog);
     }
 
     @Override
-    public void deleteLesson(Integer instructorId, Integer courseId, Integer lessonId) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        lessonRepo.ensureLessonExists(lessonId);
+    public void deleteLesson(Long instructorId, Long courseId, Long lessonId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(courseId, "Course ID cannot be null");
+        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
+
+        if (!lessonRepo.existsById(lessonId)) {
+            throw new IllegalArgumentException("Lesson not found with ID: " + lessonId);
+        }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
         lessonService.removeLessonFromCourse(courseId, lessonId);
-        activityLogRepo.save(new ActivityLog(instructorId, "Deleted lesson ID: " + lessonId + " from course: " + course.getTitle()));
+
+        ActivityLog activityLog = new ActivityLog(user, "Deleted lesson ID: " + lessonId + " from course: " + course.getTitle());
+        activityLogRepo.save(activityLog);
     }
 
     @Override
-    public void uploadMaterial(Integer instructorId, Integer lessonId, Material material) {
-        instructorRepo.ensureInstructorExists(instructorId);
-        lessonRepo.ensureLessonExists(lessonId);
-        instructorService.ensureAuthorizedCourseAccess(instructorId, lessonId);
-        Objects.requireNonNull(material);
+    public void uploadMaterial(Long instructorId, Long lessonId, Material material) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
+        Objects.requireNonNull(material, "Material cannot be null");
 
-        Lesson found = lessonRepo.findById(lessonId)
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
+
+        Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        User instructorUser = userRepository.findById(instructorId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        instructorService.ensureAuthorizedCourseAccess(instructorId, lesson.getCourse().getId());
 
         lessonService.addMaterialToLesson(lessonId, material);
-        activityLogRepo.save(new ActivityLog(instructorId, "Uploaded material: " + material.getTitle() + " to lesson: " + found.getTitle()));
+
+        ActivityLog activityLog = new ActivityLog(
+                instructorUser,
+                "Uploaded material: " + material.getTitle() + " to lesson: " + lesson.getTitle()
+        );
+        activityLogRepo.save(activityLog);
     }
 
     @Override
-    public void deleteMaterial(Integer instructorId, Integer lessonId, Integer materialId) {
-        lessonRepo.ensureLessonExists(lessonId);
-        instructorRepo.ensureInstructorExists(instructorId);
+    public void deleteMaterial(Long instructorId, Long lessonId, Long materialId) {
+        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
+        Objects.requireNonNull(materialId, "Material ID cannot be null");
+
+        if (!instructorRepo.existsById(instructorId)) {
+            throw new IllegalArgumentException("Instructor not found");
+        }
+
+        if (!lessonRepo.existsById(lessonId)) {
+            throw new IllegalArgumentException("Lesson not found with ID: " + lessonId);
+        }
 
         Lesson found = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
 
-        lessonService.removeMaterialFromLesson(lessonId, materialId);
-        activityLogRepo.save(new ActivityLog(instructorId, "Deleted material: " + materialId + " from lesson: " + found.getTitle()));
-    }
+        User user = userRepository.findById(instructorId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
+        lessonService.removeMaterialFromLesson(lessonId, materialId);
+
+        ActivityLog activityLog = new ActivityLog(user, "Deleted material: " + materialId + " from lesson: " + found.getTitle());
+        activityLogRepo.save(activityLog);
+    }
 }

@@ -158,7 +158,7 @@ public class Course {
         }
     }
 
-    public void removeStudent(Student student) {
+    public void unenrollStudent(Student student) {
         if (enrolledStudents.remove(student)) {
             student.getEnrolledCourses().remove(this);
         }

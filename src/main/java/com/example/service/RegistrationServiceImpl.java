@@ -1,23 +1,25 @@
 package com.example.service;
 
 import com.example.model.Instructor;
+import com.example.model.Role;
 import com.example.model.Student;
 import com.example.model.User;
-import com.example.repository.InstructorRepository;
-import com.example.repository.StudentRepository;
-import com.example.repository.UserRepository;
+import com.example.repository.JpaInstructorRepository;
+import com.example.repository.JpaStudentRepository;
+import com.example.repository.JpaUserRepository;
 import com.example.utils.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Service
-public class RegistrationServiceImpl implements RegistrationService{
-    private final UserRepository userRepo;
-    private final StudentRepository studentRepo;
-    private final InstructorRepository instructorRepo;
+public class RegistrationServiceImpl implements RegistrationService {
+    private final JpaUserRepository userRepo;
+    private final JpaStudentRepository studentRepo;
+    private final JpaInstructorRepository instructorRepo;
 
-    public RegistrationServiceImpl(UserRepository userRepo, StudentRepository studentRepo, InstructorRepository instructorRepo) {
+    public RegistrationServiceImpl(JpaUserRepository userRepo, JpaStudentRepository studentRepo, JpaInstructorRepository instructorRepo) {
         this.userRepo = userRepo;
         this.studentRepo = studentRepo;
         this.instructorRepo = instructorRepo;
@@ -25,30 +27,40 @@ public class RegistrationServiceImpl implements RegistrationService{
 
     @Override
     public Student registerStudent(String username, String firstName, String lastName, String email, String rawPassword) {
-        userRepo.ensureEmailAndUsernameAvailable(username, email);
+        Objects.requireNonNull(username, "RegistrationService: username cannot be null");
+        Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
+        Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
+        Objects.requireNonNull(email, "RegistrationService: email cannot be null");
+        Objects.requireNonNull(rawPassword, "RegistrationService: password cannot be null");
 
-        Student student = new Student(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
-                LocalDateTime.now());
+        userRepo.isUsernameAndEmailAvailable(username, email);
 
-        return (Student) saveUser(student);
+        User user = new User(username, firstName, lastName, email, StringUtils.applySha256(rawPassword), Role.STUDENT, LocalDateTime.now());
+
+        user = userRepo.save(user);
+
+        Student student = new Student(user);
+
+        return studentRepo.save(student);
     }
 
     @Override
     public Instructor registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio) {
-        userRepo.ensureEmailAndUsernameAvailable(username, email);
+        Objects.requireNonNull(username, "RegistrationService: username cannot be null");
+        Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
+        Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
+        Objects.requireNonNull(email, "RegistrationService: email cannot be null");
+        Objects.requireNonNull(rawPassword, "RegistrationService: password cannot be null");
+        Objects.requireNonNull(bio, "RegistrationService: bio cannot be null");
 
-        Instructor instructor = new Instructor(username, firstName, lastName, email, StringUtils.applySha256(rawPassword),
-                LocalDateTime.now(), bio);
+        userRepo.isUsernameAndEmailAvailable(username, email);
 
-        return (Instructor) saveUser(instructor);
-    }
+        User user = new User(username, firstName, lastName, email, StringUtils.applySha256(rawPassword), Role.INSTRUCTOR, LocalDateTime.now());
 
-    public User saveUser(User user) {
-        if (user instanceof Student) {
-            user = studentRepo.save((Student) user);
-        } else if (user instanceof Instructor) {
-            user = instructorRepo.save((Instructor) user);
-        }
-        return user;
+        user = userRepo.save(user);
+
+        Instructor instructor = new Instructor(user, bio);
+
+        return instructorRepo.save(instructor);
     }
 }

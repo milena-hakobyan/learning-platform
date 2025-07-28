@@ -2,12 +2,9 @@ package com.example.service;
 
 import com.example.model.Instructor;
 import com.example.model.Student;
-import com.example.repository.InstructorRepository;
-import com.example.repository.*;
 import com.example.utils.DatabaseConnection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 

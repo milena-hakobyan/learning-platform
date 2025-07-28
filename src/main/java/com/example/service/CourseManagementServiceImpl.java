@@ -5,20 +5,24 @@ import com.example.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class CourseManagementServiceImpl implements CourseManagementService {
 
-    private final CourseRepository courseRepo;
-    private final LessonRepository lessonRepo;
-    private final AssignmentRepository assignmentRepo;
-    private final SubmissionRepository submissionRepo;
-    private final AnnouncementRepository announcementRepo;
+    private final JpaCourseRepository courseRepo;
+    private final JpaLessonRepository lessonRepo;
+    private final JpaAssignmentRepository assignmentRepo;
+    private final JpaSubmissionRepository submissionRepo;
+    private final JpaAnnouncementRepository announcementRepo;
 
-    public CourseManagementServiceImpl(CourseRepository courseRepo, LessonRepository lessonRepo, AssignmentRepository assignmentRepo,
-                                       SubmissionRepository submissionRepo, AnnouncementRepository announcementRepo) {
+    public CourseManagementServiceImpl(
+            JpaCourseRepository courseRepo,
+            JpaLessonRepository lessonRepo,
+            JpaAssignmentRepository assignmentRepo,
+            JpaSubmissionRepository submissionRepo,
+            JpaAnnouncementRepository announcementRepo
+    ) {
         this.courseRepo = courseRepo;
         this.lessonRepo = lessonRepo;
         this.assignmentRepo = assignmentRepo;
@@ -28,7 +32,8 @@ public class CourseManagementServiceImpl implements CourseManagementService {
 
     @Override
     public void createCourse(Course course) {
-        Objects.requireNonNull(course, "Course cannot be null");
+        if (course == null) throw new IllegalArgumentException("Course cannot be null");
+        if (course.getTitle() == null) throw new IllegalArgumentException("Course title cannot be null");
 
         if (courseRepo.findByTitle(course.getTitle()).isPresent()) {
             throw new IllegalArgumentException("Course with title '" + course.getTitle() + "' already exists.");
@@ -38,67 +43,75 @@ public class CourseManagementServiceImpl implements CourseManagementService {
 
     @Override
     public void updateCourse(Course course) {
-        Objects.requireNonNull(course, "Course cannot be null");
-        courseRepo.ensureCourseExists(course.getId());
+        if (course == null) throw new IllegalArgumentException("Course cannot be null");
+        if (course.getId() == null) throw new IllegalArgumentException("Course ID cannot be null");
 
-        courseRepo.update(course);
+        if (!courseRepo.existsById(course.getId())) {
+            throw new IllegalArgumentException("Course not found with ID: " + course.getId());
+        }
+        courseRepo.save(course);
     }
 
     @Override
-    public void deleteCourse(Integer courseId) {
-        courseRepo.ensureCourseExists(courseId);
+    public void deleteCourse(Long courseId) {
+        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
+
+        if (!courseRepo.existsById(courseId)) {
+            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+        }
 
         assignmentRepo.findAllByCourseId(courseId)
                 .forEach(assignment -> {
                     submissionRepo.findAllByAssignmentId(assignment.getId())
-                            .forEach(submission -> submissionRepo.delete(submission.getSubmissionId()));
-                    assignmentRepo.delete(assignment.getId());
+                            .forEach(submission -> submissionRepo.deleteById(submission.getId()));
+                    assignmentRepo.deleteById(assignment.getId());
                 });
-        courseRepo.delete(courseId);
+
+        courseRepo.deleteById(courseId);
     }
 
-
     @Override
-    public List<Announcement> getAnnouncementsForCourse(Integer courseId) {
-        courseRepo.ensureCourseExists(courseId);
+    public List<Announcement> getAnnouncementsForCourse(Long courseId) {
+        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
+
+        if (!courseRepo.existsById(courseId)) {
+            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+        }
 
         return announcementRepo.findAllByCourseId(courseId);
     }
 
     @Override
-    public Optional<Course> getCourseById(Integer courseId) {
-        Objects.requireNonNull(courseId, "Course Id cannot be null");
+    public Optional<Course> getCourseById(Long courseId) {
+        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
 
         return courseRepo.findById(courseId);
     }
 
     @Override
-    public Optional<Course> getByIdWithLessons(Integer courseId) {
+    public Optional<Course> getByIdWithLessons(Long courseId) {
         Optional<Course> course = getCourseById(courseId);
-        if (course.isPresent()) {
-            List<Lesson> lessons = lessonRepo.findAllByCourseId(courseId);
-            course.get().setLessons(lessons);
-        }
+        course.ifPresent(c -> c.setLessons(lessonRepo.findAllByCourseId(courseId)));
         return course;
     }
 
     @Override
-    public List<Course> getCoursesByInstructor(Integer instructorId) {
-        Objects.requireNonNull(instructorId, "InstructorId cannot be null");
+    public List<Course> getCoursesByInstructor(Long instructorId) {
+        if (instructorId == null) throw new IllegalArgumentException("Instructor ID cannot be null");
 
-        return courseRepo.findAllByInstructor(instructorId);
+        return courseRepo.findAllByInstructor_Id(instructorId);
     }
 
     @Override
     public List<Course> getCoursesByCategory(String category) {
-        Objects.requireNonNull(category, "Category cannot be null");
+        if (category == null) throw new IllegalArgumentException("Category cannot be null");
 
         return courseRepo.findAllByCategory(category);
     }
 
     @Override
     public Optional<Course> getCourseByTitle(String title) {
-        Objects.requireNonNull(title, "Title cannot be null");
+        if (title == null) throw new IllegalArgumentException("Title cannot be null");
 
         return courseRepo.findByTitle(title);
     }
@@ -107,5 +120,4 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     public List<Course> getAllCourses() {
         return courseRepo.findAll();
     }
-
 }

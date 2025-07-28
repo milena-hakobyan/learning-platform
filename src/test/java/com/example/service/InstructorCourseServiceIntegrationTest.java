@@ -3,13 +3,9 @@ package com.example.service;
 import com.example.model.ActivityLog;
 import com.example.model.Course;
 import com.example.model.Instructor;
-import com.example.repository.ActivityLogRepository;
-import com.example.repository.CourseRepository;
-import com.example.repository.InstructorRepository;
 import com.example.utils.DatabaseConnection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 

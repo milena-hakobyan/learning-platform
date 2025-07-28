@@ -2,10 +2,6 @@ package com.example.unit;
 
 import com.example.model.Instructor;
 import com.example.model.Student;
-import com.example.repository.InstructorRepository;
-import com.example.repository.StudentRepository;
-import com.example.repository.UserRepository;
-import com.example.service.RegistrationService;
 import com.example.service.RegistrationServiceImpl;
 import com.example.utils.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -13,9 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

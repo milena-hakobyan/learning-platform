@@ -7,15 +7,15 @@ import com.example.model.Material;
 import java.util.List;
 
 public interface InstructorContentService {
-    void createAssignment(Integer instructorId, Integer courseId, Assignment assignment);
-    void deleteAssignment(Integer instructorId, Integer courseId, Integer assignmentId);
-    List<Assignment> getAssignmentsCreated(Integer instructorId);
+    void createAssignment(Long instructorId, Long courseId, Assignment assignment);
+    void deleteAssignment(Long instructorId, Long courseId, Long assignmentId);
+    List<Assignment> getAssignmentsCreated(Long instructorId);
 
-    void createLesson(Integer instructorId, Integer courseId, Lesson lesson);
-    void deleteLesson(Integer instructorId, Integer courseId, Integer lessonId);
-    List<Lesson> getLessonsCreated(Integer instructorId);
+    void createLesson(Long instructorId, Long courseId, Lesson lesson);
+    void deleteLesson(Long instructorId, Long courseId, Long lessonId);
+    List<Lesson> getLessonsCreated(Long instructorId);
 
-    void uploadMaterial(Integer instructorId, Integer lessonId, Material material);
-    void deleteMaterial(Integer instructorId, Integer lessonId, Integer materialId);
+    void uploadMaterial(Long instructorId, Long lessonId, Material material);
+    void deleteMaterial(Long instructorId, Long lessonId, Long materialId);
 }
 

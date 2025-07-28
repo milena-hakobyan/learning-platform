@@ -6,13 +6,13 @@ import com.example.model.Material;
 import java.util.List;
 
 public interface AssignmentService {
-    void addAssignmentToCourse(Integer courseId, Assignment assignment);
+    void addAssignmentToCourse(Long courseId, Assignment assignment);
 
-    void removeAssignmentFromCourse(Integer courseId, Integer assignmentId);
+    void removeAssignmentFromCourse(Long courseId, Long assignmentId);
 
-    List<Assignment> getAssignmentsForCourse(Integer courseId);
+    List<Assignment> getAssignmentsForCourse(Long courseId);
 
-    void addMaterialToAssignment(Integer assignmentId, Material material);
+    void addMaterialToAssignment(Long assignmentId, Material material);
 
-    void removeMaterialFromAssignment(Integer assignmentId, Integer materialId);
+    void removeMaterialFromAssignment(Long assignmentId, Long materialId);
 }

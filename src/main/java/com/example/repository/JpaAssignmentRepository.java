@@ -5,16 +5,24 @@ import com.example.model.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface JpaAssignmentRepository extends JpaRepository<Assignment, Long> {
 
     List<Assignment> findAllByCourseId(Long courseId);
 
-    List<Assignment> findAllByInstructorId(Long instructorId); // renaming for consistency
+    @Query("""
+                SELECT a
+                FROM Assignment a
+                JOIN a.course c
+                WHERE c.instructor.id = :instructorId
+            """)
+    List<Assignment> findAllByInstructorId(Long instructorId);
 
     List<Assignment> findAllByDueDateBefore(LocalDateTime date);
 

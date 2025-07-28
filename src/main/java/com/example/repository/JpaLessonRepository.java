@@ -5,9 +5,11 @@ import com.example.model.Material;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface JpaLessonRepository extends JpaRepository<Lesson, Long> {
 
     List<Lesson> findAllByCourseId(Long courseId);
@@ -20,11 +22,13 @@ public interface JpaLessonRepository extends JpaRepository<Lesson, Long> {
 
 
     @Query("""
-      SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END
-      FROM Lesson l
-      JOIN Enrollment e ON l.course.id = e.course.id
-      WHERE e.student.id = :studentId AND l.id = :lessonId
-    """)
-    boolean existsByStudentIdAndLessonId(Long studentId, Long lessonId);
+              SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END
+              FROM Lesson l
+              JOIN l.course c
+              JOIN c.enrolledStudents s
+              WHERE s.id = :studentId AND l.id = :lessonId
+            """)
+    boolean existsByStudentIdAndLessonId(@Param("studentId") Long studentId, @Param("lessonId") Long lessonId);
+
 }
 

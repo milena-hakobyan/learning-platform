@@ -1,5 +1,9 @@
 package com.example.service;
 
+import com.example.dto.instructor.InstructorResponse;
+import com.example.dto.student.StudentResponse;
+import com.example.mapper.InstructorMapper;
+import com.example.mapper.StudentMapper;
 import com.example.model.Instructor;
 import com.example.model.Role;
 import com.example.model.Student;
@@ -18,15 +22,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final JpaUserRepository userRepo;
     private final JpaStudentRepository studentRepo;
     private final JpaInstructorRepository instructorRepo;
+    private final StudentMapper studentMapper;
+    private final InstructorMapper instructorMapper;
 
-    public RegistrationServiceImpl(JpaUserRepository userRepo, JpaStudentRepository studentRepo, JpaInstructorRepository instructorRepo) {
+    public RegistrationServiceImpl(JpaUserRepository userRepo, JpaStudentRepository studentRepo, JpaInstructorRepository instructorRepo, StudentMapper studentMapper, InstructorMapper instructorMapper) {
         this.userRepo = userRepo;
         this.studentRepo = studentRepo;
         this.instructorRepo = instructorRepo;
+        this.studentMapper = studentMapper;
+        this.instructorMapper = instructorMapper;
     }
 
     @Override
-    public Student registerStudent(String username, String firstName, String lastName, String email, String rawPassword) {
+    public StudentResponse registerStudent(String username, String firstName, String lastName, String email, String rawPassword) {
         Objects.requireNonNull(username, "RegistrationService: username cannot be null");
         Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
         Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
@@ -41,11 +49,11 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         Student student = new Student(user);
 
-        return studentRepo.save(student);
+        return studentMapper.toDto(studentRepo.save(student));
     }
 
     @Override
-    public Instructor registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio) {
+    public InstructorResponse registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio) {
         Objects.requireNonNull(username, "RegistrationService: username cannot be null");
         Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
         Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
@@ -61,6 +69,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         Instructor instructor = new Instructor(user, bio);
 
-        return instructorRepo.save(instructor);
+        return instructorMapper.toDto(instructorRepo.save(instructor));
     }
 }

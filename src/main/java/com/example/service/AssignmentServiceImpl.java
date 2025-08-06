@@ -1,12 +1,23 @@
 package com.example.service;
 
+import com.example.dto.assignment.AssignmentResponse;
+import com.example.dto.assignment.CreateAssignmentRequest;
+import com.example.dto.assignment.UpdateAssignmentRequest;
+import com.example.dto.material.CreateMaterialRequest;
+import com.example.dto.material.MaterialResponse;
+import com.example.mapper.AssignmentMapper;
+import com.example.mapper.MaterialMapper;
 import com.example.model.Assignment;
+import com.example.model.Course;
+import com.example.model.Instructor;
 import com.example.model.Material;
 import com.example.repository.JpaAssignmentRepository;
 import com.example.repository.JpaCourseRepository;
+import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaSubmissionRepository;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.PanelUI;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,81 +26,116 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final JpaCourseRepository courseRepo;
     private final JpaAssignmentRepository assignmentRepo;
     private final JpaSubmissionRepository submissionRepo;
+    private final JpaInstructorRepository instructorRepo;
+    private final AssignmentMapper assignmentMapper;
+    private final MaterialMapper materialMapper;
 
-    public AssignmentServiceImpl(JpaCourseRepository courseRepo, JpaAssignmentRepository assignmentRepo, JpaSubmissionRepository submissionRepo) {
+    public AssignmentServiceImpl(JpaCourseRepository courseRepo, JpaAssignmentRepository assignmentRepo, JpaSubmissionRepository submissionRepo, JpaInstructorRepository instructorRepo, AssignmentMapper assignmentMapper, MaterialMapper materialMapper) {
         this.courseRepo = courseRepo;
         this.assignmentRepo = assignmentRepo;
         this.submissionRepo = submissionRepo;
+        this.instructorRepo = instructorRepo;
+        this.assignmentMapper = assignmentMapper;
+        this.materialMapper = materialMapper;
     }
 
     @Override
-    public void addAssignmentToCourse(Long courseId, Assignment assignment) {
+    public AssignmentResponse createAssignment(Long courseId, CreateAssignmentRequest request) {
         Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(assignment, "Assignment cannot be null");
+        Objects.requireNonNull(request, "Assignment request cannot be null");
 
-        if (!courseRepo.existsById(courseId)) {
-            throw new IllegalArgumentException("Course with ID " + courseId + " doesn't exist.");
-        }
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course with ID " + courseId + " doesn't exist."));
 
-        if (assignment.getCourse().getId() != null && !assignment.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("Assignment already belongs to a different course.");
-        }
-        assignmentRepo.save(assignment);
+        Assignment assignment = assignmentMapper.toEntity(request, course);
+
+        return assignmentMapper.toDto(assignmentRepo.save(assignment));
     }
 
     @Override
-    public void removeAssignmentFromCourse(Long courseId, Long assignmentId) {
-        courseRepo.existsById(courseId);
+    public AssignmentResponse getAssignmentById(Long assignmentId) {
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
+
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment with ID " + assignmentId + " not found"));
+
+        return assignmentMapper.toDto(assignment);
+    }
+
+
+    @Override
+    public AssignmentResponse updateAssignment(Long assignmentId, UpdateAssignmentRequest dto) {
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
+        Objects.requireNonNull(dto, "Assignment request cannot be null");
+
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment with ID " + assignmentId + " not found"));
+
+        assignmentMapper.updateEntity(dto, assignment);
+        Assignment saved = assignmentRepo.save(assignment);
+
+        return assignmentMapper.toDto(saved);
+    }
+
+
+    @Override
+    public void deleteAssignment(Long assignmentId) {
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
-        if (!assignment.getCourse().getId().equals(courseId)) {
-            throw new IllegalArgumentException("Given course doesn't include an assignment with id " + assignmentId);
-        }
-
-        submissionRepo.findAllByAssignmentId(assignmentId)
-                .forEach(submission -> submissionRepo.deleteById(submission.getId()));
+        submissionRepo.deleteAllByAssignmentId(assignmentId);
 
         assignmentRepo.deleteById(assignmentId);
     }
 
 
     @Override
-    public void addMaterialToAssignment(Long assignmentId, Material material) {
-        Objects.requireNonNull(material, "Material cannot be null");
+    public MaterialResponse addMaterialToAssignment(Long assignmentId, CreateMaterialRequest dto) {
+        Objects.requireNonNull(dto, "Material cannot be null");
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment doesn't exist"));
 
+        Instructor instructor = instructorRepo.findById(dto.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor doesn't exist"));
+
+        Material material = materialMapper.toEntity(dto, instructor);
         assignment.addMaterial(material);
         assignmentRepo.save(assignment);
+
+        return materialMapper.toDto(material);
     }
 
     @Override
     public void removeMaterialFromAssignment(Long assignmentId, Long materialId) {
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
         Objects.requireNonNull(materialId, "Material ID cannot be null");
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Assignment doesn't exist"));
 
-        Material material = assignment.getMaterials().stream()
-                .filter(m -> m.getId().equals(materialId))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Material not found in lesson"));
+        boolean removed = assignment.getMaterials().removeIf(m -> m.getId().equals(materialId));
+        if (!removed) {
+            throw new IllegalArgumentException("Material not found in assignment");
+        }
 
-        assignment.removeMaterial(material);
         assignmentRepo.save(assignment);
     }
 
+
     @Override
-    public List<Assignment> getAssignmentsForCourse(Long courseId) {
+    public List<AssignmentResponse> getAssignmentsForCourse(Long courseId) {
         Objects.requireNonNull(courseId, "Course ID cannot be null");
 
         if (!courseRepo.existsById(courseId)) {
             throw new IllegalArgumentException("Course with ID " + courseId + " doesn't exist.");
         }
 
-        return assignmentRepo.findAllByCourseId(courseId);
+        return assignmentRepo.findAllByCourseId(courseId)
+                .stream()
+                .map(assignmentMapper::toDto)
+                .toList();
     }
 }

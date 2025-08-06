@@ -1,24 +1,26 @@
 package com.example.service;
 
+import com.example.dto.user.UserResponse;
+import com.example.dto.user.UserUpdateRequest;
 import com.example.model.*;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<User> getUserById(Long id);
+    Optional<UserResponse> getById(Long id);
 
-    Optional<User> getUserByEmail(String email);
+    Optional<UserResponse> getByEmail(String email);
 
-    Optional<User> getUserByUserName(String userName);
+    Optional<UserResponse> getByUsername(String username);
 
-    List<User> getUsersByRole(Role role);
+    List<UserResponse> getAllByRole(Role role);
 
-    Optional<User> login(String email, String password);
+    UserResponse login(String email, String password);
 
-    void updateUser(User user);
+    UserResponse update(Long userId, UserUpdateRequest user);
 
-    void deleteUser(Long userId);
+    void delete(Long userId);
 
-    void deactivateUser(Long userId);
+    void deactivate(Long userId);
 }

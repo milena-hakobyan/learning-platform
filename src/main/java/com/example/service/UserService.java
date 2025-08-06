@@ -6,18 +6,19 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<User> getUserById(Integer id);
+    Optional<User> getUserById(Long id);
 
     Optional<User> getUserByEmail(String email);
 
     Optional<User> getUserByUserName(String userName);
 
     List<User> getUsersByRole(Role role);
+
     Optional<User> login(String email, String password);
 
     void updateUser(User user);
 
-    void deleteUser(Integer userId);
+    void deleteUser(Long userId);
 
-    void deactivateUser(Integer userId);
+    void deactivateUser(Long userId);
 }

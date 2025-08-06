@@ -7,8 +7,8 @@ public interface InstructorCourseService {
 
     void createCourse(Course course);
 
-    void deleteCourse(Integer instructorId, Integer courseId);
+    void deleteCourse(Long instructorId, Long courseId);
 
-    List<Course> getCoursesCreated(Integer instructorId);
+    List<Course> getCoursesCreated(Long instructorId);
 
 }

@@ -2,9 +2,6 @@ package com.example.unit;
 
 import com.example.model.Announcement;
 import com.example.model.Course;
-import com.example.repository.ActivityLogRepository;
-import com.example.repository.AnnouncementRepository;
-import com.example.repository.InstructorRepository;
 import com.example.service.InstructorAuthorizationService;
 import com.example.service.InstructorCommunicationServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -12,8 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;

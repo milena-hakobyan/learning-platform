@@ -6,14 +6,14 @@ import com.example.model.Material;
 import java.util.List;
 
 public interface LessonService {
-    List<Lesson> getLessonsForCourse(Integer courseId);
+    List<Lesson> getLessonsForCourse(Long courseId);
 
-    void addLessonToCourse(Integer courseId, Lesson lesson);
+    void addLessonToCourse(Long courseId, Lesson lesson);
 
-    void removeLessonFromCourse(Integer courseId, Integer lessonId);
+    void removeLessonFromCourse(Long courseId, Long lessonId);
 
-    void addMaterialToLesson(Integer lessonId, Material material);
+    void addMaterialToLesson(Long lessonId, Material material);
 
-    void removeMaterialFromLesson(Integer lessonId, Integer materialId);
+    void removeMaterialFromLesson(Long lessonId, Long materialId);
 
 }

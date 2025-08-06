@@ -5,8 +5,11 @@ import com.example.model.Student;
 import java.util.List;
 
 public interface CourseEnrollmentService {
-    void enrollStudent(Integer courseId, Integer studentId);
-    void unenrollStudent(Integer courseId, Integer studentId);
-    void ensureStudentEnrollment(Integer studentId, Integer courseId);
-    List<Student> getEnrolledStudents(Integer courseId);
+    void enrollStudent(Long courseId, Long studentId);
+
+    void unenrollStudent(Long courseId, Long studentId);
+
+    void ensureStudentEnrollment(Long studentId, Long courseId);
+
+    List<Student> getEnrolledStudents(Long courseId);
 }

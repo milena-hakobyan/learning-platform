@@ -1,0 +1,1954 @@
+openapi: 3.0.1
+info:
+  title: Learning Platform - OpenAPI 3.0
+  description: |-
+    API documentation for managing users, courses, lessons, and assignments.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+    
+
+paths:
+  /courses/{courseId}/assignments:
+    post:
+      tags:
+        - Assignments
+      summary: Add an assignment to a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+      responses:
+        '201':
+          description: Assignment added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Invalid course ID or assignment data
+
+    get:
+      tags:
+        - Assignments
+      summary: Get all assignments for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/NameContainsFilter'
+      responses:
+        '200':
+          description: List of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+        '404':
+          description: Course not found
+
+  /courses/{courseId}/assignments/{assignmentId}:
+    delete:
+      tags:
+        - Assignments
+      summary: Remove an assignment from a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Assignment removed successfully
+        '400':
+          description: Invalid course or assignment ID
+        '404':
+          description: Assignment not found
+
+  /assignments/{assignmentId}/materials:
+    post:
+      tags:
+        - Assignments
+      summary: Add material to an assignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Material'
+      responses:
+        '200':
+          description: Material added successfully to assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '404':
+          description: Assignment not found
+
+  /assignments/{assignmentId}/materials/{materialId}:
+    delete:
+      tags:
+        - Assignments
+      summary: Remove material from an assignment
+      parameters:
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: materialId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Material removed successfully from assignment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '404':
+          description: Assignment or Material not found
+
+
+  /courses/{courseId}/students:
+    get:
+      tags:
+        - Enrollment
+      summary: Get all students enrolled in a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/StatusFilter'        
+        - $ref: '#/components/parameters/NameContainsFilter' 
+        
+      responses:
+        '200':
+          description: List of enrolled students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '404':
+          description: Course not found
+
+  /courses/{courseId}/students/{studentId}:
+    post:
+      tags:
+        - Enrollment
+      summary: Enroll a student in a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Student enrolled successfully
+        '404':
+          description: Course or student not found
+
+    delete:
+      tags:
+        - Enrollment
+      summary: Unenroll a student from a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Student unenrolled successfully
+        '404':
+          description: Course or student not found
+
+  /courses/{courseId}/students/{studentId}/enrollment-check:
+    get:
+      tags:
+        - Enrollment
+      summary: Check if a student is enrolled in a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Student is enrolled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enrolled:
+                    type: boolean
+                    example: true
+        '404':
+          description: Course or student not found
+        '400':
+          description: Student is not enrolled in the course
+
+
+  /courses:
+    get:
+      tags:
+        - Course Management
+      summary: Retrieve all courses
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/StatusFilter'        # assuming Course has a status field
+        - $ref: '#/components/parameters/NameContainsFilter'  # filtering by course title/name
+      responses:
+        '200':
+          description: List of all courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+    post:
+      tags:
+        - Course Management
+      summary: Create a new course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          description: Invalid input or duplicate course title
+
+
+  /courses/{courseId}:
+    get:
+      tags:
+        - Course Management
+      summary: Get a course by ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Course found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404':
+          description: Course not found
+
+    put:
+      tags:
+        - Course Management
+      summary: Update an existing course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          description: Invalid input or course not found
+
+    delete:
+      tags:
+        - Course Management
+      summary: Delete a course by ID (also deletes its assignments and submissions)
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Course deleted successfully
+        '404':
+          description: Course not found
+
+  /courses/{courseId}/lessons:
+    get:
+      tags:
+        - Course Management
+      summary: Get course with lessons by course ID
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # StatusFilter omitted here unless lessons have status
+        - $ref: '#/components/parameters/NameContainsFilter' # if lessons have a name/title field for filtering
+ 
+      responses:
+        '200':
+          description: Course with lessons retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Course'
+                  - type: object
+                    properties:
+                      lessons:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Lesson'
+        '404':
+          description: Course not found
+
+  /courses/instructor/{instructorId}:
+    get:
+      tags:
+        - Course Management
+      summary: Get all courses by instructor ID
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/StatusFilter'        # if course has status
+        - $ref: '#/components/parameters/NameContainsFilter'  # filter by course name/title
+   
+      responses:
+        '200':
+          description: List of courses by instructor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /courses/category/{category}:
+    get:
+      tags:
+        - Course Management
+      summary: Get all courses by category
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+            
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/StatusFilter'        # if course has status
+        - $ref: '#/components/parameters/NameContainsFilter'  # filter by course name/title
+     
+      responses:
+        '200':
+          description: List of courses by category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /courses/{courseId}/announcements:
+    get:
+      tags:
+        - Course Management
+      summary: Get all announcements for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of announcements for the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+        '404':
+          description: Course not found
+
+
+
+
+  /instructors/{instructorId}/courses/{courseId}/authorize:
+    get:
+      tags:
+        - Instructor Authorization
+      summary: Ensure instructor is authorized to access a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Authorized access to course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          description: Instructor or course not found
+        '403':
+          description: Instructor not authorized to access this course
+
+
+
+
+  /instructors/{instructorId}/announcements:
+    get:
+      tags:
+        - Instructor Communication
+      summary: Get all announcements posted by an instructor
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Optional filters if announcements support status or title substring filtering:
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/NameContainsFilter'
+      responses:
+        '200':
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+        '400':
+          description: Invalid or missing instructor ID
+        '404':
+          description: Instructor not found
+
+  /instructors/{instructorId}/courses/{courseId}/announcements:
+    post:
+      tags:
+        - Instructor Communication
+      summary: Send an announcement to a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - message
+              properties:
+                title:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '201':
+          description: Announcement created and sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          description: Missing or invalid parameters
+        '403':
+          description: Instructor not authorized to post to this course
+        '404':
+          description: Instructor or course not found
+
+
+
+  /instructors/{instructorId}/lessons:
+    get:
+      tags:
+        - Instructor Content
+      summary: Get all lessons created by instructor
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of lessons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+        '400':
+          description: Invalid instructor ID
+        '404':
+          description: Instructor not found
+
+  /instructors/{instructorId}/assignments:
+    get:
+      tags:
+        - Instructor Content
+      summary: Get all assignments created by instructor
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+
+  /instructors/{instructorId}/courses/{courseId}/assignments:
+    post:
+      tags:
+        - Instructor Content
+      summary: Create a new assignment for a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+      responses:
+        '201':
+          description: Assignment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '400':
+          description: Bad request (missing/invalid data)
+        '403':
+          description: Unauthorized access
+        '404':
+          description: Instructor or course not found
+
+  /instructors/{instructorId}/courses/{courseId}/assignments/{assignmentId}:
+    delete:
+      tags:
+        - Instructor Content
+      summary: Delete an assignment from a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Assignment deleted
+        '400':
+          description: Invalid input
+        '403':
+          description: Unauthorized access
+        '404':
+          description: Instructor, course or assignment not found
+
+  /instructors/{instructorId}/courses/{courseId}/lessons:
+    post:
+      tags:
+        - Instructor Content
+      summary: Create a lesson in a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+      responses:
+        '201':
+          description: Lesson created
+
+  /instructors/{instructorId}/courses/{courseId}/lessons/{lessonId}:
+    delete:
+      tags:
+        - Instructor Content
+      summary: Delete a lesson from a course
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Lesson deleted
+
+  /instructors/{instructorId}/lessons/{lessonId}/materials:
+    post:
+      tags:
+        - Instructor Content
+      summary: Upload material to a lesson
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Material'
+      responses:
+        '201':
+          description: Material uploaded
+
+  /instructors/{instructorId}/lessons/{lessonId}/materials/{materialId}:
+    delete:
+      tags:
+        - Instructor Content
+      summary: Delete material from lesson
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: materialId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Material deleted
+
+
+
+  /instructors/{instructorId}/courses:
+    post:
+      summary: Create a new course
+      tags:
+        - Instructor Courses
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/NameContainsFilter'   # for filtering by name substring
+ 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: Course created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+
+    get:
+      summary: List all courses created by the instructor
+      tags:
+        - Instructor Courses
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /instructors/{instructorId}/courses/{courseId}:
+    delete:
+      summary: Delete a course
+      tags:
+        - Instructor Courses
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Course deleted successfully
+        '404':
+          description: Course or instructor not found
+        '403':
+          description: Unauthorized access
+
+
+
+
+  /instructors/{instructorId}/submissions/{submissionId}/grade:
+    post:
+      summary: Grade a submission
+      tags:
+        - Instructor Grading
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        '200':
+          description: Grade saved successfully
+        '400':
+          description: Invalid input or instructor/submission not found
+        '404':
+          description: Submission or instructor not found
+
+  
+  /instructors/{instructorId}/assignments/{assignmentId}/submissions:
+    get:
+      summary: Get all submissions for a given assignment
+      tags:
+        - Instructor Grading
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+    
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of submissions for the assignment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+        '400':
+          description: Invalid input or instructor/assignment not found
+        '404':
+          description: Assignment or instructor not found
+
+
+  
+  /instructors:
+    get:
+      tags:
+        - Instructor Profile
+      summary: Get all instructors
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of instructors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Instructor'
+
+  /instructors/{instructorId}:
+    get:
+      tags:
+        - Instructor Profile
+      summary: Get instructor by ID
+      parameters:
+        - name: instructorId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Instructor found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instructor'
+        '404':
+          description: Instructor not found
+
+
+  /users/login:
+    post:
+      tags:
+        - User Management
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Successful login, returns user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid email or password
+        '404':
+          description: User not found
+
+  /users/{userId}:
+    get:
+      tags:
+        - User Management
+      summary: Get user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+    put:
+      tags:
+        - User Management
+      summary: Update user details
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+    delete:
+      tags:
+        - User Management
+      summary: Delete user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /users/{userId}/deactivate:
+    post:
+      tags:
+        - User Management
+      summary: Deactivate user account
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User deactivated successfully
+        '404':
+          description: User not found
+
+  /users/email/{email}:
+    get:
+      tags:
+        - User Management
+      summary: Get user by email
+      parameters:
+        - name: email
+          in: path
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: User retrieved by email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/username/{username}:
+    get:
+      tags:
+        - User Management
+      summary: Get user by username
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User retrieved by username
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/role/{role}:
+    get:
+      tags:
+        - User Management
+      summary: Get users by role
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [STUDENT, INSTRUCTOR]
+      responses:
+        '200':
+          description: List of users by role
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: No users found for the specified role
+
+
+
+
+  /students/{studentId}:
+    get:
+      tags:
+        - Student Operations
+      summary: Get student profile by student ID
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Student retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          description: Student not found
+
+  /students/{studentId}/courses:
+    get:
+      tags:
+        - Student Operations
+      summary: Get list of courses the student is enrolled in
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of enrolled courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '404':
+          description: Student not found
+
+  /students/{studentId}/courses/{courseId}/grades:
+    get:
+      tags:
+        - Student Operations
+      summary: Get all grades for a specific course
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of grades for the student in the course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+        '400':
+          description: Student not enrolled in course or invalid IDs
+
+  /students/{studentId}/assignments/{assignmentId}/grade:
+    get:
+      tags:
+        - Student Operations
+      summary: Get the grade of a specific assignment for a student
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Grade retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '404':
+          description: Grade or student/assignment not found
+
+  /students/{studentId}/courses/{courseId}/enroll:
+    post:
+      tags:
+        - Student Operations
+      summary: Enroll student in a course
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Student enrolled successfully
+        '400':
+          description: Invalid student or course or already enrolled
+
+  /students/{studentId}/courses/{courseId}/drop:
+    delete:
+      tags:
+        - Student Operations
+      summary: Drop student from a course
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Student dropped successfully
+        '400':
+          description: Invalid student or course or not enrolled
+
+  /students/{studentId}/lessons/{lessonId}/materials:
+    get:
+      tags:
+        - Student Operations
+      summary: Student access materials for a lesson
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+      responses:
+        '200':
+          description: List of materials for the lesson
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Material'
+        '403':
+          description: Student has no access to lesson
+        '404':
+          description: Student or lesson not found
+
+  /students/{studentId}/assignments/{assignmentId}/submit:
+    post:
+      tags:
+        - Student Operations
+      summary: Submit an assignment
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: assignmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - contentLink
+              properties:
+                contentLink:
+                  type: string
+                  example: "http://storage.example.com/submission/123"
+      responses:
+        '201':
+          description: Submission accepted
+        '400':
+          description: Invalid input or already submitted
+        '404':
+          description: Student, assignment, or course not found
+          
+   
+  /register/student:
+    post:
+      tags:
+        - Registration
+      summary: Register a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: Student successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          description: Missing required fields or username/email already taken
+
+  /register/instructor:
+    post:
+      tags:
+        - Registration
+      summary: Register a new instructor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - firstName
+                - lastName
+                - email
+                - password
+                - bio
+              properties:
+                username:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                bio:
+                  type: string
+      responses:
+        '201':
+          description: Instructor successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instructor'
+        '400':
+          description: Missing required fields or username/email already taken
+  
+  
+  /courses/{courseId}/lessons/{lessonId}:
+    delete:
+      tags:
+        - Lessons
+      summary: Remove a lesson from a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Lesson removed successfully
+        '400':
+          description: Lesson does not belong to the course or IDs invalid
+        '404':
+          description: Course or lesson not found
+
+  /lessons/{lessonId}/materials:
+    post:
+      summary: Add material to a lesson
+      tags:
+        - Lessons
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID of the lesson to add material to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Material'
+      responses:
+        '204':
+          description: Material added successfully
+        '400':
+          description: Invalid input or lesson not found
+
+  /lessons/{lessonId}/materials/{materialId}:
+    delete:
+      summary: Remove material from a lesson
+      tags:
+        - Lessons
+      parameters:
+        - in: path
+          name: lessonId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: path
+          name: materialId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Material removed successfully
+        '404':
+          description: Lesson or material not found      
+          
+          
+          
+components:
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Page number (0-based)
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    SizeParam:
+      name: size
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+    SortParam:
+      name: sort
+      in: query
+      description: Sorting criteria, e.g. 'name,asc'
+      schema:
+        type: string
+    StatusFilter:
+      name: status
+      in: query
+      description: Filter by status
+      schema:
+        type: string
+        enum: [active, inactive]
+    NameContainsFilter:
+        name: nameContains
+        in: query
+        description: Filter where name contains this value
+        schema:
+          type: string
+          
+          
+          
+  schemas:
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+        maxScore:
+          type: number
+          format: double
+        course:
+          $ref: '#/components/schemas/Course'
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/Material'
+      required:
+        - title
+        - dueDate
+        - maxScore
+        
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        title:
+          type: string
+          example: "Java Programming"
+        description:
+          type: string
+          example: "A beginner-friendly course on Java"
+        category:
+          type: string
+          example: "Programming"
+        url:
+          type: string
+          example: "http://example.com/java-course"
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+        enrolledStudents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+        announcements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+    
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        username:
+          type: string
+          example: johndoe
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        role:
+          $ref: '#/components/schemas/Role'
+        password:
+          type: string
+          format: password
+          example: mySecurePassword123
+        lastLogin:
+          type: string
+          format: date-time
+          example: "2025-07-28T14:35:00"
+        active:
+          type: boolean
+          example: true
+        activityLogs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityLog'
+
+    Instructor:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 101
+        user:
+          $ref: '#/components/schemas/User'
+        bio:
+          type: string
+          example: "Passionate Java developer with 10+ years of experience."
+        totalCoursesCreated:
+          type: integer
+          example: 5
+        rating:
+          type: number
+          format: double
+          example: 4.7
+        isVerified:
+          type: boolean
+          example: true
+        coursesCreated:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        announcementsPosted:
+          type: array
+          items:
+            $ref: '#/components/schemas/Announcement'
+
+            
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 202
+        user:
+          $ref: '#/components/schemas/User'
+        progressPercentage:
+          type: number
+          format: double
+          example: 75.5
+        completedCourses:
+          type: integer
+          example: 4
+        currentCourses:
+          type: integer
+          example: 2
+        enrolledCourses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        submissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Submission'
+    
+    ActivityLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        user:
+          $ref: '#/components/schemas/User'
+        action:
+          type: string
+          example: "User logged in"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-07-28T14:30:00Z"
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 501
+        title:
+          type: string
+          example: "Course Update: New Materials Added"
+        content:
+          type: string
+          example: "We've uploaded new lecture slides and practice problems."
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        course:
+          $ref: '#/components/schemas/Course'
+        postedAt:
+          type: string
+          format: date-time
+          example: "2025-07-28T10:15:00Z"
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 301
+        score:
+          type: number
+          format: double
+          example: 92.5
+        submission:
+          $ref: '#/components/schemas/Submission'
+        feedback:
+          type: string
+          example: "Excellent work! Just a small formatting issue."
+        gradedAt:
+          type: string
+          format: date-time
+          example: "2025-07-27T14:30:00Z"
+          
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 501
+        title:
+          type: string
+          example: "Introduction to Java Streams"
+        content:
+          type: string
+          example: "In this lesson, you'll learn about stream operations in Java..."
+        course:
+          $ref: '#/components/schemas/Course'
+        uploadDate:
+          type: string
+          format: date-time
+          example: "2025-07-20T10:00:00Z"
+        materials:
+          type: array
+          items:
+            $ref: '#/components/schemas/Material'
+
+
+    Material:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 301
+        title:
+          type: string
+          example: "Dependency Injection in Spring"
+        contentType:
+          type: string
+          example: "video"
+        category:
+          type: string
+          example: "backend"
+        url:
+          type: string
+          format: uri
+          example: "https://example.com/materials/di-spring"
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        uploadDate:
+          type: string
+          format: date-time
+          example: "2025-07-25T14:30:00Z"
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 701
+        assignment:
+          $ref: '#/components/schemas/Assignment'
+        student:
+          $ref: '#/components/schemas/Student'
+        submittedAt:
+          type: string
+          format: date-time
+          example: "2025-07-25T18:45:00Z"
+        contentLink:
+          type: string
+          format: uri
+          example: "https://example.com/submissions/701"
+        status:
+          $ref: '#/components/schemas/SubmissionStatus'
+          
+    Role:
+      type: string
+      enum:
+        - STUDENT
+        - INSTRUCTOR
+      example: STUDENT
+      
+    SubmissionStatus:
+      type: string
+      enum:
+        - SUBMITTED
+        - LATE
+        - GRADED
+      example: SUBMITTED

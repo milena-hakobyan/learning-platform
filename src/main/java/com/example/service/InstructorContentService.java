@@ -1,5 +1,13 @@
 package com.example.service;
 
+import com.example.dto.assignment.AssignmentResponse;
+import com.example.dto.assignment.CreateAssignmentRequest;
+import com.example.dto.assignment.UpdateAssignmentRequest;
+import com.example.dto.lesson.CreateLessonRequest;
+import com.example.dto.lesson.LessonResponse;
+import com.example.dto.lesson.UpdateLessonRequest;
+import com.example.dto.material.CreateMaterialRequest;
+import com.example.dto.material.MaterialResponse;
 import com.example.model.Assignment;
 import com.example.model.Lesson;
 import com.example.model.Material;
@@ -7,15 +15,17 @@ import com.example.model.Material;
 import java.util.List;
 
 public interface InstructorContentService {
-    void createAssignment(Long instructorId, Long courseId, Assignment assignment);
+    AssignmentResponse createAssignment(Long instructorId, Long courseId, CreateAssignmentRequest request);
+    AssignmentResponse updateAssignment(Long instructorId, Long assignmentId, UpdateAssignmentRequest request);
     void deleteAssignment(Long instructorId, Long courseId, Long assignmentId);
-    List<Assignment> getAssignmentsCreated(Long instructorId);
 
-    void createLesson(Long instructorId, Long courseId, Lesson lesson);
+    LessonResponse createLesson(Long instructorId, Long courseId, CreateLessonRequest request);
+    LessonResponse updateLesson(Long instructorId,Long lessonId, UpdateLessonRequest request);
     void deleteLesson(Long instructorId, Long courseId, Long lessonId);
-    List<Lesson> getLessonsCreated(Long instructorId);
 
-    void uploadMaterial(Long instructorId, Long lessonId, Material material);
-    void deleteMaterial(Long instructorId, Long lessonId, Long materialId);
+    MaterialResponse addMaterialToLesson(Long instructorId, Long lessonId, CreateMaterialRequest request);
+    void deleteMaterialFromLesson(Long instructorId, Long lessonId, Long materialId);
+
+    MaterialResponse addMaterialToAssignment(Long instructorId, Long assignmentId, CreateMaterialRequest request);
+    void deleteMaterialFromAssignment(Long instructorId, Long assignmentId, Long materialId);
 }
-

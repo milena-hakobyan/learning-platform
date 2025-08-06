@@ -1,12 +1,14 @@
 package com.example.service;
 
+import com.example.dto.announcement.AnnouncementResponse;
+import com.example.dto.announcement.CreateAnnouncementRequest;
 import com.example.model.Announcement;
 import java.util.List;
 
 
 
 public interface InstructorCommunicationService {
-    List<Announcement> getAnnouncementsPosted(Long instructorId);
+    List<AnnouncementResponse> getAnnouncementsPosted(Long instructorId);
 
-    void sendAnnouncement(Long instructorId, Long courseId, String title, String message);
+    AnnouncementResponse sendAnnouncement(CreateAnnouncementRequest request);
 }

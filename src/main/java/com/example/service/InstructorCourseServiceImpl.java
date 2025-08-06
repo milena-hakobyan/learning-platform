@@ -1,5 +1,8 @@
 package com.example.service;
 
+import com.example.dto.course.CourseResponse;
+import com.example.dto.course.CreateCourseRequest;
+import com.example.mapper.CourseMapper;
 import com.example.model.ActivityLog;
 import com.example.model.Course;
 import com.example.model.User;
@@ -18,25 +21,30 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     private final CourseManagementService courseService;
     private final JpaInstructorRepository instructorRepo;
     private final InstructorAuthorizationService instructorService;
+    private final CourseMapper courseMapper;
 
 
-    public InstructorCourseServiceImpl(JpaActivityLogRepository activityLogRepo, JpaUserRepository userRepo, CourseManagementService courseService, JpaInstructorRepository instructorRepo, InstructorAuthorizationService instructorService) {
+    public InstructorCourseServiceImpl(JpaActivityLogRepository activityLogRepo, JpaUserRepository userRepo, CourseManagementService courseService, JpaInstructorRepository instructorRepo, InstructorAuthorizationService instructorService, CourseMapper courseMapper) {
         this.activityLogRepo = activityLogRepo;
         this.userRepo = userRepo;
         this.courseService = courseService;
         this.instructorRepo = instructorRepo;
         this.instructorService = instructorService;
+        this.courseMapper = courseMapper;
     }
 
     @Override
-    public void createCourse(Course course) {
-        courseService.createCourse(course);
+    public CourseResponse createCourse(CreateCourseRequest request) {
+        Objects.requireNonNull(request, "CreateCourseRequest cannot be null");
 
-        User user = userRepo.findById(course.getInstructor().getId())
+        CourseResponse courseResponse = courseService.createCourse(request);
+
+        User user = userRepo.findById(request.getInstructorId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        ActivityLog activityLog = new ActivityLog(user, "Created course: " + course.getTitle());
+        ActivityLog activityLog = new ActivityLog(user, "Created course: " + request.getTitle());
         activityLogRepo.save(activityLog);
+        return courseResponse;
     }
 
     @Override
@@ -53,11 +61,11 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     }
 
     @Override
-    public List<Course> getCoursesCreated(Long instructorId) {
+    public List<CourseResponse> getCoursesCreated(Long instructorId) {
         Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
         if (!instructorRepo.existsById(instructorId)) {
             throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
         }
-        return courseService.getCoursesByInstructor(instructorId);
+        return courseService.getAllByInstructor(instructorId);
     }
 }

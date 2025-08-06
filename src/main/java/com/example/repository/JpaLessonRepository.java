@@ -15,7 +15,7 @@ public interface JpaLessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findAllByCourseId(Long courseId);
 
     @Query("SELECT l FROM Lesson l WHERE l.course.instructor.id = :instructorId")
-    List<Lesson> findAllLessonsByInstructorId(Long instructorId);
+    List<Lesson> findAllByInstructorId(Long instructorId);
 
     @Query("SELECT l.materials FROM Lesson l WHERE l.id = :lessonId")
     List<Material> findAllMaterialsByLessonId(Long lessonId);

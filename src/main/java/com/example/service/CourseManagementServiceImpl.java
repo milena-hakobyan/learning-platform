@@ -1,5 +1,11 @@
 package com.example.service;
 
+import com.example.dto.announcement.AnnouncementResponse;
+import com.example.dto.course.CourseResponse;
+import com.example.dto.course.CreateCourseRequest;
+import com.example.dto.course.UpdateCourseRequest;
+import com.example.mapper.AnnouncementMapper;
+import com.example.mapper.CourseMapper;
 import com.example.model.*;
 import com.example.repository.*;
 import org.springframework.stereotype.Service;
@@ -15,109 +21,129 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     private final JpaAssignmentRepository assignmentRepo;
     private final JpaSubmissionRepository submissionRepo;
     private final JpaAnnouncementRepository announcementRepo;
+    private final JpaInstructorRepository instructorRepo;
+    private final CourseMapper courseMapper;
+    private final AnnouncementMapper announcementMapper;
 
     public CourseManagementServiceImpl(
             JpaCourseRepository courseRepo,
             JpaLessonRepository lessonRepo,
             JpaAssignmentRepository assignmentRepo,
             JpaSubmissionRepository submissionRepo,
-            JpaAnnouncementRepository announcementRepo
+            JpaAnnouncementRepository announcementRepo, JpaInstructorRepository instructorRepo, CourseMapper courseMapper, AnnouncementMapper announcementMapper
     ) {
         this.courseRepo = courseRepo;
         this.lessonRepo = lessonRepo;
         this.assignmentRepo = assignmentRepo;
         this.submissionRepo = submissionRepo;
         this.announcementRepo = announcementRepo;
+        this.instructorRepo = instructorRepo;
+        this.courseMapper = courseMapper;
+        this.announcementMapper = announcementMapper;
     }
 
     @Override
-    public void createCourse(Course course) {
-        if (course == null) throw new IllegalArgumentException("Course cannot be null");
-        if (course.getTitle() == null) throw new IllegalArgumentException("Course title cannot be null");
+    public CourseResponse createCourse(CreateCourseRequest request) {
+        if (request == null) throw new IllegalArgumentException("Course Create Request cannot be null");
 
-        if (courseRepo.findByTitle(course.getTitle()).isPresent()) {
-            throw new IllegalArgumentException("Course with title '" + course.getTitle() + "' already exists.");
+        if (courseRepo.findByTitle(request.getTitle()).isPresent()) {
+            throw new IllegalArgumentException("Course with title '" + request.getTitle() + "' already exists.");
         }
-        courseRepo.save(course);
+
+        Instructor instructor = instructorRepo.findById(request.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+
+        Course course = courseMapper.toEntity(request, instructor);
+        Course saved = courseRepo.save(course);
+
+        return courseMapper.toDto(saved);
     }
 
-    @Override
-    public void updateCourse(Course course) {
-        if (course == null) throw new IllegalArgumentException("Course cannot be null");
-        if (course.getId() == null) throw new IllegalArgumentException("Course ID cannot be null");
 
-        if (!courseRepo.existsById(course.getId())) {
-            throw new IllegalArgumentException("Course not found with ID: " + course.getId());
-        }
+    @Override
+    public CourseResponse updateCourse(Long courseId, UpdateCourseRequest request) {
+        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
+        if (request == null) throw new IllegalArgumentException("Course Update Request cannot be null");
+
+        Course course = courseRepo.findById(courseId)
+                        .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        courseMapper.updateEntity(request, course);
+
         courseRepo.save(course);
+
+        return courseMapper.toDto(course);
     }
 
     @Override
     public void deleteCourse(Long courseId) {
         if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
 
-        if (!courseRepo.existsById(courseId)) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
-        }
-
-        assignmentRepo.findAllByCourseId(courseId)
-                .forEach(assignment -> {
-                    submissionRepo.findAllByAssignmentId(assignment.getId())
-                            .forEach(submission -> submissionRepo.deleteById(submission.getId()));
-                    assignmentRepo.deleteById(assignment.getId());
-                });
-
-        courseRepo.deleteById(courseId);
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+        courseRepo.delete(course);
     }
 
     @Override
-    public List<Announcement> getAnnouncementsForCourse(Long courseId) {
+    public List<AnnouncementResponse> getAnnouncementsForCourse(Long courseId) {
         if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
 
         if (!courseRepo.existsById(courseId)) {
             throw new IllegalArgumentException("Course not found with ID: " + courseId);
         }
 
-        return announcementRepo.findAllByCourseId(courseId);
+        return announcementRepo.findAllByCourseId(courseId)
+                .stream()
+                .map(announcementMapper::toDto)
+                .toList();
     }
 
     @Override
-    public Optional<Course> getCourseById(Long courseId) {
+    public Optional<CourseResponse> getById(Long courseId) {
         if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
 
-        return courseRepo.findById(courseId);
+        return courseRepo.findById(courseId)
+                .map(courseMapper::toDto);
     }
 
     @Override
-    public Optional<Course> getByIdWithLessons(Long courseId) {
-        Optional<Course> course = getCourseById(courseId);
-        course.ifPresent(c -> c.setLessons(lessonRepo.findAllByCourseId(courseId)));
-        return course;
+    public Optional<CourseResponse> getByIdWithLessons(Long courseId) {
+        return courseRepo.findByIdWithLessons(courseId).map(courseMapper::toDto);
     }
 
     @Override
-    public List<Course> getCoursesByInstructor(Long instructorId) {
+    public List<CourseResponse> getAllByInstructor(Long instructorId) {
         if (instructorId == null) throw new IllegalArgumentException("Instructor ID cannot be null");
 
-        return courseRepo.findAllByInstructor_Id(instructorId);
+        return courseRepo.findAllByInstructor_Id(instructorId)
+                .stream()
+                .map(courseMapper::toDto)
+                .toList();
     }
 
     @Override
-    public List<Course> getCoursesByCategory(String category) {
+    public List<CourseResponse> getAllByCategory(String category) {
         if (category == null) throw new IllegalArgumentException("Category cannot be null");
 
-        return courseRepo.findAllByCategory(category);
+        return courseRepo.findAllByCategory(category)
+                .stream()
+                .map(courseMapper::toDto)
+                .toList();
     }
 
     @Override
-    public Optional<Course> getCourseByTitle(String title) {
+    public Optional<CourseResponse> getByTitle(String title) {
         if (title == null) throw new IllegalArgumentException("Title cannot be null");
 
-        return courseRepo.findByTitle(title);
+        return courseRepo.findByTitle(title)
+                .map(courseMapper::toDto);
     }
 
     @Override
-    public List<Course> getAllCourses() {
-        return courseRepo.findAll();
+    public List<CourseResponse> getAll() {
+        return courseRepo.findAll()
+                .stream()
+                .map(courseMapper::toDto)
+                .toList();
     }
 }

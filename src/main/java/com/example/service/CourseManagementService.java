@@ -1,5 +1,9 @@
 package com.example.service;
 
+import com.example.dto.announcement.AnnouncementResponse;
+import com.example.dto.course.CourseResponse;
+import com.example.dto.course.CreateCourseRequest;
+import com.example.dto.course.UpdateCourseRequest;
 import com.example.model.*;
 
 import java.util.List;
@@ -7,24 +11,24 @@ import java.util.Optional;
 
 public interface CourseManagementService {
 
-    void createCourse(Course course);
+    CourseResponse createCourse(CreateCourseRequest request);
 
-    void updateCourse(Course course);
+    CourseResponse updateCourse(Long courseId, UpdateCourseRequest request);
 
     void deleteCourse(Long courseId);
 
-    Optional<Course> getCourseById(Long courseId);
+    Optional<CourseResponse> getById(Long courseId);
 
     // Example of fetching a parent entity of One-To-Many relationship with all its children
-    Optional<Course> getByIdWithLessons(Long courseId);
+    Optional<CourseResponse> getByIdWithLessons(Long courseId);
 
-    List<Course> getCoursesByInstructor(Long instructorId);
+    List<CourseResponse> getAllByInstructor(Long instructorId);
 
-    List<Course> getCoursesByCategory(String category);
+    List<CourseResponse> getAllByCategory(String category);
 
-    Optional<Course> getCourseByTitle(String title);
+    Optional<CourseResponse> getByTitle(String title);
 
-    List<Course> getAllCourses();
+    List<CourseResponse> getAll();
 
-    List<Announcement> getAnnouncementsForCourse(Long courseId);
+    List<AnnouncementResponse> getAnnouncementsForCourse(Long courseId);
 }

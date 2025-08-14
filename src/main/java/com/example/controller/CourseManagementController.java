@@ -7,25 +7,46 @@ import com.example.dto.course.UpdateCourseRequest;
 import com.example.dto.student.StudentResponse;
 import com.example.service.CourseEnrollmentService;
 import com.example.service.CourseManagementService;
+import com.example.specification.SearchCriteria;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
+@RequiredArgsConstructor
 public class CourseManagementController {
 
     private final CourseManagementService courseService;
 
-    public CourseManagementController(CourseManagementService courseService) {
-        this.courseService = courseService;
+    @GetMapping
+    public ResponseEntity<List<CourseResponse>> getAllCourses() {
+        return ResponseEntity.ok(courseService.getAll());
     }
+
+    @GetMapping("/{courseId}")
+    public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long courseId) {
+        return ResponseEntity.ok(courseService.getById(courseId));
+    }
+
 
     @PostMapping
     public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseRequest request) {
-        return ResponseEntity.ok(courseService.createCourse(request));
+        CourseResponse created = courseService.createCourse(request);
+
+        URI location = URI.create("/api/courses/" + created.getId());
+        return ResponseEntity.created(location).body(created);
     }
+
+
 
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable Long courseId,
@@ -34,46 +55,14 @@ public class CourseManagementController {
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<Void> deleteCourse(@PathVariable Long courseId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCourse(@PathVariable Long courseId) {
         courseService.deleteCourse(courseId);
-        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{courseId}")
-    public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long courseId) {
-        return courseService.getById(courseId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
-    @GetMapping("/{courseId}/lessons")
-    public ResponseEntity<CourseResponse> getCourseWithLessons(@PathVariable Long courseId) {
-        return courseService.getByIdWithLessons(courseId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
-    @GetMapping("/instructor/{instructorId}")
-    public ResponseEntity<List<CourseResponse>> getCoursesByInstructor(@PathVariable Long instructorId) {
-        return ResponseEntity.ok(courseService.getAllByInstructor(instructorId));
-    }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<CourseResponse>> getCoursesByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(courseService.getAllByCategory(category));
-    }
-
-    @GetMapping("/title/{title}")
-    public ResponseEntity<CourseResponse> getCourseByTitle(@PathVariable String title) {
-        return courseService.getByTitle(title)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<CourseResponse>> getAllCourses() {
-        return ResponseEntity.ok(courseService.getAll());
-    }
 
     @GetMapping("/{courseId}/announcements")
     public ResponseEntity<List<AnnouncementResponse>> getAnnouncements(@PathVariable Long courseId) {

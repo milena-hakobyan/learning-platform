@@ -4,6 +4,7 @@ import com.example.dto.announcement.AnnouncementResponse;
 import com.example.dto.course.CourseResponse;
 import com.example.dto.course.CreateCourseRequest;
 import com.example.dto.course.UpdateCourseRequest;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.AnnouncementMapper;
 import com.example.mapper.CourseMapper;
 import com.example.model.*;
@@ -99,16 +100,10 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     }
 
     @Override
-    public Optional<CourseResponse> getById(Long courseId) {
-        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
-
+    public CourseResponse getById(Long courseId) {
         return courseRepo.findById(courseId)
-                .map(courseMapper::toDto);
-    }
-
-    @Override
-    public Optional<CourseResponse> getByIdWithLessons(Long courseId) {
-        return courseRepo.findByIdWithLessons(courseId).map(courseMapper::toDto);
+                .map(courseMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
     }
 
     @Override
@@ -132,11 +127,10 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     }
 
     @Override
-    public Optional<CourseResponse> getByTitle(String title) {
-        if (title == null) throw new IllegalArgumentException("Title cannot be null");
-
+    public CourseResponse getByTitle(String title) {
         return courseRepo.findByTitle(title)
-                .map(courseMapper::toDto);
+                .map(courseMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with title: " + title));
     }
 
     @Override

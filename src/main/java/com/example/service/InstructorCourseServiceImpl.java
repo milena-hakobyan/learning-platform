@@ -34,12 +34,12 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     }
 
     @Override
-    public CourseResponse createCourse(CreateCourseRequest request) {
+    public CourseResponse createCourse(Long instructorId, CreateCourseRequest request) {
         Objects.requireNonNull(request, "CreateCourseRequest cannot be null");
 
         CourseResponse courseResponse = courseService.createCourse(request);
 
-        User user = userRepo.findById(request.getInstructorId())
+        User user = userRepo.findById(instructorId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Created course: " + request.getTitle());
@@ -48,7 +48,7 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     }
 
     @Override
-    public void deleteCourse(Long instructorId, Long courseId) {
+    public void deleteCourse(Long courseId, Long instructorId) {
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
         courseService.deleteCourse(courseId);

@@ -13,7 +13,6 @@ public class LessonResponse {
     private Long id;
     private String title;
     private String content;
-    private LocalDateTime uploadDate;
+    private LocalDateTime uploadedAt;
     private Long courseId;
-    private List<MaterialResponse> materials;
 }

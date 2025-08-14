@@ -10,5 +10,5 @@ import java.util.List;
 public interface InstructorCommunicationService {
     List<AnnouncementResponse> getAnnouncementsPosted(Long instructorId);
 
-    AnnouncementResponse sendAnnouncement(CreateAnnouncementRequest request);
+    AnnouncementResponse sendAnnouncement(Long courseId, Long instructorId, CreateAnnouncementRequest request);
 }

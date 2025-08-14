@@ -10,6 +10,4 @@ import java.time.LocalDateTime;
 public class CreateAnnouncementRequest {
     private String title;
     private String content;
-    private Long instructorId;
-    private Long courseId;
 }

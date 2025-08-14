@@ -11,7 +11,6 @@ import java.util.List;
 public class CreateLessonRequest {
     private String title;
     private String content;
-    private LocalDateTime uploadDate;
+    private LocalDateTime uploadedAt;
     private Long courseId;
-    private List<Long> materialIds;
 }

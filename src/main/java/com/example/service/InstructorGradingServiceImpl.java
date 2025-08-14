@@ -1,7 +1,9 @@
 package com.example.service;
 
+import com.example.dto.grade.GradeResponse;
 import com.example.dto.grade.GradeSubmissionRequest;
 import com.example.dto.submission.SubmissionResponse;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.GradeMapper;
 import com.example.mapper.SubmissionMapper;
 import com.example.model.*;
@@ -38,9 +40,9 @@ public class InstructorGradingServiceImpl implements InstructorGradingService {
 
     @Override
     @Transactional
-    public void gradeSubmission(Long instructorId, Long submissionId, GradeSubmissionRequest request) {
+    public GradeResponse gradeSubmission(Long instructorId, Long submissionId, GradeSubmissionRequest request) {
         Submission submission = submissionRepo.findById(submissionId)
-                .orElseThrow(() -> new IllegalArgumentException("Submission with ID " + submissionId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Submission with ID " + submissionId + " not found"));
 
         instructorAuthorizationService.ensureAuthorizedCourseAccess(
                 instructorId, submission.getAssignment().getCourse().getId());
@@ -56,11 +58,15 @@ public class InstructorGradingServiceImpl implements InstructorGradingService {
         submissionRepo.save(submission);
 
         User user = userRepo.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("Instructor with ID " + instructorId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor with ID " + instructorId + " not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Graded submission ID: " + submission.getId());
         activityLogRepo.save(activityLog);
+
+        return gradeMapper.toDto(grade);
     }
+
+
 
 
     @Override

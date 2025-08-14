@@ -10,20 +10,44 @@ import org.springframework.stereotype.Component;
 @Component
 public class CourseMapper {
 
+    private final LessonMapper lessonMapper;
+    private final AssignmentMapper assignmentMapper;
+    private final InstructorMapper instructorMapper;
+    private final StudentMapper studentMapper;
+
+
+    public CourseMapper(LessonMapper lessonMapper, AssignmentMapper assignmentMapper, InstructorMapper instructorMapper, StudentMapper studentMapper) {
+        this.lessonMapper = lessonMapper;
+        this.assignmentMapper = assignmentMapper;
+        this.instructorMapper = instructorMapper;
+        this.studentMapper = studentMapper;
+    }
+
     public CourseResponse toDto(Course course) {
         CourseResponse dto = new CourseResponse();
+        dto.setId(course.getId());
         dto.setTitle(course.getTitle());
         dto.setDescription(course.getDescription());
         dto.setCategory(course.getCategory());
         dto.setUrl(course.getUrl());
 
-        String fullName = course.getInstructor().getUser().getFirstName() + " " +
-                course.getInstructor().getUser().getLastName();
-        dto.setInstructorName(fullName);
+        dto.setInstructor(instructorMapper.toDto(course.getInstructor()));
 
-        dto.setLessonsCount(course.getLessons().size());
-        dto.setAssignmentsCount(course.getAssignments().size());
-        dto.setEnrolledStudentCount(course.getEnrolledStudents().size());
+        dto.setLessons(course.getLessons()
+                .stream()
+                .map(lessonMapper::toDto)
+                .toList());
+
+        dto.setAssignments(course.getAssignments()
+                .stream()
+                .map(assignmentMapper::toDto)
+                .toList());
+
+        dto.setEnrolledStudents(course.getEnrolledStudents()
+                .stream()
+                .map(studentMapper::toDto)
+                .toList());
+
 
         return dto;
     }
@@ -39,17 +63,9 @@ public class CourseMapper {
     }
 
     public void updateEntity(UpdateCourseRequest request, Course course) {
-        if (request.getTitle() != null) {
-            course.setTitle(request.getTitle());
-        }
-        if (request.getDescription() != null) {
-            course.setDescription(request.getDescription());
-        }
-        if (request.getCategory() != null) {
-            course.setCategory(request.getCategory());
-        }
-        if (request.getUrl() != null) {
-            course.setUrl(request.getUrl());
-        }
+        if (request.getTitle() != null) course.setTitle(request.getTitle());
+        if (request.getDescription() != null) course.setDescription(request.getDescription());
+        if (request.getCategory() != null) course.setCategory(request.getCategory());
+        if (request.getUrl() != null) course.setUrl(request.getUrl());
     }
 }

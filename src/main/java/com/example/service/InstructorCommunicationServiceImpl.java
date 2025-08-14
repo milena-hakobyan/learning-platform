@@ -47,11 +47,9 @@ public class InstructorCommunicationServiceImpl implements InstructorCommunicati
     }
 
     @Override
-    public AnnouncementResponse sendAnnouncement(CreateAnnouncementRequest dto) {
+    public AnnouncementResponse sendAnnouncement(Long courseId, Long instructorId, CreateAnnouncementRequest dto) {
         Objects.requireNonNull(dto, "Announcement request cannot be null");
 
-        Long instructorId = dto.getInstructorId();
-        Long courseId = dto.getCourseId();
 
         Instructor instructor = instructorRepo.findById(instructorId)
                 .orElseThrow(() -> new IllegalArgumentException("Instructor not found with ID: " + instructorId));

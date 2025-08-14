@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.user.UserResponse;
 import com.example.dto.user.UserUpdateRequest;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.UserMapper;
 import com.example.model.Role;
 import com.example.model.User;
@@ -59,27 +60,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserResponse> getById(Long userId) {
+    public UserResponse getById(Long userId) {
         Objects.requireNonNull(userId, "UserService: user ID cannot be null");
 
         return userRepo.findById(userId)
-                .map(userMapper::toDto);
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
     }
 
     @Override
-    public Optional<UserResponse> getByEmail(String email) {
+    public UserResponse getByEmail(String email) {
         Objects.requireNonNull(email, "UserService: email cannot be null");
 
         return userRepo.findByEmail(email)
-                .map(userMapper::toDto);
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     @Override
-    public Optional<UserResponse> getByUsername(String username) {
+    public UserResponse getByUsername(String username) {
         Objects.requireNonNull(username, "UserService: username cannot be null");
 
         return userRepo.findByUsername(username)
-                .map(userMapper::toDto);
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
     @Override

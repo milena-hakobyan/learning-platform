@@ -12,6 +12,5 @@ import java.util.List;
 public class UpdateLessonRequest {
     private String title;
     private String content;
-    private LocalDateTime uploadDate;
-    private List<Long> materialIds;
+    private LocalDateTime uploadedAt;
 }

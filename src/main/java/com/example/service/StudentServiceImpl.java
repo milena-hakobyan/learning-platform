@@ -4,14 +4,15 @@ import com.example.dto.course.CourseResponse;
 import com.example.dto.grade.GradeResponse;
 import com.example.dto.material.MaterialResponse;
 import com.example.dto.student.StudentResponse;
+import com.example.dto.student.UpdateStudentRequest;
 import com.example.dto.submission.CreateSubmissionRequest;
 import com.example.dto.submission.SubmissionResponse;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.*;
 import com.example.model.*;
 import com.example.repository.*;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,12 +56,25 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Optional<StudentResponse> getStudentById(Long studentId) {
+    public StudentResponse getStudentById(Long studentId) {
         Objects.requireNonNull(studentId, "Student ID cannot be null");
 
         return studentRepo.findById(studentId)
-                .map(studentMapper::toDto);
+                .map(studentMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + studentId));
     }
+
+    @Override
+    public StudentResponse updateStudent(Long studentId, UpdateStudentRequest request) {
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student with ID " + studentId + " not found"));
+
+        studentMapper.updateEntity(request, student); // your mapper handles non-null updates
+        studentRepo.save(student);
+
+        return studentMapper.toDto(student);
+    }
+
 
     @Override
     public List<CourseResponse> getEnrolledCourses(Long studentId) {
@@ -119,8 +133,7 @@ public class StudentServiceImpl implements StudentService {
             throw new IllegalArgumentException("Student with Id: " + studentId + " doesn't exist");
         }
 
-        CourseResponse courseResponse = courseManagementService.getById(courseId)
-                .orElseThrow(()-> new IllegalArgumentException("Course with given ID doesn't exist"));
+        CourseResponse courseResponse = courseManagementService.getById(courseId);
 
         User user = userRepo.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -138,8 +151,7 @@ public class StudentServiceImpl implements StudentService {
             throw new IllegalArgumentException("Student with Id: " + studentId + " doesn't exist");
         }
 
-        CourseResponse courseResponse = courseManagementService.getById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course with given ID doesn't exist"));
+        CourseResponse courseResponse = courseManagementService.getById(courseId);
 
         User user = userRepo.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -157,7 +169,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<MaterialResponse> accessMaterials(Long studentId, Long lessonId) {
+    public List<MaterialResponse> accessLessonMaterials(Long studentId, Long lessonId) {
         Objects.requireNonNull(studentId, "Student ID cannot be null");
         Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
 
@@ -181,13 +193,37 @@ public class StudentServiceImpl implements StudentService {
 
     }
 
+    @Override
+    public List<MaterialResponse> accessAssignmentMaterials(Long studentId, Long assignmentId) {
+        Objects.requireNonNull(studentId, "Student ID cannot be null");
+        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
+
+        if (!studentRepo.existsById(studentId)) {
+            throw new IllegalArgumentException("Student with Id: " + studentId + " doesn't exist");
+        }
+
+        Assignment assignment = assignmentRepo.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Assignment doesn't exist"));
+
+        enrollmentService.ensureStudentEnrollment(studentId, assignment.getCourse().getId());
+
+        User user = userRepo.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        activityLogRepo.save(new ActivityLog(user, "Accessed materials for assignment ID: " + assignmentId));
+
+        return assignment.getMaterials()
+                .stream()
+                .map(materialMapper::toDto)
+                .toList();
+    }
 
     @Override
-    public void submitAssignment(Long studentId, Long assignmentId, CreateSubmissionRequest request) {
+    public void submitAssignment(Long studentId, CreateSubmissionRequest request) {
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(()-> new IllegalArgumentException("Student with given ID doesn't exist"));
 
-        Assignment assignment = assignmentRepo.findById(assignmentId)
+        Assignment assignment = assignmentRepo.findById(request.getAssignmentId())
                 .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
 
         Course course = courseRepo.findById(assignment.getCourse().getId())
@@ -210,5 +246,10 @@ public class StudentServiceImpl implements StudentService {
         if (!hasAccess) {
             throw new IllegalArgumentException("Student " + studentId + " has no access to lesson " + lessonId);
         }
+    }
+
+    @Override
+    public boolean hasSubmitted(Long studentId, Long assignmentId) {
+        return submissionRepo.existsByStudentIdAndAssignmentId(studentId, assignmentId);
     }
 }

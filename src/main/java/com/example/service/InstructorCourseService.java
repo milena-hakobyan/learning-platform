@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface InstructorCourseService {
 
-    CourseResponse createCourse(CreateCourseRequest request);
+    CourseResponse createCourse(Long instructorId, CreateCourseRequest request);
 
-    void deleteCourse(Long instructorId, Long courseId);
+    void deleteCourse(Long courseId, Long instructorId);
 
     List<CourseResponse> getCoursesCreated(Long instructorId);
 

@@ -3,10 +3,8 @@ package com.example.mapper;
 import com.example.dto.lesson.CreateLessonRequest;
 import com.example.dto.lesson.LessonResponse;
 import com.example.dto.lesson.UpdateLessonRequest;
-import com.example.dto.material.MaterialResponse;
 import com.example.model.Course;
 import com.example.model.Lesson;
-import com.example.model.Material;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,13 +23,8 @@ public class LessonMapper {
         LessonResponse response = new LessonResponse();
         response.setTitle(lesson.getTitle());
         response.setContent(lesson.getContent());
-        response.setUploadDate(lesson.getUploadDate());
+        response.setUploadedAt(lesson.getUploadedAt());
         response.setCourseId(lesson.getCourse().getId());
-        response.setMaterials(
-                lesson.getMaterials().stream()
-                        .map(materialMapper::toDto)
-                        .collect(Collectors.toList())
-        );
         return response;
     }
 
@@ -39,7 +32,7 @@ public class LessonMapper {
         Lesson lesson = new Lesson();
         lesson.setTitle(dto.getTitle());
         lesson.setContent(dto.getContent());
-        lesson.setUploadDate(dto.getUploadDate());
+        lesson.setUploadedAt(dto.getUploadedAt());
         lesson.setCourse(course);
         lesson.setMaterials(List.of());
         return lesson;
@@ -52,8 +45,8 @@ public class LessonMapper {
         if (dto.getContent() != null) {
             lesson.setContent(dto.getContent());
         }
-        if (dto.getUploadDate() != null) {
-            lesson.setUploadDate(dto.getUploadDate());
+        if (dto.getUploadedAt() != null) {
+            lesson.setUploadedAt(dto.getUploadedAt());
         }
     }
 }

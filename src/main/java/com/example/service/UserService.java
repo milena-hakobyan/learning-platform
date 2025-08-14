@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    Optional<UserResponse> getById(Long id);
+    UserResponse getById(Long id);
 
-    Optional<UserResponse> getByEmail(String email);
+    UserResponse getByEmail(String email);
 
-    Optional<UserResponse> getByUsername(String username);
+    UserResponse getByUsername(String username);
 
     List<UserResponse> getAllByRole(Role role);
 

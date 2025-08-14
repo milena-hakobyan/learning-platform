@@ -1,14 +1,16 @@
 package com.example.service;
 
+import com.example.dto.course.CourseResponse;
+import com.example.dto.course.CreateCourseRequest;
 import com.example.model.Course;
 import java.util.List;
 
 public interface InstructorCourseService {
 
-    void createCourse(Course course);
+    CourseResponse createCourse(Long instructorId, CreateCourseRequest request);
 
-    void deleteCourse(Long instructorId, Long courseId);
+    void deleteCourse(Long courseId, Long instructorId);
 
-    List<Course> getCoursesCreated(Long instructorId);
+    List<CourseResponse> getCoursesCreated(Long instructorId);
 
 }

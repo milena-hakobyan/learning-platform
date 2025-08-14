@@ -1,11 +1,21 @@
 package com.example.service;
 
-import com.example.model.Course;
-import com.example.model.Lesson;
-import com.example.model.Material;
+import com.example.dto.assignment.AssignmentResponse;
+import com.example.dto.assignment.UpdateAssignmentRequest;
+import com.example.dto.lesson.CreateLessonRequest;
+import com.example.dto.lesson.LessonResponse;
+import com.example.dto.lesson.UpdateLessonRequest;
+import com.example.dto.material.CreateMaterialRequest;
+import com.example.dto.material.MaterialResponse;
+import com.example.mapper.AssignmentMapper;
+import com.example.mapper.LessonMapper;
+import com.example.mapper.MaterialMapper;
+import com.example.model.*;
 import com.example.repository.JpaCourseRepository;
+import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaLessonRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,37 +24,65 @@ import java.util.Objects;
 public class LessonServiceImpl implements LessonService {
     private final JpaCourseRepository courseRepo;
     private final JpaLessonRepository lessonRepo;
+    private final JpaInstructorRepository instructorRepo;
+    private final LessonMapper lessonMapper;
+    private final MaterialMapper materialMapper;
+    private final AssignmentMapper assignmentMapper;
 
-    public LessonServiceImpl(JpaCourseRepository courseRepo, JpaLessonRepository lessonRepo) {
+    public LessonServiceImpl(JpaCourseRepository courseRepo, JpaLessonRepository lessonRepo, JpaInstructorRepository instructorRepo, LessonMapper lessonMapper, MaterialMapper materialMapper, AssignmentMapper assignmentMapper) {
         this.courseRepo = courseRepo;
         this.lessonRepo = lessonRepo;
+        this.instructorRepo = instructorRepo;
+        this.lessonMapper = lessonMapper;
+        this.materialMapper = materialMapper;
+        this.assignmentMapper = assignmentMapper;
     }
 
     @Override
-    public List<Lesson> getLessonsForCourse(Long courseId) {
+    public List<LessonResponse> getLessonsForCourse(Long courseId) {
         courseRepo.existsById(courseId);
 
-        return lessonRepo.findAllByCourseId(courseId);
+        return lessonRepo.findAllByCourseId(courseId)
+                .stream()
+                .map(lessonMapper::toDto)
+                .toList();
     }
 
 
     @Override
-    public void addLessonToCourse(Long courseId, Lesson lesson) {
-        Objects.requireNonNull(lesson, "Lesson cannot be null");
-        courseRepo.existsById(courseId);
+    public LessonResponse addLessonToCourse(Long courseId, CreateLessonRequest request) {
+        Objects.requireNonNull(request, "CreateLessonRequest cannot be null");
 
         Course course = courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Course with ID " + courseId + " not found"));
 
-        lesson.setCourse(course);
+        Lesson lesson = lessonMapper.toEntity(request, course);
 
-        lessonRepo.save(lesson);
+        Lesson savedLesson = lessonRepo.save(lesson);
+
+        return lessonMapper.toDto(savedLesson);
     }
+
+
+    @Override
+    public LessonResponse updateLesson(Long lessonId, UpdateLessonRequest dto) {
+        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
+        Objects.requireNonNull(dto, "Lesson request cannot be null");
+
+        Lesson lesson = lessonRepo.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson with ID " + lessonId + " not found"));
+
+        lessonMapper.updateEntity(dto, lesson);
+        Lesson saved = lessonRepo.save(lesson);
+
+        return lessonMapper.toDto(saved);
+    }
+
 
     @Override
     public void removeLessonFromCourse(Long courseId, Long lessonId) {
-        courseRepo.existsById(courseId);
-        lessonRepo.existsById(lessonId);
+        Objects.requireNonNull(courseId, "Course ID cannot be null");
+        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
 
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
@@ -58,14 +96,21 @@ public class LessonServiceImpl implements LessonService {
 
 
     @Override
-    public void addMaterialToLesson(Long lessonId, Material material) {
-        Objects.requireNonNull(material, "Material cannot be null");
+    public MaterialResponse addMaterialToLesson(Long lessonId, CreateMaterialRequest request) {
+        Objects.requireNonNull(request, "Material Create Request cannot be null");
 
         Lesson lesson = lessonRepo.findById(lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
 
+        Instructor instructor = instructorRepo.findById(request.getInstructorId())
+                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+
+        Material material = materialMapper.toEntity(request, instructor);
+
         lesson.addMaterial(material);
         lessonRepo.save(lesson);
+
+        return materialMapper.toDto(material);
     }
 
     @Override
@@ -82,5 +127,12 @@ public class LessonServiceImpl implements LessonService {
 
         lesson.removeMaterial(material);
         lessonRepo.save(lesson);
+    }
+
+    @Override
+    public LessonResponse getLessonById(Long lessonId) {
+        Lesson lesson = lessonRepo.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found with id: " + lessonId));
+        return lessonMapper.toDto(lesson);
     }
 }

@@ -1,29 +1,40 @@
 package com.example.service;
 
-import com.example.model.*;
+import com.example.dto.course.CourseResponse;
+import com.example.dto.grade.GradeResponse;
+import com.example.dto.material.MaterialResponse;
+import com.example.dto.student.StudentResponse;
+import com.example.dto.student.UpdateStudentRequest;
+import com.example.dto.submission.CreateSubmissionRequest;
+import com.example.dto.submission.SubmissionResponse;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface StudentService {
-    Optional<Student> getStudentById(Long studentId);
+    StudentResponse getStudentById(Long studentId);
 
-    List<Course> getEnrolledCourses(Long studentId);
+    StudentResponse updateStudent(Long studentId, UpdateStudentRequest request);
 
-    List<Submission> getSubmissionsByStudentId(Long studentId);
+    List<CourseResponse> getEnrolledCourses(Long studentId);
 
-    List<Course> browseAvailableCourses();
+    List<SubmissionResponse> getSubmissionsByStudentId(Long studentId);
 
-    List<Material> accessMaterials(Long studentId, Long courseId);
+    List<CourseResponse> browseAvailableCourses();
 
-    List<Grade> getGradesForCourse(Long courseId, Long studentId);
+    List<MaterialResponse> accessLessonMaterials(Long studentId, Long lessonId);
 
-    Optional<Grade> getAssignmentGradeForStudent(Long assignmentId, Long studentId);
+    List<MaterialResponse> accessAssignmentMaterials(Long studentId, Long assignmentId);
+
+    List<GradeResponse> getGradesForCourse(Long courseId, Long studentId);
+
+    Optional<GradeResponse> getAssignmentGradeForStudent(Long assignmentId, Long studentId);
 
     void enrollInCourse(Long studentId, Long courseId);
 
     void dropCourse(Long studentId, Long courseId);
 
-    void submitAssignment(Long submissionId, Long studentId, Long assignmentId, String content);
+    void submitAssignment(Long studentId, CreateSubmissionRequest request);
+
+    boolean hasSubmitted(Long studentId, Long assignmentId);
 }

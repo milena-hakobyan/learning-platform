@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.dto.student.StudentResponse;
 import com.example.model.Student;
 
 import java.util.List;
@@ -11,5 +12,5 @@ public interface CourseEnrollmentService {
 
     void ensureStudentEnrollment(Long studentId, Long courseId);
 
-    List<Student> getEnrolledStudents(Long courseId);
+    List<StudentResponse> getEnrolledStudents(Long courseId);
 }

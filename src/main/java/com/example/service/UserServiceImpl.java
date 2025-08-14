@@ -1,5 +1,9 @@
 package com.example.service;
 
+import com.example.dto.user.UserResponse;
+import com.example.dto.user.UserUpdateRequest;
+import com.example.exception.ResourceNotFoundException;
+import com.example.mapper.UserMapper;
 import com.example.model.Role;
 import com.example.model.User;
 import com.example.repository.JpaInstructorRepository;
@@ -17,80 +21,94 @@ public class UserServiceImpl implements UserService {
     private final JpaUserRepository userRepo;
     private final JpaStudentRepository studentRepo;
     private final JpaInstructorRepository instructorRepo;
+    private final UserMapper userMapper;
 
-    public UserServiceImpl(JpaUserRepository userRepo, JpaStudentRepository studentRepo, JpaInstructorRepository instructorRepo) {
+    public UserServiceImpl(JpaUserRepository userRepo, JpaStudentRepository studentRepo, JpaInstructorRepository instructorRepo, UserMapper userMapper) {
         this.userRepo = userRepo;
         this.studentRepo = studentRepo;
         this.instructorRepo = instructorRepo;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public void updateUser(User user) {
-        Objects.requireNonNull(user, "UserService: user cannot be null");
-        if (!userRepo.existsById(user.getId())) {
-            throw new IllegalArgumentException("Cannot update non-existent user with ID: " + user.getId());
-        }
+    public UserResponse update(Long userId, UserUpdateRequest request) {
+        Objects.requireNonNull(userId, "UserService: userId cannot be null");
+        Objects.requireNonNull(request, "UserService: User Update Request cannot be null");
+
+        User user = userRepo.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        userMapper.updateEntity(request, user);
         userRepo.save(user);
+
+        return userMapper.toDto(user);
     }
 
     @Override
-    public Optional<User> login(String email, String password) {
+    public UserResponse login(String email, String password) {
         Objects.requireNonNull(email, "UserService: email cannot be null");
         Objects.requireNonNull(password, "UserService: password cannot be null");
 
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("UserService: user with given email does not exist"));
+                .orElseThrow(() -> new IllegalArgumentException("User with given email does not exist"));
 
         if (!user.getPassword().equals(StringUtils.applySha256(password))) {
-            throw new IllegalArgumentException("UserService: incorrect password");
+            throw new IllegalArgumentException("Incorrect password");
         }
 
-        return Optional.of(user);
+        return userMapper.toDto(user);
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
+    public UserResponse getById(Long userId) {
         Objects.requireNonNull(userId, "UserService: user ID cannot be null");
 
-        return userRepo.findById(userId);
+        return userRepo.findById(userId)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
     }
 
     @Override
-    public Optional<User> getUserByEmail(String email) {
+    public UserResponse getByEmail(String email) {
         Objects.requireNonNull(email, "UserService: email cannot be null");
 
-        return userRepo.findByEmail(email);
+        return userRepo.findByEmail(email)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     @Override
-    public Optional<User> getUserByUserName(String userName) {
-        Objects.requireNonNull(userName, "UserService: username cannot be null");
+    public UserResponse getByUsername(String username) {
+        Objects.requireNonNull(username, "UserService: username cannot be null");
 
-        return userRepo.findByUsername(userName);
+        return userRepo.findByUsername(username)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
     @Override
-    public List<User> getUsersByRole(Role role) {
+    public List<UserResponse> getAllByRole(Role role) {
         Objects.requireNonNull(role, "UserService: role cannot be null");
 
-        return userRepo.findAllByRole(role);
+        return userRepo.findAllByRole(role)
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     @Override
-    public void deleteUser(Long userId) {
+    public void delete(Long userId) {
         Objects.requireNonNull(userId, "User ID cannot be null");
+
         if (!userRepo.existsById(userId)) {
             throw new IllegalArgumentException("User not found with ID: " + userId);
         }
-
-        studentRepo.findById(userId).ifPresent(student -> studentRepo.deleteById(userId));
-        instructorRepo.findById(userId).ifPresent(instructor -> instructorRepo.deleteById(userId));
 
         userRepo.deleteById(userId);
     }
 
     @Override
-    public void deactivateUser(Long userId) {
+    public void deactivate(Long userId) {
         Objects.requireNonNull(userId, "User ID cannot be null");
 
         User user = userRepo.findById(userId)

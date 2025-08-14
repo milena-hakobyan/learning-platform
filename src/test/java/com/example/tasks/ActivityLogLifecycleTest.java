@@ -35,7 +35,7 @@ public class ActivityLogLifecycleTest {
 
     private User createUser() {
         User user = new User();
-        user.setUserName("janedoe");
+        user.setUsername("janedoe");
         user.setFirstName("Jane");
         user.setLastName("Doe");
         user.setEmail("janedoe@example.com");
@@ -144,7 +144,7 @@ public class ActivityLogLifecycleTest {
 
         User conflictingUser = new User();
         conflictingUser.setId(usedId);//resuing the same id
-        conflictingUser.setUserName("updatedUser");
+        conflictingUser.setUsername("updatedUser");
         conflictingUser.setEmail("updated@example.com");
         conflictingUser.setRole(Role.STUDENT);
 
@@ -152,7 +152,7 @@ public class ActivityLogLifecycleTest {
 
         User updatedUser = userRepo.findById(usedId).orElseThrow();
 
-        assertEquals("updatedUser", updatedUser.getUserName());
+        assertEquals("updatedUser", updatedUser.getUsername());
         assertEquals("updated@example.com", updatedUser.getEmail());
         assertEquals(Role.STUDENT, updatedUser.getRole());
     }
@@ -169,7 +169,7 @@ public class ActivityLogLifecycleTest {
 
         User conflictingUser = new User();
         conflictingUser.setId(usedId); // force same ID
-        conflictingUser.setUserName("duplicate");
+        conflictingUser.setUsername("duplicate");
         conflictingUser.setFirstName("Dup");
         conflictingUser.setLastName("User");
         conflictingUser.setEmail("duplicate@example.com");
@@ -195,7 +195,7 @@ public class ActivityLogLifecycleTest {
 
         User conflictingUser = new User();
         conflictingUser.setId(usedId); // reuse the same ID
-        conflictingUser.setUserName("updatedUser");
+        conflictingUser.setUsername("updatedUser");
         conflictingUser.setEmail("updated@example.com");
         conflictingUser.setRole(Role.STUDENT);
         conflictingUser.setActive(false);
@@ -205,7 +205,7 @@ public class ActivityLogLifecycleTest {
 
         User updatedUser = entityManager.find(User.class, usedId);
 
-        assertEquals("updatedUser", updatedUser.getUserName());
+        assertEquals("updatedUser", updatedUser.getUsername());
         assertEquals("updated@example.com", updatedUser.getEmail());
         assertEquals(Role.STUDENT, updatedUser.getRole());
         assertFalse(updatedUser.isActive());
@@ -316,7 +316,7 @@ public class ActivityLogLifecycleTest {
         assertNotNull(log2Id);
 
         User userB = new User();
-        userB.setUserName("userB");
+        userB.setUsername("userB");
         userB.setFirstName("User");
         userB.setLastName("B");
         userB.setEmail("userB@example.com");
@@ -371,7 +371,7 @@ public class ActivityLogLifecycleTest {
 
         // Step 2: Create new User B
         User userB = new User();
-        userB.setUserName("userB");
+        userB.setUsername("userB");
         userB.setFirstName("User");
         userB.setLastName("B");
         userB.setEmail("userB@example.com");
@@ -414,7 +414,7 @@ public class ActivityLogLifecycleTest {
         Long log2Id = userA.getActivityLogs().get(1).getId();
 
         User userB = new User();
-        userB.setUserName("userB");
+        userB.setUsername("userB");
         userB.setFirstName("User");
         userB.setLastName("B");
         userB.setEmail("userB@example.com");
@@ -479,7 +479,7 @@ public class ActivityLogLifecycleTest {
     @Test
     void saveActivityLogWithTransientUser_usingPersist_shouldFail() {
         User transientUser = new User();
-        transientUser.setUserName("newUser");
+        transientUser.setUsername("newUser");
         transientUser.setEmail("new@example.com");
         transientUser.setPassword("pass");
         transientUser.setRole(Role.STUDENT);
@@ -498,7 +498,7 @@ public class ActivityLogLifecycleTest {
     @Test
     void saveActivityLogWithTransientUser_usingMerge_shouldFail() {
         User transientUser = new User();
-        transientUser.setUserName("newUser");
+        transientUser.setUsername("newUser");
         transientUser.setEmail("new@example.com");
         transientUser.setPassword("pass");
         transientUser.setRole(Role.STUDENT);
@@ -517,7 +517,7 @@ public class ActivityLogLifecycleTest {
     @Test
     void saveActivityLogWithTransientUser_usingRepoSave_shouldFail() {
         User transientUser = new User();
-        transientUser.setUserName("newUser");
+        transientUser.setUsername("newUser");
         transientUser.setEmail("new@example.com");
         transientUser.setPassword("pass");
         transientUser.setRole(Role.STUDENT);

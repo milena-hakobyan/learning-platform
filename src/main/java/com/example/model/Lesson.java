@@ -25,8 +25,8 @@ public class Lesson {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @Column(name = "upload_date")
-    private LocalDateTime uploadDate;
+    @Column(name = "uploaded_at")
+    private LocalDateTime uploadedAt;
 
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
@@ -38,12 +38,12 @@ public class Lesson {
 
     public Lesson(){}
 
-    public Lesson(Long lessonId, String title, String content, Course course, LocalDateTime uploadDate) {
+    public Lesson(Long lessonId, String title, String content, Course course, LocalDateTime uploadedAt) {
         this.id = lessonId;
         this.title = title;
         this.content = content;
         this.course = course;
-        this.uploadDate = uploadDate;
+        this.uploadedAt = uploadedAt;
     }
 
     public Long getId() {
@@ -78,12 +78,12 @@ public class Lesson {
         this.course = course;
     }
 
-    public LocalDateTime getUploadDate() {
-        return uploadDate;
+    public LocalDateTime getUploadedAt() {
+        return uploadedAt;
     }
 
-    public void setUploadDate(LocalDateTime uploadDate) {
-        this.uploadDate = uploadDate;
+    public void setUploadedAt(LocalDateTime uploadedAt) {
+        this.uploadedAt = uploadedAt;
     }
 
     public List<Material> getMaterials() {

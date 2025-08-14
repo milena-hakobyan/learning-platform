@@ -41,7 +41,7 @@ public class InstructorContentController {
     @DeleteMapping("/courses/{courseId}")
     @ResponseStatus
     public void deleteCourse(@PathVariable Long courseId, @PathVariable Long instructorId) {
-        courseService.deleteCourse(instructorId, courseId);
+        courseService.deleteCourse(courseId, instructorId);
     }
 
 

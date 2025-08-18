@@ -70,12 +70,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
+    public String getUsername() {
         return username;
     }
 
-    public void setUserName(String userName) {
-        this.username = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -156,7 +156,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "userId='" + id + '\'' +
-                ", userName='" + username + '\'' +
+                ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", role='" + role + '\'' +
                 ", lastLogin=" + lastLogin +

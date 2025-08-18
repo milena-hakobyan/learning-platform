@@ -1,18 +1,26 @@
 package com.example.service;
 
-import com.example.model.Assignment;
-import com.example.model.Material;
+import com.example.dto.assignment.AssignmentResponse;
+import com.example.dto.assignment.CreateAssignmentRequest;
+import com.example.dto.assignment.UpdateAssignmentRequest;
+import com.example.dto.material.CreateMaterialRequest;
+import com.example.dto.material.MaterialResponse;
 
 import java.util.List;
 
 public interface AssignmentService {
-    void addAssignmentToCourse(Long courseId, Assignment assignment);
 
-    void removeAssignmentFromCourse(Long courseId, Long assignmentId);
+    AssignmentResponse createAssignment(Long courseId, CreateAssignmentRequest request);
 
-    List<Assignment> getAssignmentsForCourse(Long courseId);
+    AssignmentResponse updateAssignment(Long assignmentId, UpdateAssignmentRequest request);
 
-    void addMaterialToAssignment(Long assignmentId, Material material);
+    void deleteAssignment(Long assignmentId);
+
+    AssignmentResponse getAssignmentById(Long assignmentId);
+
+    List<AssignmentResponse> getAssignmentsForCourse(Long courseId);
+
+    MaterialResponse addMaterialToAssignment(Long assignmentId, CreateMaterialRequest request);
 
     void removeMaterialFromAssignment(Long assignmentId, Long materialId);
 }

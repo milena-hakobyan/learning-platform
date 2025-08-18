@@ -1,5 +1,7 @@
 package com.example.service;
 
+import com.example.dto.student.StudentResponse;
+import com.example.mapper.StudentMapper;
 import com.example.model.Course;
 import com.example.model.Student;
 import com.example.repository.JpaCourseRepository;
@@ -13,21 +15,26 @@ import java.util.Objects;
 public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     private final JpaCourseRepository courseRepo;
     private final JpaStudentRepository studentRepo;
+    private final StudentMapper studentMapper;
 
-    public CourseEnrollmentServiceImpl(JpaCourseRepository courseRepo, JpaStudentRepository studentRepo) {
+    public CourseEnrollmentServiceImpl(JpaCourseRepository courseRepo, JpaStudentRepository studentRepo, StudentMapper studentMapper) {
         this.courseRepo = courseRepo;
         this.studentRepo = studentRepo;
+        this.studentMapper = studentMapper;
     }
 
     @Override
-    public List<Student> getEnrolledStudents(Long courseId) {
+    public List<StudentResponse> getEnrolledStudents(Long courseId) {
         Objects.requireNonNull(courseId, "Course ID cannot be null");
 
         if (!courseRepo.existsById(courseId)) {
             throw new IllegalArgumentException("Course not found with ID: " + courseId);
         }
 
-        return courseRepo.findEnrolledStudents(courseId);
+        return courseRepo.findEnrolledStudents(courseId)
+                .stream()
+                .map(studentMapper::toDto)
+                .toList();
     }
 
     @Override

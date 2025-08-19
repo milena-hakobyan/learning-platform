@@ -1,11 +1,14 @@
 package com.example.service;
 
 import com.example.dto.student.StudentResponse;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.StudentMapper;
 import com.example.model.Course;
 import com.example.model.Student;
 import com.example.repository.JpaCourseRepository;
 import com.example.repository.JpaStudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,42 +27,31 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
     }
 
     @Override
-    public List<StudentResponse> getEnrolledStudents(Long courseId) {
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-
+    public Page<StudentResponse> getEnrolledStudents(Long courseId, Pageable pageable) {
         if (!courseRepo.existsById(courseId)) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+            throw new ResourceNotFoundException("Course not found with ID: " + courseId);
         }
 
-        return courseRepo.findEnrolledStudents(courseId)
-                .stream()
-                .map(studentMapper::toDto)
-                .toList();
+        return courseRepo.findEnrolledStudents(courseId, pageable)
+                .map(studentMapper::toDto);
     }
 
     @Override
     public void ensureStudentEnrollment(Long studentId, Long courseId) {
-        Objects.requireNonNull(studentId, "Student ID cannot be null");
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-
-        List<Student> students = courseRepo.findEnrolledStudents(courseId);
-        boolean isEnrolled = students.stream().anyMatch(s -> s.getId().equals(studentId));
-
+        boolean isEnrolled = courseRepo.existsStudentEnrollment(courseId, studentId);
         if (!isEnrolled) {
-            throw new IllegalArgumentException("Student is not enrolled in the course");
+            throw new ResourceNotFoundException("Student is not enrolled in the course");
         }
     }
 
+
     @Override
     public void enrollStudent(Long courseId, Long studentId) {
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(studentId, "Student ID cannot be null");
-
         Course course = courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
 
         Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found with ID: " + studentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + studentId));
 
         course.enrollStudent(student);
         courseRepo.save(course);
@@ -67,14 +59,11 @@ public class CourseEnrollmentServiceImpl implements CourseEnrollmentService {
 
     @Override
     public void unenrollStudent(Long courseId, Long studentId) {
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(studentId, "Student ID cannot be null");
-
         Course course = courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
 
         Student student = studentRepo.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found with ID: " + studentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found with ID: " + studentId));
 
         course.unenrollStudent(student);
         courseRepo.save(course);

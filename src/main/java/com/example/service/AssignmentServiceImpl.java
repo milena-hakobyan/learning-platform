@@ -5,6 +5,7 @@ import com.example.dto.assignment.CreateAssignmentRequest;
 import com.example.dto.assignment.UpdateAssignmentRequest;
 import com.example.dto.material.CreateMaterialRequest;
 import com.example.dto.material.MaterialResponse;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.AssignmentMapper;
 import com.example.mapper.MaterialMapper;
 import com.example.model.Assignment;
@@ -15,6 +16,8 @@ import com.example.repository.JpaAssignmentRepository;
 import com.example.repository.JpaCourseRepository;
 import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaSubmissionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.swing.plaf.PanelUI;
@@ -41,11 +44,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentResponse createAssignment(Long courseId, CreateAssignmentRequest request) {
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(request, "Assignment request cannot be null");
-
         Course course = courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course with ID " + courseId + " doesn't exist."));
+                .orElseThrow(() -> new ResourceNotFoundException("Course with ID " + courseId + " doesn't exist."));
 
         Assignment assignment = assignmentMapper.toEntity(request, course);
 
@@ -54,10 +54,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentResponse getAssignmentById(Long assignmentId) {
-        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
-
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment with ID " + assignmentId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment with ID " + assignmentId + " not found"));
 
         return assignmentMapper.toDto(assignment);
     }
@@ -65,11 +63,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public AssignmentResponse updateAssignment(Long assignmentId, UpdateAssignmentRequest dto) {
-        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
-        Objects.requireNonNull(dto, "Assignment request cannot be null");
-
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment with ID " + assignmentId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment with ID " + assignmentId + " not found"));
 
         assignmentMapper.updateEntity(dto, assignment);
         Assignment saved = assignmentRepo.save(assignment);
@@ -80,10 +75,8 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public void deleteAssignment(Long assignmentId) {
-        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
-
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
 
         submissionRepo.deleteAllByAssignmentId(assignmentId);
 
@@ -93,13 +86,11 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public MaterialResponse addMaterialToAssignment(Long assignmentId, CreateMaterialRequest dto) {
-        Objects.requireNonNull(dto, "Material cannot be null");
-
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment doesn't exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment doesn't exist"));
 
         Instructor instructor = instructorRepo.findById(dto.getInstructorId())
-                .orElseThrow(() -> new IllegalArgumentException("Instructor doesn't exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor doesn't exist"));
 
         Material material = materialMapper.toEntity(dto, instructor);
         assignment.addMaterial(material);
@@ -110,15 +101,12 @@ public class AssignmentServiceImpl implements AssignmentService {
 
     @Override
     public void removeMaterialFromAssignment(Long assignmentId, Long materialId) {
-        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
-        Objects.requireNonNull(materialId, "Material ID cannot be null");
-
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment doesn't exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment doesn't exist"));
 
         boolean removed = assignment.getMaterials().removeIf(m -> m.getId().equals(materialId));
         if (!removed) {
-            throw new IllegalArgumentException("Material not found in assignment");
+            throw new ResourceNotFoundException("Material not found in assignment");
         }
 
         assignmentRepo.save(assignment);
@@ -126,16 +114,12 @@ public class AssignmentServiceImpl implements AssignmentService {
 
 
     @Override
-    public List<AssignmentResponse> getAssignmentsForCourse(Long courseId) {
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-
+    public Page<AssignmentResponse> getAssignmentsForCourse(Long courseId, Pageable pageable) {
         if (!courseRepo.existsById(courseId)) {
-            throw new IllegalArgumentException("Course with ID " + courseId + " doesn't exist.");
+            throw new ResourceNotFoundException("Course with ID " + courseId + " doesn't exist.");
         }
 
-        return assignmentRepo.findAllByCourseId(courseId)
-                .stream()
-                .map(assignmentMapper::toDto)
-                .toList();
+        return assignmentRepo.findAllByCourseId(courseId, pageable)
+                .map(assignmentMapper::toDto);
     }
 }

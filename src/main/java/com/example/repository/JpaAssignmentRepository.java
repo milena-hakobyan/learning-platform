@@ -2,6 +2,8 @@ package com.example.repository;
 
 import com.example.model.Assignment;
 import com.example.model.Material;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface JpaAssignmentRepository extends JpaRepository<Assignment, Long> {
 
-    List<Assignment> findAllByCourseId(Long courseId);
+    Page<Assignment> findAllByCourseId(Long courseId, Pageable pageable);
 
     @Query("""
                 SELECT a
@@ -22,12 +24,12 @@ public interface JpaAssignmentRepository extends JpaRepository<Assignment, Long>
                 JOIN a.course c
                 WHERE c.instructor.id = :instructorId
             """)
-    List<Assignment> findAllByInstructorId(Long instructorId);
+    Page<Assignment> findAllByInstructorId(Long instructorId, Pageable pageable);
 
-    List<Assignment> findAllByDueDateBefore(LocalDateTime date);
+    Page<Assignment> findAllByDueDateBefore(LocalDateTime date, Pageable pageable);
 
     Optional<Assignment> findByTitle(String title);
 
-    @Query("SELECT a.materials FROM Assignment a WHERE a.id = :id")
-    List<Material> findMaterialsByAssignmentId(@Param("id") Long assignmentId);
+    @Query("SELECT m FROM Assignment a JOIN a.materials m WHERE a.id = :id")
+    Page<Material> findMaterialsByAssignmentId(@Param("id") Long assignmentId, Pageable pageable);
 }

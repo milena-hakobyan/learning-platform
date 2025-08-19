@@ -12,6 +12,7 @@ public class AssignmentMapper {
 
     public AssignmentResponse toDto(Assignment assignment) {
         AssignmentResponse response = new AssignmentResponse();
+        response.setId(assignment.getId());
         response.setTitle(assignment.getTitle());
         response.setDescription(assignment.getDescription());
         response.setDueDate(assignment.getDueDate());

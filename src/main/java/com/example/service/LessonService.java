@@ -7,11 +7,13 @@ import com.example.dto.material.CreateMaterialRequest;
 import com.example.dto.material.MaterialResponse;
 import com.example.model.Lesson;
 import com.example.model.Material;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface LessonService {
-    List<LessonResponse> getLessonsForCourse(Long courseId);
+    Page<LessonResponse> getLessonsForCourse(Long courseId, Pageable pageable);
 
     LessonResponse addLessonToCourse(Long courseId, CreateLessonRequest request);
 

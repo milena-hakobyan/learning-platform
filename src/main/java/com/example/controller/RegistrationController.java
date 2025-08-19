@@ -20,13 +20,13 @@ public class RegistrationController {
     private final RegistrationService registrationService;
 
     @PostMapping("/student")
-    public ResponseEntity<StudentResponse> registerStudent(@RequestBody RegisterStudentRequest request) {
+    public ResponseEntity<StudentResponse> registerStudent(@Valid @RequestBody RegisterStudentRequest request) {
         StudentResponse response = registrationService.registerStudent(request.getUsername(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getPassword());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/instructor")
-    public ResponseEntity<InstructorResponse> registerInstructor(@RequestBody RegisterInstructorRequest request) {
+    public ResponseEntity<InstructorResponse> registerInstructor(@Valid @RequestBody RegisterInstructorRequest request) {
         InstructorResponse response = registrationService.registerInstructor(request.getUsername(), request.getFirstName(), request.getLastName(), request.getEmail(), request.getPassword(), request.getBio());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

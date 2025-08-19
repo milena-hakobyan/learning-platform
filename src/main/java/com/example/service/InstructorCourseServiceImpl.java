@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.course.CourseResponse;
 import com.example.dto.course.CreateCourseRequest;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.CourseMapper;
 import com.example.model.ActivityLog;
 import com.example.model.Course;
@@ -9,6 +10,8 @@ import com.example.model.User;
 import com.example.repository.JpaActivityLogRepository;
 import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaUserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,13 +37,11 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     }
 
     @Override
-    public CourseResponse createCourse(Long instructorId, CreateCourseRequest request) {
-        Objects.requireNonNull(request, "CreateCourseRequest cannot be null");
-
+    public CourseResponse createCourse(CreateCourseRequest request) {
         CourseResponse courseResponse = courseService.createCourse(request);
 
-        User user = userRepo.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepo.findById(request.getInstructorId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Created course: " + request.getTitle());
         activityLogRepo.save(activityLog);
@@ -48,24 +49,23 @@ public class InstructorCourseServiceImpl implements InstructorCourseService {
     }
 
     @Override
-    public void deleteCourse(Long courseId, Long instructorId) {
+    public void deleteCourse(Long instructorId, Long courseId) {
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
         courseService.deleteCourse(courseId);
 
         User user = userRepo.findById(course.getInstructor().getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Deleted course: " + course.getTitle());
         activityLogRepo.save(activityLog);
     }
 
     @Override
-    public List<CourseResponse> getCoursesCreated(Long instructorId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
+    public Page<CourseResponse> getCoursesCreated(Long instructorId, Pageable pageable) {
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
+            throw new ResourceNotFoundException("Instructor not found with ID: " + instructorId);
         }
-        return courseService.getAllByInstructor(instructorId);
+        return courseService.getAllByInstructor(instructorId, pageable);
     }
 }

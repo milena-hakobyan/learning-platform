@@ -5,23 +5,18 @@ import com.example.dto.course.CreateCourseRequest;
 import com.example.dto.course.UpdateCourseRequest;
 import com.example.model.Course;
 import com.example.model.Instructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CourseMapper {
 
     private final LessonMapper lessonMapper;
     private final AssignmentMapper assignmentMapper;
     private final InstructorMapper instructorMapper;
     private final StudentMapper studentMapper;
-
-
-    public CourseMapper(LessonMapper lessonMapper, AssignmentMapper assignmentMapper, InstructorMapper instructorMapper, StudentMapper studentMapper) {
-        this.lessonMapper = lessonMapper;
-        this.assignmentMapper = assignmentMapper;
-        this.instructorMapper = instructorMapper;
-        this.studentMapper = studentMapper;
-    }
 
     public CourseResponse toDto(Course course) {
         CourseResponse dto = new CourseResponse();

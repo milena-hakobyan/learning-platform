@@ -2,6 +2,8 @@ package com.example.repository;
 
 import com.example.model.Submission;
 import com.example.model.SubmissionStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,15 +15,15 @@ import java.util.Optional;
 @Repository
 public interface JpaSubmissionRepository extends JpaRepository<Submission, Long> {
 
-    List<Submission> findAllByStudentId(Long studentId);
+    Page<Submission> findAllByStudentId(Long studentId, Pageable pageable);
 
-    List<Submission> findAllByAssignmentId(Long assignmentId);
+    Page<Submission> findAllByAssignmentId(Long assignmentId, Pageable pageable);
 
     void deleteAllByAssignmentId(Long assignmentId);
 
     Optional<Submission> findByAssignmentIdAndStudentId(Long assignmentId, Long studentId);
 
-    List<Submission> findAllByStatus(SubmissionStatus status);
+    Page<Submission> findAllByStatus(SubmissionStatus status, Pageable pageable);
 
     boolean existsByStudentIdAndAssignmentId(Long studentId, Long assignmentId);
 }

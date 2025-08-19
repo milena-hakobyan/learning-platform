@@ -13,6 +13,7 @@ public class GradeMapper {
 
     public GradeResponse toDto(Grade grade) {
         GradeResponse response = new GradeResponse();
+        response.setId(grade.getId());
         response.setSubmissionId(grade.getSubmission().getId());
         response.setScore(grade.getScore());
         response.setFeedback(grade.getFeedback());

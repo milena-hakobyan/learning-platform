@@ -2,6 +2,7 @@ package com.example.service;
 
 import com.example.dto.announcement.AnnouncementResponse;
 import com.example.dto.announcement.CreateAnnouncementRequest;
+import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.AnnouncementMapper;
 import com.example.mapper.InstructorMapper;
 import com.example.model.*;
@@ -9,6 +10,8 @@ import com.example.repository.JpaActivityLogRepository;
 import com.example.repository.JpaAnnouncementRepository;
 import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaUserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,26 +36,22 @@ public class InstructorCommunicationServiceImpl implements InstructorCommunicati
     }
 
     @Override
-    public List<AnnouncementResponse> getAnnouncementsPosted(Long instructorId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-
+    public Page<AnnouncementResponse> getAnnouncementsPosted(Long instructorId, Pageable pageable) {
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
+            throw new ResourceNotFoundException("Instructor not found with ID: " + instructorId);
         }
 
-        return announcementRepo.findAllByInstructorId(instructorId)
-                .stream()
-                .map(announcementMapper::toDto)
-                .toList();
+        return announcementRepo.findAllByInstructorId(instructorId, pageable)
+                .map(announcementMapper::toDto);
     }
 
     @Override
-    public AnnouncementResponse sendAnnouncement(Long courseId, Long instructorId, CreateAnnouncementRequest dto) {
-        Objects.requireNonNull(dto, "Announcement request cannot be null");
-
+    public AnnouncementResponse sendAnnouncement(CreateAnnouncementRequest dto) {
+        Long instructorId = dto.getInstructorId();
+        Long courseId = dto.getCourseId();
 
         Instructor instructor = instructorRepo.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("Instructor not found with ID: " + instructorId));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found with ID: " + instructorId));
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 

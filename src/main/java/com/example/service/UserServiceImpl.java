@@ -10,6 +10,8 @@ import com.example.repository.JpaInstructorRepository;
 import com.example.repository.JpaStudentRepository;
 import com.example.repository.JpaUserRepository;
 import com.example.utils.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,11 +34,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse update(Long userId, UserUpdateRequest request) {
-        Objects.requireNonNull(userId, "UserService: userId cannot be null");
-        Objects.requireNonNull(request, "UserService: User Update Request cannot be null");
-
         User user = userRepo.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         userMapper.updateEntity(request, user);
         userRepo.save(user);
@@ -46,14 +45,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse login(String email, String password) {
-        Objects.requireNonNull(email, "UserService: email cannot be null");
-        Objects.requireNonNull(password, "UserService: password cannot be null");
-
         User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User with given email does not exist"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with given email does not exist"));
 
         if (!user.getPassword().equals(StringUtils.applySha256(password))) {
-            throw new IllegalArgumentException("Incorrect password");
+            throw new IllegalArgumentException("Invalid username or password");
         }
 
         return userMapper.toDto(user);
@@ -61,7 +57,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getById(Long userId) {
-        Objects.requireNonNull(userId, "UserService: user ID cannot be null");
 
         return userRepo.findById(userId)
                 .map(userMapper::toDto)
@@ -70,7 +65,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getByEmail(String email) {
-        Objects.requireNonNull(email, "UserService: email cannot be null");
 
         return userRepo.findByEmail(email)
                 .map(userMapper::toDto)
@@ -79,7 +73,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getByUsername(String username) {
-        Objects.requireNonNull(username, "UserService: username cannot be null");
 
         return userRepo.findByUsername(username)
                 .map(userMapper::toDto)
@@ -87,21 +80,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserResponse> getAllByRole(Role role) {
-        Objects.requireNonNull(role, "UserService: role cannot be null");
+    public Page<UserResponse> getAllByRole(Role role, Pageable pageable) {
 
-        return userRepo.findAllByRole(role)
-                .stream()
-                .map(userMapper::toDto)
-                .toList();
+        return userRepo.findAllByRole(role, pageable)
+                .map(userMapper::toDto);
     }
 
     @Override
     public void delete(Long userId) {
-        Objects.requireNonNull(userId, "User ID cannot be null");
-
         if (!userRepo.existsById(userId)) {
-            throw new IllegalArgumentException("User not found with ID: " + userId);
+            throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
 
         userRepo.deleteById(userId);
@@ -109,10 +97,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deactivate(Long userId) {
-        Objects.requireNonNull(userId, "User ID cannot be null");
-
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
         user.setActive(false);
         userRepo.save(user);

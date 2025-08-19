@@ -16,6 +16,7 @@ public class StudentMapper {
 
     public StudentResponse toDto(Student student) {
         StudentResponse dto = new StudentResponse();
+        dto.setId(student.getId());
         dto.setUsername(student.getUser().getUsername());
         dto.setFirstName(student.getUser().getFirstName());
         dto.setLastName(student.getUser().getLastName());

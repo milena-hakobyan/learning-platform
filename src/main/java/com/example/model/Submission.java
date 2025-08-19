@@ -28,7 +28,7 @@ public class Submission {
     private String contentLink;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private SubmissionStatus status;
 
     public Submission() {

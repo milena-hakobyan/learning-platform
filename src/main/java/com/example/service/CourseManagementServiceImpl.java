@@ -9,18 +9,19 @@ import com.example.mapper.AnnouncementMapper;
 import com.example.mapper.CourseMapper;
 import com.example.model.*;
 import com.example.repository.*;
+import com.example.specification.CourseSpecification;
+import com.example.specification.SearchCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CourseManagementServiceImpl implements CourseManagementService {
 
     private final JpaCourseRepository courseRepo;
-    private final JpaLessonRepository lessonRepo;
-    private final JpaAssignmentRepository assignmentRepo;
-    private final JpaSubmissionRepository submissionRepo;
     private final JpaAnnouncementRepository announcementRepo;
     private final JpaInstructorRepository instructorRepo;
     private final CourseMapper courseMapper;
@@ -28,15 +29,11 @@ public class CourseManagementServiceImpl implements CourseManagementService {
 
     public CourseManagementServiceImpl(
             JpaCourseRepository courseRepo,
-            JpaLessonRepository lessonRepo,
-            JpaAssignmentRepository assignmentRepo,
-            JpaSubmissionRepository submissionRepo,
-            JpaAnnouncementRepository announcementRepo, JpaInstructorRepository instructorRepo, CourseMapper courseMapper, AnnouncementMapper announcementMapper
-    ) {
+            JpaAnnouncementRepository announcementRepo,
+            JpaInstructorRepository instructorRepo,
+            CourseMapper courseMapper,
+            AnnouncementMapper announcementMapper) {
         this.courseRepo = courseRepo;
-        this.lessonRepo = lessonRepo;
-        this.assignmentRepo = assignmentRepo;
-        this.submissionRepo = submissionRepo;
         this.announcementRepo = announcementRepo;
         this.instructorRepo = instructorRepo;
         this.courseMapper = courseMapper;
@@ -45,14 +42,12 @@ public class CourseManagementServiceImpl implements CourseManagementService {
 
     @Override
     public CourseResponse createCourse(CreateCourseRequest request) {
-        if (request == null) throw new IllegalArgumentException("Course Create Request cannot be null");
-
         if (courseRepo.findByTitle(request.getTitle()).isPresent()) {
             throw new IllegalArgumentException("Course with title '" + request.getTitle() + "' already exists.");
         }
 
         Instructor instructor = instructorRepo.findById(request.getInstructorId())
-                .orElseThrow(() -> new IllegalArgumentException("Instructor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Instructor not found"));
 
         Course course = courseMapper.toEntity(request, instructor);
         Course saved = courseRepo.save(course);
@@ -60,14 +55,10 @@ public class CourseManagementServiceImpl implements CourseManagementService {
         return courseMapper.toDto(saved);
     }
 
-
     @Override
     public CourseResponse updateCourse(Long courseId, UpdateCourseRequest request) {
-        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
-        if (request == null) throw new IllegalArgumentException("Course Update Request cannot be null");
-
         Course course = courseRepo.findById(courseId)
-                        .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
 
         courseMapper.updateEntity(request, course);
 
@@ -78,25 +69,19 @@ public class CourseManagementServiceImpl implements CourseManagementService {
 
     @Override
     public void deleteCourse(Long courseId) {
-        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
-
         Course course = courseRepo.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
         courseRepo.delete(course);
     }
 
     @Override
-    public List<AnnouncementResponse> getAnnouncementsForCourse(Long courseId) {
-        if (courseId == null) throw new IllegalArgumentException("Course ID cannot be null");
-
+    public Page<AnnouncementResponse> getAnnouncementsForCourse(Long courseId, Pageable pageable) {
         if (!courseRepo.existsById(courseId)) {
-            throw new IllegalArgumentException("Course not found with ID: " + courseId);
+            throw new ResourceNotFoundException("Course not found with ID: " + courseId);
         }
 
-        return announcementRepo.findAllByCourseId(courseId)
-                .stream()
-                .map(announcementMapper::toDto)
-                .toList();
+        return announcementRepo.findAllByCourseId(courseId, pageable)
+                .map(announcementMapper::toDto);
     }
 
     @Override
@@ -107,23 +92,22 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     }
 
     @Override
-    public List<CourseResponse> getAllByInstructor(Long instructorId) {
-        if (instructorId == null) throw new IllegalArgumentException("Instructor ID cannot be null");
-
-        return courseRepo.findAllByInstructor_Id(instructorId)
-                .stream()
+    public CourseResponse getByIdWithLessons(Long courseId) {
+        return courseRepo.findByIdWithLessons(courseId)
                 .map(courseMapper::toDto)
-                .toList();
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
     }
 
     @Override
-    public List<CourseResponse> getAllByCategory(String category) {
-        if (category == null) throw new IllegalArgumentException("Category cannot be null");
+    public Page<CourseResponse> getAllByInstructor(Long instructorId, Pageable pageable) {
+        return courseRepo.findAllByInstructor_Id(instructorId, pageable)
+                .map(courseMapper::toDto);
+    }
 
-        return courseRepo.findAllByCategory(category)
-                .stream()
-                .map(courseMapper::toDto)
-                .toList();
+    @Override
+    public Page<CourseResponse> getAllByCategory(String category, Pageable pageable) {
+        return courseRepo.findAllByCategory(category, pageable)
+                .map(courseMapper::toDto);
     }
 
     @Override
@@ -134,10 +118,29 @@ public class CourseManagementServiceImpl implements CourseManagementService {
     }
 
     @Override
-    public List<CourseResponse> getAll() {
-        return courseRepo.findAll()
-                .stream()
-                .map(courseMapper::toDto)
-                .toList();
+    public Page<CourseResponse> getAll(Pageable pageable) {
+        return courseRepo.findAll(pageable)
+                .map(courseMapper::toDto);
+    }
+
+    public Specification<Course> buildSpecification(List<SearchCriteria> params) {
+        if (params == null || params.isEmpty()) {
+            return null;
+        }
+
+        Specification<Course> result = new CourseSpecification(params.get(0));
+
+        for (int i = 1; i < params.size(); i++) {
+            result = result.and(new CourseSpecification(params.get(i)));
+        }
+
+        return result;
+    }
+
+    @Override
+    public Page<CourseResponse> getFilteredCourses(List<SearchCriteria> filters, Pageable pageable) {
+        Specification<Course> spec = buildSpecification(filters);
+        Page<Course> courses = courseRepo.findAll(spec, pageable);
+        return courses.map(courseMapper::toDto);
     }
 }

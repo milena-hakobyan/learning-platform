@@ -35,12 +35,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public StudentResponse registerStudent(String username, String firstName, String lastName, String email, String rawPassword) {
-        Objects.requireNonNull(username, "RegistrationService: username cannot be null");
-        Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
-        Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
-        Objects.requireNonNull(email, "RegistrationService: email cannot be null");
-        Objects.requireNonNull(rawPassword, "RegistrationService: password cannot be null");
-
         userRepo.isUsernameAndEmailAvailable(username, email);
 
         User user = new User(username, firstName, lastName, email, StringUtils.applySha256(rawPassword), Role.STUDENT, LocalDateTime.now());
@@ -54,13 +48,6 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public InstructorResponse registerInstructor(String username, String firstName, String lastName, String email, String rawPassword, String bio) {
-        Objects.requireNonNull(username, "RegistrationService: username cannot be null");
-        Objects.requireNonNull(firstName, "RegistrationService: firstName cannot be null");
-        Objects.requireNonNull(lastName, "RegistrationService: lastName cannot be null");
-        Objects.requireNonNull(email, "RegistrationService: email cannot be null");
-        Objects.requireNonNull(rawPassword, "RegistrationService: password cannot be null");
-        Objects.requireNonNull(bio, "RegistrationService: bio cannot be null");
-
         userRepo.isUsernameAndEmailAvailable(username, email);
 
         User user = new User(username, firstName, lastName, email, StringUtils.applySha256(rawPassword), Role.INSTRUCTOR, LocalDateTime.now());

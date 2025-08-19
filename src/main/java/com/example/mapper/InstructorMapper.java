@@ -16,6 +16,7 @@ public class InstructorMapper {
 
     public InstructorResponse toDto(Instructor instructor) {
         InstructorResponse dto = new InstructorResponse();
+        dto.setId(instructor.getId());
         dto.setUsername(instructor.getUser().getUsername());
         dto.setFirstName(instructor.getUser().getFirstName());
         dto.setLastName(instructor.getUser().getLastName());

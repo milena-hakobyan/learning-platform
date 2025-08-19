@@ -12,7 +12,12 @@ import com.example.dto.material.CreateMaterialRequest;
 import com.example.dto.material.MaterialResponse;
 import com.example.service.InstructorContentService;
 import com.example.service.InstructorCourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,24 +35,29 @@ public class InstructorContentController {
     @PostMapping("/courses")
     public ResponseEntity<CourseResponse> createCourse(
             @PathVariable Long instructorId,
-            @RequestBody CreateCourseRequest request) {
+            @Valid @RequestBody CreateCourseRequest request) {
 
-        CourseResponse created = courseService.createCourse(instructorId, request);
+        CourseResponse created = courseService.createCourse(request);
         URI location = URI.create(String.format("/api/courses/%d", created.getId()));
         return ResponseEntity.created(location).body(created);
     }
 
 
     @DeleteMapping("/courses/{courseId}")
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCourse(@PathVariable Long courseId, @PathVariable Long instructorId) {
         courseService.deleteCourse(courseId, instructorId);
     }
 
 
     @GetMapping("/courses")
-    public ResponseEntity<List<CourseResponse>> getCoursesCreated(@PathVariable Long instructorId) {
-        return ResponseEntity.ok(courseService.getCoursesCreated(instructorId));
+    public ResponseEntity<Page<CourseResponse>> getCoursesCreated(
+            @PathVariable Long instructorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CourseResponse> courses = courseService.getCoursesCreated(instructorId, pageable);
+        return ResponseEntity.ok(courses);
     }
 
 
@@ -55,7 +65,7 @@ public class InstructorContentController {
     public ResponseEntity<AssignmentResponse> createAssignment(
             @PathVariable Long instructorId,
             @PathVariable Long courseId,
-            @RequestBody CreateAssignmentRequest request) {
+            @Valid @RequestBody CreateAssignmentRequest request) {
 
         AssignmentResponse created = contentService.createAssignment(instructorId, courseId, request);
         URI location = URI.create(String.format("/api/courses/%d/assignments/%d", courseId, created.getId()));
@@ -64,7 +74,7 @@ public class InstructorContentController {
 
 
     @DeleteMapping("/courses/{courseId}/assignments/{assignmentId}")
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAssignment(@PathVariable Long instructorId,
                                  @PathVariable Long courseId,
                                  @PathVariable Long assignmentId) {
@@ -76,7 +86,7 @@ public class InstructorContentController {
     public ResponseEntity<AssignmentResponse> updateAssignment(
             @PathVariable Long instructorId,
             @PathVariable Long assignmentId,
-            @RequestBody UpdateAssignmentRequest request) {
+            @Valid @RequestBody UpdateAssignmentRequest request) {
 
         return ResponseEntity.ok(contentService.updateAssignment(instructorId, assignmentId, request));
     }
@@ -86,7 +96,7 @@ public class InstructorContentController {
     public ResponseEntity<LessonResponse> createLesson(
             @PathVariable Long instructorId,
             @PathVariable Long courseId,
-            @RequestBody CreateLessonRequest request) {
+            @Valid @RequestBody CreateLessonRequest request) {
 
         LessonResponse created = contentService.createLesson(instructorId, courseId, request);
         URI location = URI.create(String.format("/api/courses/%d/lessons/%d", courseId, created.getId()));
@@ -98,7 +108,7 @@ public class InstructorContentController {
     public ResponseEntity<LessonResponse> updateLesson(
             @PathVariable Long instructorId,
             @PathVariable Long lessonId,
-            @RequestBody UpdateLessonRequest request) {
+            @Valid @RequestBody UpdateLessonRequest request) {
 
         return ResponseEntity.ok(contentService.updateLesson(instructorId, lessonId, request));
     }
@@ -117,7 +127,7 @@ public class InstructorContentController {
     public ResponseEntity<MaterialResponse> addMaterialToLesson(
             @PathVariable Long instructorId,
             @PathVariable Long lessonId,
-            @RequestBody CreateMaterialRequest request) {
+            @Valid @RequestBody CreateMaterialRequest request) {
 
         MaterialResponse created = contentService.addMaterialToLesson(instructorId, lessonId, request);
         URI location = URI.create(String.format("/api/lessons/%d/materials/%d", lessonId, created.getId()));
@@ -126,7 +136,7 @@ public class InstructorContentController {
 
 
     @DeleteMapping("/courses/{courseId}/lessons/{lessonId}/materials/{materialId}")
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMaterialFromLesson(@PathVariable Long instructorId,
                                          @PathVariable Long lessonId,
                                          @PathVariable Long materialId) {
@@ -138,7 +148,7 @@ public class InstructorContentController {
     public ResponseEntity<MaterialResponse> addMaterialToAssignment(
             @PathVariable Long instructorId,
             @PathVariable Long assignmentId,
-            @RequestBody CreateMaterialRequest request) {
+            @Valid @RequestBody CreateMaterialRequest request) {
 
         MaterialResponse created = contentService.addMaterialToAssignment(instructorId, assignmentId, request);
         URI location = URI.create(String.format("/api/assignments/%d/materials/%d", assignmentId, created.getId()));
@@ -147,7 +157,7 @@ public class InstructorContentController {
 
 
     @DeleteMapping("/courses/{courseId}/assignments/{assignmentId}/materials/{materialId}")
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMaterialFromAssignment(@PathVariable Long instructorId,
                                              @PathVariable Long assignmentId,
                                              @PathVariable Long materialId) {

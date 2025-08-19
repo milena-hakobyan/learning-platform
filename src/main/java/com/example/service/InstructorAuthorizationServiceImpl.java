@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.exception.ResourceNotFoundException;
 import com.example.model.Course;
 import com.example.repository.JpaCourseRepository;
 import com.example.repository.JpaInstructorRepository;
@@ -18,15 +19,12 @@ public class InstructorAuthorizationServiceImpl implements InstructorAuthorizati
     }
 
     public Course ensureAuthorizedCourseAccess(Long instructorId, Long courseId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found with ID: " + instructorId);
+            throw new ResourceNotFoundException("Instructor not found with ID: " + instructorId);
         }
 
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found with ID: " + courseId));
 
         if (!course.getInstructor().getId().equals(instructorId)) {
             throw new SecurityException("Instructor is not authorized to access this course");

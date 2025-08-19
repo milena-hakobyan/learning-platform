@@ -4,6 +4,9 @@ import com.example.dto.instructor.InstructorResponse;
 import com.example.dto.instructor.UpdateInstructorRequest;
 import com.example.service.InstructorProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +20,11 @@ public class InstructorProfileController {
     private final InstructorProfileService profileService;
 
     @GetMapping
-    public ResponseEntity<List<InstructorResponse>> getAllInstructors() {
-        List<InstructorResponse> instructors = profileService.getAllInstructors();
+    public ResponseEntity<Page<InstructorResponse>> getAllInstructors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<InstructorResponse> instructors = profileService.getAllInstructors(pageable);
         return ResponseEntity.ok(instructors);
     }
 

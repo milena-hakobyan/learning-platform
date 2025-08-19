@@ -21,6 +21,7 @@ public class LessonMapper {
 
     public LessonResponse toDto(Lesson lesson) {
         LessonResponse response = new LessonResponse();
+        response.setId(lesson.getId());
         response.setTitle(lesson.getTitle());
         response.setContent(lesson.getContent());
         response.setUploadedAt(lesson.getUploadedAt());
@@ -44,9 +45,6 @@ public class LessonMapper {
         }
         if (dto.getContent() != null) {
             lesson.setContent(dto.getContent());
-        }
-        if (dto.getUploadedAt() != null) {
-            lesson.setUploadedAt(dto.getUploadedAt());
         }
     }
 }

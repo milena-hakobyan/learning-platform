@@ -2,11 +2,14 @@ package com.example.service;
 
 import com.example.dto.course.CourseResponse;
 import com.example.dto.grade.GradeResponse;
+import com.example.dto.instructor.InstructorResponse;
 import com.example.dto.material.MaterialResponse;
 import com.example.dto.student.StudentResponse;
 import com.example.dto.student.UpdateStudentRequest;
 import com.example.dto.submission.CreateSubmissionRequest;
 import com.example.dto.submission.SubmissionResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,17 +19,13 @@ public interface StudentService {
 
     StudentResponse updateStudent(Long studentId, UpdateStudentRequest request);
 
-    List<CourseResponse> getEnrolledCourses(Long studentId);
+    Page<CourseResponse> getEnrolledCourses(Long studentId, Pageable pageable);
 
-    List<SubmissionResponse> getSubmissionsByStudentId(Long studentId);
+    Page<SubmissionResponse> getSubmissionsByStudentId(Long studentId, Pageable pageable);
 
-    List<CourseResponse> browseAvailableCourses();
+    Page<CourseResponse> browseAvailableCourses(Pageable pageable);
 
-    List<MaterialResponse> accessLessonMaterials(Long studentId, Long lessonId);
-
-    List<MaterialResponse> accessAssignmentMaterials(Long studentId, Long assignmentId);
-
-    List<GradeResponse> getGradesForCourse(Long courseId, Long studentId);
+    Page<GradeResponse> getGradesForCourse(Long courseId, Long studentId, Pageable pageable);
 
     Optional<GradeResponse> getAssignmentGradeForStudent(Long assignmentId, Long studentId);
 
@@ -34,7 +33,13 @@ public interface StudentService {
 
     void dropCourse(Long studentId, Long courseId);
 
+    List<MaterialResponse> accessLessonMaterials(Long studentId, Long lessonId);
+
+    List<MaterialResponse> accessAssignmentMaterials(Long studentId, Long assignmentId);
+
     void submitAssignment(Long studentId, CreateSubmissionRequest request);
 
     boolean hasSubmitted(Long studentId, Long assignmentId);
+
+    Page<StudentResponse> getAllStudents(Pageable pageable);
 }

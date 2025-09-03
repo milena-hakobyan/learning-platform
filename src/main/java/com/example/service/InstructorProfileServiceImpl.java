@@ -6,9 +6,10 @@ import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.InstructorMapper;
 import com.example.model.*;
 import com.example.repository.JpaInstructorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -22,22 +23,17 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
     }
 
     @Override
-    public List<InstructorResponse> getAllInstructors() {
+    public Page<InstructorResponse> getAllInstructors(Pageable pageable) {
 
-        return instructorRepo.findAll()
-                .stream()
-                .map(instructorMapper::toDto)
-                .toList();
+        return instructorRepo.findAll(pageable)
+                .map(instructorMapper::toDto);
     }
 
     @Override
     public InstructorResponse getInstructorById(Long instructorId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-
         return instructorRepo.findById(instructorId)
                 .map(instructorMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Instructor with ID " + instructorId + " not found"));
-
     }
 
     @Override
@@ -53,5 +49,4 @@ public class InstructorProfileServiceImpl implements InstructorProfileService {
 
         return instructorMapper.toDto(instructor);
     }
-
 }

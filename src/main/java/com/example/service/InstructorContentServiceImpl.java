@@ -8,6 +8,7 @@ import com.example.dto.lesson.LessonResponse;
 import com.example.dto.lesson.UpdateLessonRequest;
 import com.example.dto.material.CreateMaterialRequest;
 import com.example.dto.material.MaterialResponse;
+import com.example.exception.ResourceNotFoundException;
 import com.example.model.*;
 import com.example.repository.*;
 import org.springframework.stereotype.Service;
@@ -42,17 +43,15 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public AssignmentResponse createAssignment(Long instructorId, Long courseId, CreateAssignmentRequest request) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
         AssignmentResponse assignmentResponse = assignmentService.createAssignment(courseId, request);
 
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Created assignment: " + request.getTitle());
         activityLogRepo.save(activityLog);
@@ -63,23 +62,19 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public AssignmentResponse updateAssignment(Long instructorId, Long assignmentId, UpdateAssignmentRequest request) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(assignmentId, "Assignment ID cannot be null");
-        Objects.requireNonNull(request, "CreateAssignmentRequest cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment not found with ID: " + assignmentId));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found with ID: " + assignmentId));
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, assignment.getCourse().getId());
 
         AssignmentResponse updatedAssignment = assignmentService.updateAssignment(assignmentId, request);
 
         User user = userRepository.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Updated assignment: " + assignment.getTitle());
         activityLogRepo.save(activityLog);
@@ -89,16 +84,13 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public void deleteAssignment(Long instructorId, Long courseId, Long assignmentId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         assignmentService.deleteAssignment(assignmentId);
 
@@ -108,17 +100,13 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public LessonResponse createLesson(Long instructorId, Long courseId, CreateLessonRequest request) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(request, "CreateLessonRequest cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         LessonResponse lessonResponse = lessonService.addLessonToCourse(courseId, request);
 
@@ -131,20 +119,16 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public LessonResponse updateLesson(Long instructorId, Long lessonId, UpdateLessonRequest request) {
-        Objects.requireNonNull(instructorId);
-        Objects.requireNonNull(lessonId);
-        Objects.requireNonNull(request);
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Lesson lesson = lessonRepo.findById(lessonId)
-                .orElseThrow(() -> new IllegalArgumentException("Lesson not found with ID: " + lessonId));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found with ID: " + lessonId));
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, lesson.getCourse().getId());
 
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         LessonResponse updatedLesson = lessonService.updateLesson(lessonId, request);
 
@@ -156,21 +140,17 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public void deleteLesson(Long instructorId, Long courseId, Long lessonId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(courseId, "Course ID cannot be null");
-        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         if (!lessonRepo.existsById(lessonId)) {
-            throw new IllegalArgumentException("Lesson not found with ID: " + lessonId);
+            throw new ResourceNotFoundException("Lesson not found with ID: " + lessonId);
         }
 
         Course course = instructorService.ensureAuthorizedCourseAccess(instructorId, courseId);
 
-        User user = userRepository.findById(instructorId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = userRepository.findById(instructorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         lessonService.removeLessonFromCourse(courseId, lessonId);
 
@@ -180,19 +160,15 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public MaterialResponse addMaterialToLesson(Long instructorId, Long lessonId, CreateMaterialRequest request) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(lessonId, "Lesson ID cannot be null");
-        Objects.requireNonNull(request, "MaterialCreateRequest cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Lesson lesson = lessonRepo.findById(lessonId)
-                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
         User instructorUser = userRepository.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, lesson.getCourse().getId());
 
@@ -209,19 +185,15 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public MaterialResponse addMaterialToAssignment(Long instructorId, Long assignmentId, CreateMaterialRequest request) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(assignmentId, "Lesson ID cannot be null");
-        Objects.requireNonNull(request, "MaterialCreateRequest cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
 
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                .orElseThrow(() -> new IllegalArgumentException("Assignment not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
 
         User instructorUser = userRepository.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         instructorService.ensureAuthorizedCourseAccess(instructorId, assignment.getCourse().getId());
 
@@ -238,14 +210,11 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public void deleteMaterialFromLesson(Long instructorId, Long lessonId, Long materialId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(materialId, "Material ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
         User user = userRepository.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         lessonService.removeMaterialFromLesson(lessonId, materialId);
 
@@ -255,14 +224,11 @@ public class InstructorContentServiceImpl implements InstructorContentService {
 
     @Override
     public void deleteMaterialFromAssignment(Long instructorId, Long assignmentId, Long materialId) {
-        Objects.requireNonNull(instructorId, "Instructor ID cannot be null");
-        Objects.requireNonNull(materialId, "Material ID cannot be null");
-
         if (!instructorRepo.existsById(instructorId)) {
-            throw new IllegalArgumentException("Instructor not found");
+            throw new ResourceNotFoundException("Instructor not found");
         }
         User user = userRepository.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         assignmentService.removeMaterialFromAssignment(assignmentId, materialId);
 

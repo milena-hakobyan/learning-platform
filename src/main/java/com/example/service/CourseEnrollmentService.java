@@ -1,9 +1,9 @@
 package com.example.service;
 
 import com.example.dto.student.StudentResponse;
-import com.example.model.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface CourseEnrollmentService {
     void enrollStudent(Long courseId, Long studentId);
@@ -12,5 +12,5 @@ public interface CourseEnrollmentService {
 
     void ensureStudentEnrollment(Long studentId, Long courseId);
 
-    List<StudentResponse> getEnrolledStudents(Long courseId);
+    Page<StudentResponse> getEnrolledStudents(Long courseId, Pageable pageable);
 }

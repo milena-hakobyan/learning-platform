@@ -4,11 +4,11 @@ package com.example.controller;
 import com.example.dto.assignment.AssignmentResponse;
 import com.example.service.AssignmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,8 +21,14 @@ public class AssignmentController {
 
 
     @GetMapping("/assignments")
-    public ResponseEntity<List<AssignmentResponse>> getAssignmentsByCourse(@PathVariable Long courseId) {
-        return ResponseEntity.ok(assignmentService.getAssignmentsForCourse(courseId));
+    public ResponseEntity<Page<AssignmentResponse>> getAssignmentsByCourse(
+            @PathVariable Long courseId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AssignmentResponse> assignmentsPage = assignmentService.getAssignmentsForCourse(courseId, pageable);
+        return ResponseEntity.ok(assignmentsPage);
     }
 
 

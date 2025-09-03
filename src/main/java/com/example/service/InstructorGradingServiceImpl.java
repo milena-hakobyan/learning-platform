@@ -1,6 +1,5 @@
 package com.example.service;
 
-import com.example.dto.grade.GradeResponse;
 import com.example.dto.grade.GradeSubmissionRequest;
 import com.example.dto.submission.SubmissionResponse;
 import com.example.exception.ResourceNotFoundException;
@@ -8,6 +7,8 @@ import com.example.mapper.GradeMapper;
 import com.example.mapper.SubmissionMapper;
 import com.example.model.*;
 import com.example.repository.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +41,7 @@ public class InstructorGradingServiceImpl implements InstructorGradingService {
 
     @Override
     @Transactional
-    public GradeResponse gradeSubmission(Long instructorId, Long submissionId, GradeSubmissionRequest request) {
+    public void gradeSubmission(Long instructorId, Long submissionId, GradeSubmissionRequest request) {
         Submission submission = submissionRepo.findById(submissionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Submission with ID " + submissionId + " not found"));
 
@@ -62,33 +63,25 @@ public class InstructorGradingServiceImpl implements InstructorGradingService {
 
         ActivityLog activityLog = new ActivityLog(user, "Graded submission ID: " + submission.getId());
         activityLogRepo.save(activityLog);
-
-        return gradeMapper.toDto(grade);
     }
 
 
-
-
     @Override
-    public List<SubmissionResponse> getSubmissionsForAssignment(Long instructorId, Long assignmentId) {
-        Objects.requireNonNull(assignmentId, "Submission ID cannot be null");
-
+    public Page<SubmissionResponse> getSubmissionsForAssignment(Long instructorId, Long assignmentId, Pageable pageable) {
         Assignment assignment = assignmentRepo.findById(assignmentId)
-                        .orElseThrow(() -> new IllegalArgumentException("Assignment with ID " + assignmentId + " not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Assignment with ID " + assignmentId + " not found"));
 
         instructorAuthorizationService.ensureAuthorizedCourseAccess(instructorId, assignment.getCourse().getId());
 
-        List<Submission> submissions = submissionRepo.findAllByAssignmentId(assignmentId);
+        Page<Submission> submissions = submissionRepo.findAllByAssignmentId(assignmentId, pageable);
 
         User user = userRepo.findById(instructorId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ActivityLog activityLog = new ActivityLog(user, "Viewed submissions for assignment with id : " + assignmentId);
         activityLogRepo.save(activityLog);
         return submissions
-                .stream()
-                .map(submissionMapper::toDto)
-                .toList();
+                .map(submissionMapper::toDto);
     }
 
 }

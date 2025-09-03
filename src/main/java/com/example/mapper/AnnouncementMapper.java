@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 public class AnnouncementMapper {
     public AnnouncementResponse toDto(Announcement announcement) {
         AnnouncementResponse response = new AnnouncementResponse();
+        response.setId(announcement.getId());
         response.setTitle(announcement.getTitle());
         response.setContent(announcement.getContent());
         response.setInstructorName(announcement.getInstructor().getUser().getFirstName() + " " + announcement.getInstructor().getUser().getLastName());

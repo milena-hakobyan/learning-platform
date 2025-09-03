@@ -21,6 +21,7 @@ public class ActivityLogMapper {
 
     public ActivityLogResponse toDto(ActivityLog entity) {
         ActivityLogResponse dto = new ActivityLogResponse();
+        dto.setId(entity.getId());
         dto.setUserId(entity.getUser().getId());
         dto.setUsername(entity.getUser().getUsername());
         dto.setAction(entity.getAction());

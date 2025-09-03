@@ -3,12 +3,15 @@ package com.example.service;
 import com.example.dto.announcement.AnnouncementResponse;
 import com.example.dto.announcement.CreateAnnouncementRequest;
 import com.example.model.Announcement;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 
 
 public interface InstructorCommunicationService {
-    List<AnnouncementResponse> getAnnouncementsPosted(Long instructorId);
+    Page<AnnouncementResponse> getAnnouncementsPosted(Long instructorId, Pageable pageable);
 
-    AnnouncementResponse sendAnnouncement(Long courseId, Long instructorId, CreateAnnouncementRequest request);
+    AnnouncementResponse sendAnnouncement(CreateAnnouncementRequest request);
 }

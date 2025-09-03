@@ -1,7 +1,9 @@
 package com.example.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +24,10 @@ public class Course {
     private String category;
 
     private String url;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "instructor_id", nullable = false)
@@ -102,6 +108,13 @@ public class Course {
 
     public void setInstructor(Instructor instructorId) {
         this.instructor = instructorId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<Lesson> getLessons() {

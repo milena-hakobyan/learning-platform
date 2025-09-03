@@ -1,4 +1,4 @@
-package com.example.service;
+package com.example.controller;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertySource;

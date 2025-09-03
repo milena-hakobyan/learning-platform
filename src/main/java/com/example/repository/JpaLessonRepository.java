@@ -2,6 +2,8 @@ package com.example.repository;
 
 import com.example.model.Lesson;
 import com.example.model.Material;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,14 +13,15 @@ import java.util.List;
 
 @Repository
 public interface JpaLessonRepository extends JpaRepository<Lesson, Long> {
+    Page<Lesson> findAll(Pageable pageable);
 
-    List<Lesson> findAllByCourseId(Long courseId);
+    Page<Lesson> findAllByCourseId(Long courseId, Pageable pageable);
 
     @Query("SELECT l FROM Lesson l WHERE l.course.instructor.id = :instructorId")
-    List<Lesson> findAllByInstructorId(Long instructorId);
+    Page<Lesson> findAllByInstructorId(Long instructorId, Pageable pageable);
 
-    @Query("SELECT l.materials FROM Lesson l WHERE l.id = :lessonId")
-    List<Material> findAllMaterialsByLessonId(Long lessonId);
+    @Query("SELECT m FROM Lesson l JOIN l.materials m WHERE l.id = :lessonId")
+    Page<Material> findAllMaterialsByLessonId(@Param("lessonId") Long lessonId, Pageable pageable);
 
 
     @Query("""

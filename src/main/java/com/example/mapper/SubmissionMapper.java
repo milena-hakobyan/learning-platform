@@ -24,6 +24,7 @@ public class SubmissionMapper {
 
     public SubmissionResponse toDto(Submission submission) {
         SubmissionResponse response = new SubmissionResponse();
+        response.setId(submission.getId());
         response.setAssignmentId(submission.getAssignment().getId());
         response.setAssignmentTitle(submission.getAssignment().getTitle());
         response.setStudentId(submission.getStudent().getId());

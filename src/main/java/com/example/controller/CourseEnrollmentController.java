@@ -3,6 +3,9 @@ package com.example.controller;
 import com.example.dto.student.StudentResponse;
 import com.example.service.CourseEnrollmentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +22,14 @@ public class CourseEnrollmentController {
     private final CourseEnrollmentService enrollmentService;
 
     @GetMapping
-    public ResponseEntity<List<StudentResponse>> getEnrolledStudents(@PathVariable Long courseId) {
-        return ResponseEntity.ok(enrollmentService.getEnrolledStudents(courseId));
+    public ResponseEntity<Page<StudentResponse>> getEnrolledStudents(
+            @PathVariable Long courseId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<StudentResponse> studentsPage = enrollmentService.getEnrolledStudents(courseId, pageable);
+        return ResponseEntity.ok(studentsPage);
     }
 
     // instructor enrolls a student

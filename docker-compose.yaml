@@ -6,14 +6,30 @@ services:
     ports:
       - "8761:8761"
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - naming-server
+    environment:
+      - SPRING_APPLICATION_NAME=api-gateway
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    ports:
+      - "8080:8080"
+
+
   user-service:
     build:
       context: ./user-service
     depends_on:
-      - db
+      - db-users
       - naming-server
     environment:
       - SPRING_APPLICATION_NAME=user-service
+      - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://naming-server:8761/eureka
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
       - DB_HOST=db
@@ -21,6 +37,11 @@ services:
       - DB_NAME=user-db
       - DB_USER=admin
       - DB_PASSWORD=secret
+    volumes:
+      - ./user-service:/app
+      - /app/target
+    working_dir: /app
+    command: mvn spring-boot:run -Dspring-boot.run.fork=false
     ports:
       - "8081:8081"
 
@@ -28,7 +49,7 @@ services:
     build:
       context: ./learning-service
     depends_on:
-      - db
+      - db-learning
       - naming-server
     environment:
       - SPRING_APPLICATION_NAME=learning-service
@@ -40,8 +61,28 @@ services:
       - DB_NAME=learning-db
       - DB_USER=admin
       - DB_PASSWORD=secret
+    volumes:
+      - ./learning-service:/app
+      - /app/target
+    working_dir: /app
+    command: mvn spring-boot:run -Dspring-boot.run.fork=false
+    ports:
+      - "8082:8082"
 
-  db:
+  db-users:
+    image: postgres:16
+    container_name: user-db
+    restart: always
+    environment:
+      POSTGRES_DB: user-db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_users:/var/lib/postgresql/data
+
+  db-learning:
     image: postgres:16
     container_name: learning-db
     restart: always
@@ -52,7 +93,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_learning:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  postgres_users:
+  postgres_learning:

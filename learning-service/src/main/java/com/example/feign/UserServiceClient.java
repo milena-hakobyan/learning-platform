@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @FeignClient(
-        name = "user-service"
+        name = "USER-SERVICE"
 )
 public interface UserServiceClient {
 
@@ -24,4 +24,7 @@ public interface UserServiceClient {
 
     record UserResponse(Long id, String username, String email, String role) {}
     record ActivityLogRequest(String action) {}
+
+    @GetMapping("/api/users/whoami")
+    String whoAmI();
 }
